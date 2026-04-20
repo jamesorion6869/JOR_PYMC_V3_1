@@ -23,7 +23,7 @@ The system integrates qualitative observation rubrics with quantitative Bayesian
 
 | File | Description |
 | :--- | :--- |
-| `jor-bayesian-fusion-V3.pdf` | **Methodology:** Original theoretical framework and evidentiary rubric definitions. |
+| **Full Methodology Report** | [Original theoretical framework and evidentiary rubric definitions](https://doi.org/10.5281/zenodo.18157347) |
 | `jor_fusion.py` | **Scorer:** Interactive CLI tool for structured case input and deterministic scoring. |
 | `jor_pymc.py` | **Bayesian Engine:** PyMC-based probabilistic model for posterior estimation via MCMC sampling. |
 | `jor_pymc_runner.py` | **Batch Orchestrator:** Executes multiple case evaluations and generates confidence intervals. |
