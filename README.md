@@ -31,6 +31,25 @@ The system integrates qualitative observation rubrics with quantitative Bayesian
 
 ---
 
+## 📊 Example Dataset
+
+A curated dataset of 50 evaluated UAP cases using the v3.1 framework is included:
+
+- `data/v3_1/jor_uap_cases_50_v3_1.csv`
+
+This dataset contains structured inputs and model outputs, including:
+- Evidence scores (C, E, P)
+- Flight anomaly modifiers
+- SOP / NHP intermediate values
+- Posterior probabilities and credible intervals
+
+It can be used to:
+- Reproduce published results
+- Validate model behavior
+- Test parameter sensitivity and calibration
+
+---
+
 ## 🧭 Version Philosophy (v3 vs v3.1)
 
 - **v3:** Additive feature-weight scoring model where anomaly indicators influence posterior estimates through weighted contributions.  
