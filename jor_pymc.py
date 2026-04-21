@@ -29,7 +29,7 @@ def run_jor_pymc_safe(
     target_accept=0.95
 ):
     """
-    JOR-V3 Vectorized Bayesian Engine.
+    JOR-V3.1 Vectorized Bayesian Engine.
     Now receives tuned parameters from the runner script.
     """
 
