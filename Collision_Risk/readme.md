@@ -15,8 +15,8 @@ The **Aero_Safety_Risk** (or CRI) is calculated by treating the physical certain
 ### **The Formula**
 $$CRI = SOP_{Mean} \times (1 + Flight\_Mod)$$
 
-* **SOP_Mean (Solid Object Probability):** Derived from the mean of the sampled distribution after processing through the PyMC engine. It represents the aggregate probability of a physical, solid-state presence based on the fusion of witness, environmental, and physical evidence, independent of anomalous flight behavior.
-* **Flight_Mod (Kinetic Multiplier):** A scalar value ($0.00$ to $0.10$) representing maneuvers that defy standard aerodynamic expectations, such as instantaneous acceleration or hypersonic speeds without signatures. In the post-sampling phase, it serves to "boost" the physical evidence profile, directly increasing the calculated Aero_Safety_Risk and the final Posterior_Mean for the non-human hypothesis.
+* **SOP_Mean (Solid Object Probability):** Derived from the mean of the sampled distribution after processing through the PyMC engine. It represents the aggregate probability of a physical, solid-state presence based on the fusion of witness, environmental, and physical evidence, independent of anomalous flight behavior. It remains stable regardless of Bayesian hypothesis calibration.
+* **Flight_Mod (Kinetic Multiplier):** A scalar value ($0.00$ to $0.10$) representing maneuvers that defy standard aerodynamic expectations, such as instantaneous acceleration or hypersonic speeds without signatures. In the analytical phase, it serves to "boost" the physical evidence profile, directly increasing the calculated Aero_Safety_Risk. While it also elevates the input probability for the non-human hypothesis, the final Posterior_Mean remains co-dependent on the calibration constant ($K$); a higher $K$ increases the weight of conventional explanations, which can mathematically offset the kinetic "boost" provided by the flight behavior.
 
 ---
 
