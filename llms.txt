@@ -1,20 +1,22 @@
-# JOR-V3.1: Collision Risk Index Framework
+# The James Orion Report (JOR) Framework v3.1
 
-> A Bayesian fusion engine for quantifying aerospace safety risks associated with Unidentified Anomalous Phenomena (UAP).
+A Bayesian fusion engine and probabilistic modeling framework for the scientific analysis of Unidentified Anomalous Phenomena (UAP). This repository provides tools for evidence-based inference, sensor data integration, and aerospace safety quantification.
 
 ## Core Documentation
-- [README.md](README.md): High-level overview, formula definitions, and usage instructions.
-- [docs/Technical_Manual.md](docs/Technical_Manual.md): Full theoretical framework and evidentiary rubric definitions.
+- [README.md](README.md): Project overview, core methodology, and repository setup.
+- [Technical Manual](docs/JOR_V3_1_Technical_Manual_Complete.pdf): Full Bayesian framework and V3.1 rubric definitions (PDF).
+- [Zenodo DOI](https://doi.org/10.5281/zenodo.18157347): Formal technical methodology and archived research results.
+
+## Mathematical Applications
+- **Collision Risk Index (CRI):** Operational safety metric defined as CRI = SOP_Mean * (1 + Flight_Mod).
+- **Bayesian Proxy:** Evidence-conditioned probability P(E|H) adjusted for sensor physicality and flight anomalies.
+- **V3.1 Logic:** Implements the "Telemetry Premium," prioritizing physical sensor signatures over anecdotal accounts.
 
 ## Key Logic & Implementation
-- [jor_fusion.py](jor_fusion.py): Configuration and hyperparameter management (K-calibration, Priors).
+- [jor_fusion.py](jor_fusion.py): Configuration management for K-calibration and hyperparameter priors.
 - [jor_pymc.py](jor_pymc.py): Vectorized PyMC sampling engine for MCMC posterior estimation.
-- [jor_pymc_runner.py](jor_pymc_runner.py): Operational orchestrator that calculates the Collision Risk Index (CRI).
+- [jor_pymc_runner.py](jor_pymc_runner.py): Orchestrator for executing model runs and generating CRI safety scores.
 
-## Mathematical Framework
-- **Primary Formula:** CRI = SOP_Mean * (1 + Flight_Mod)
-- **Bayesian Proxy:** P(E|H) = min(1, 1 - NHP + K * SOP)
-- **Philosophy:** v3.1 uses evidence-conditioned inference where flight anomalies modify the interpretation of physical evidence.
-
-## Dataset
-- [data/v3_1/jor_uap_cases_50_v3_1.csv](data/v3_1/jor_uap_cases_50_v3_1.csv): Curated 50-case library for reproduction and sensitivity testing.
+## Data & Visualization
+- [data/v3_1/jor_uap_cases_50_v3_1.csv](data/v3_1/jor_uap_cases_50_v3_1.csv): Curated 50-case validation dataset for framework stress-testing.
+- [viz/](viz/): Tools for generating the Kinetic Hazard Frontier and uncertainty visualizations.
