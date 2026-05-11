@@ -19,4 +19,6 @@ A Bayesian fusion engine and probabilistic modeling framework for the scientific
 
 ## Data & Visualization
 - [data/v3_1/jor_uap_cases_50_v3_1.csv](data/v3_1/jor_uap_cases_50_v3_1.csv): Curated 50-case validation dataset for framework stress-testing.
-- [viz/](viz/): Tools for generating the Kinetic Hazard Frontier and uncertainty visualizations.
+- [viz/README.md](viz/README.md): Documentation for the JOR-V3.1 visualization engine, including installation requirements.
+- [viz/hazard_frontier.py](viz/hazard_frontier.py): Generates the Kinetic Hazard Frontier; a tactical sensor fusion map using radial annotations and risk gradients.
+- [viz/jor_safety_report.py](viz/jor_safety_report.py): Automated safety audit suite generating CRI bar charts, threat quadrants, and posterior forest plots.
