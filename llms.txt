@@ -1,0 +1,20 @@
+# JOR-V3.1: Collision Risk Index Framework
+
+> A Bayesian fusion engine for quantifying aerospace safety risks associated with Unidentified Anomalous Phenomena (UAP).
+
+## Core Documentation
+- [README.md](README.md): High-level overview, formula definitions, and usage instructions.
+- [docs/Technical_Manual.md](docs/Technical_Manual.md): Full theoretical framework and evidentiary rubric definitions.
+
+## Key Logic & Implementation
+- [jor_fusion.py](jor_fusion.py): Configuration and hyperparameter management (K-calibration, Priors).
+- [jor_pymc.py](jor_pymc.py): Vectorized PyMC sampling engine for MCMC posterior estimation.
+- [jor_pymc_runner.py](jor_pymc_runner.py): Operational orchestrator that calculates the Collision Risk Index (CRI).
+
+## Mathematical Framework
+- **Primary Formula:** CRI = SOP_Mean * (1 + Flight_Mod)
+- **Bayesian Proxy:** P(E|H) = min(1, 1 - NHP + K * SOP)
+- **Philosophy:** v3.1 uses evidence-conditioned inference where flight anomalies modify the interpretation of physical evidence.
+
+## Dataset
+- [data/v3_1/jor_uap_cases_50_v3_1.csv](data/v3_1/jor_uap_cases_50_v3_1.csv): Curated 50-case library for reproduction and sensitivity testing.
