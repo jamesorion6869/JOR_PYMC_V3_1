@@ -76,7 +76,7 @@ def main():
         # Categorize for Aviation Stakeholders (e.g., AA/Air Space Intelligence)
         df_merged['Hazard_Level'] = pd.cut(
             df_merged['Aero_Safety_Risk'], 
-            bins=[0, 0.45, 0.75, 2.0], 
+            bins=[-.001, 0.45, 0.75, 2.0], 
             labels=['Low', 'Elevated', 'Critical']
         )
     # --- END OF AEROSPACE SAFETY LOGIC ---
