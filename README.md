@@ -114,15 +114,37 @@ This expression is a *heuristic likelihood proxy*, not a strict probabilistic id
 
 ## 🛠️ Usage & Execution
 
-First, ensure you have all framework dependencies installed. Run these commands sequentially in your terminal:
+First, ensure you have all core framework dependencies installed:
 
-> **Step 1: Install Dependencies**  
 > `pip install pymc pytensor pandas numpy colorama streamlit matplotlib seaborn`
+
+---
+
+> ⚠️ **CRITICAL ARCHITECTURE NOTE:** This repository contains two entirely separate, self-contained environments that use matching file names. Running a file in the root directory has absolutely nothing to do with the files inside the `Collision_Risk` folder. They do not share data, inputs, or outputs.
+
+Choose one distinct path below depending on which application you want to run:
+
+---
+
+### 🔹 Option 1: Main Root Framework
+Runs the primary standalone CLI scoring and Bayesian processing engine. Uses the files located strictly in the root directory.
+
+> **Step 1:** Ensure your terminal is in the root directory.
 >
-> **Step 2: Standard CLI Pipeline (Root Directory)**  
+> **Step 2:** Execute the root pipeline:
 > `python jor_fusion.py`  
 > `python jor_pymc_runner.py`
+
+---
+
+### 🔹 Option 2: Collision Risk Index Module (`Collision_Risk/`)
+Runs the independent interactive safety dashboard and its localized backend scripts. This module operates entirely within its own directory.
+
+> **Step 1:** Change your terminal directory into the subfolder:
+> `cd Collision_Risk`
 >
-> **Step 3: Interactive Command Center Dashboard (Collision_Risk Directory)**  
-> `cd Collision_Risk`  
+> **Step 2:** Launch the interactive command center dashboard:
 > `streamlit run app.py`
+>
+> *(Note: If you need to run terminal pipeline variations for this specific safety module, use the localized `jor_fusion.py` or read the separate `readme.md` located inside this subfolder).*
+
