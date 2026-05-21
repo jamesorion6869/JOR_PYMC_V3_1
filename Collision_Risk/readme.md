@@ -1,53 +1,61 @@
 # JOR-V3.1: Collision Risk Index (CRI) Module
+### 📟 Operational Safety Management System (SMS) for UAP Intelligence
 
-### **Operational Safety Management System (SMS) for UAP Intelligence**
+The **Collision Risk Index (CRI)** is an operational aerospace safety overlay for the JOR Bayesian Fusion Framework. While the core root engine calculates the probability of an anomalous origin (Non-Human Hypothesis), this dedicated module translates physical sensor certainty and flight dynamics into a quantified **Operational Hazard Score**.
 
-The **Collision Risk Index (CRI)** is an operational safety overlay for the JOR Bayesian Fusion Framework. While the core JOR engine calculates the probability of an anomalous origin (Non-Human Hypothesis), the CRI translates physical sensor certainty and flight dynamics into a quantified **Operational Hazard Score**. 
-
-By focusing on the "Kinetic Reality" of a sighting—regardless of the object's origin—the CRI provides aviation stakeholders with a standardized metric for risk mitigation and airspace management.
-
----
-
-## 1. Safety Risk Calculation Logic
-
-The **Aero_Safety_Risk** (or CRI) is calculated by treating the physical certainty of an object as the baseline and anomalous flight behavior as a **Kinetic Multiplier**.
-
-### **The Formula**
-$$CRI = SOP_{Mean} \times (1 + Flight\_Mod)$$
-
-* **SOP_Mean (Solid Object Probability):** Derived from the mean of the sampled distribution after processing through the PyMC engine. It represents the aggregate probability of a physical, solid-state presence based on the fusion of witness, environmental, and physical evidence, independent of anomalous flight behavior. It remains stable regardless of Bayesian hypothesis calibration.
-* **Flight_Mod (Kinetic Multiplier):** A scalar value ($0.00$ to $0.10$) representing maneuvers that defy standard aerodynamic expectations, such as instantaneous acceleration or hypersonic speeds without signatures. In the analytical phase, it serves to "boost" the physical evidence profile, directly increasing the calculated Aero_Safety_Risk. While it also elevates the input probability for the non-human hypothesis, the final Posterior_Mean remains co-dependent on the calibration constant ($K$); a higher $K$ increases the weight of conventional explanations, which can mathematically offset the kinetic "boost" provided by the flight behavior.
+By focusing strictly on the **Kinetic Reality** of a track—regardless of the object's origin—the CRI provides aviation stakeholders and airspace intelligence with a standardized, actionable metric for threat mitigation and active risk management.
 
 ---
 
-## 2. Hazard Level Classifications
+## 📊 Safety Risk Calculation Logic
 
-Based on the calculated CRI, cases are automatically categorized to provide immediate situational awareness for flight safety:
+The `Aero_Safety_Risk` (CRI) is calculated by treating the physical certainty of an asset as the baseline and its anomalous flight behavior as a **Kinetic Multiplier**.
+
+### The Formula
+$$CRI = \text{SOP}_{\text{Mean}} \times (1 + \text{FlightMod})$$
+
+Where:
+* **$\text{SOP}_{\text{Mean}}$ (Solid Object Probability):** Derived directly from the mean of the sampled distribution processed through the MCMC engine. It represents the aggregate probability of a physical, solid-state presence based on the baseline fusion of witness, environmental, and physical evidence. It remains independent of your Bayesian origin hypothesis adjustments.
+* **`Flight_Mod` / $\text{FlightMod}$ (Kinetic Multiplier):** A scalar value ($0.00$ to $0.10$) representing aerodynamic behaviors that defy standard propulsion expectations (e.g., instantaneous acceleration, hypersonic velocity without signatures). In this module, it acts as a direct multiplier to evaluate safety hazard frontiers.
+
+---
+
+## 🚨 Hazard Level Classifications
+
+Based on the calculated CRI score, tracking assets are automatically sorted into specific threat tiers to provide immediate situational awareness inside the dashboard:
 
 | Hazard Level | Risk Score (CRI) | Operational Action |
 | :--- | :--- | :--- |
-| **Critical** | > 0.75 | Immediate safety-of-flight concern. Priority for sensor-fusion audit. |
-| **Elevated** | 0.45 - 0.75 | Confirmed physical presence with anomalies; secondary verification suggested. |
-| **Low** | < 0.45 | Low physical certainty or standard flight characteristics; routine monitoring. |
+| **🔴 Critical** | $> 0.75$ | Immediate safety-of-flight concern. Priority for active sensor-fusion audit and track containment. |
+| **🟡 Elevated** | $0.45 - 0.75$ | Confirmed physical presence with kinematic anomalies; secondary track verification suggested. |
+| **🟢 Low** | $< 0.45$ | Low physical certainty or standard aerodynamic characteristics; flagged for routine monitoring. |
 
 ---
 
-## 3. Computational Architecture
+## 🏗️ Localized Architecture & File Profiles
 
-The module operates via a vectorized pipeline to ensure statistical consistency across large datasets:
+This directory operates as a **completely self-contained ecosystem** distinct from the root folder. It utilizes localized versions of the following files:
 
-* **`jor_pymc.py`**: A vectorized Bayesian inference engine. It processes complex datasets simultaneously via MCMC sampling and extracts the `SOP_Mean` from the posterior trace for safety logic integration.
-* **`jor_pymc_runner.py`**: The operational bridge. It imports tuned constants (Priors, K-value, Weights) from the core configuration and applies the Kinetic Multiplier and Hazard Level logic to the sampling results.
-* **`jor_scores.csv`**: The primary data exchange format, containing both the evidentiary input scores and the finalized Bayesian safety outputs.
+* **`app.py` (Safety Command Center UI):** The frontend Streamlit dashboard. Features a global dark theme aesthetic, dynamic background contour lines to graph the *Kinetic Hazard Frontier*, a crosshair-synced *Threat Intelligence Matrix*, and an *Active Track Auditor* sidebar that injects a prominent target lock overlay across all maps. Includes a built-in automated workable example generator if data is missing.
+* **`jor_pymc_runner.py` (Operational Bridge):** Imports your tuned constants (`PRIOR_NH`, `CALIBRATION_K`, weights) and coordinates the active sampling process. It executes the aerospace safety evaluation loop, maps the `pd.cut` hazard thresholds, and saves results locally.
+* **`jor_pymc.py` (Vectorized Bayesian Engine):** A highly optimized, vectorized PyMC sampling pipeline. It applies a `TruncatedNormal` distribution to your flight mechanics and extracts the precise `SOP_Mean` trace arrays required for the safety module calculations.
+* **`jor_fusion.py` (Interactive Interface):** The localized configuration baseline used to manage scoring scripts and define global parameters ($K = 0.20$, priors, and evidence weights) explicitly for this folder.
+* **`jor_scores.csv` (Core Telemetry Ledger):** The localized data exchange spreadsheet. It securely logs inputs and saves finalized MCMC outputs rounded to a clean `.round(3)` decimal limit to eliminate floating-point tail leakage.
 
 ---
 
-## 4. Requirements
-* `pymc`: For probabilistic programming and MCMC sampling.
-* `pytensor`: For vectorized tensor math.
-* `pandas`: For data management.
-* `numpy`: For statistical operations.
+## 🛠️ Module Execution
+
+To run this specific safety command dashboard, you must step inside this directory so that the relative file paths align correctly. Run these commands sequentially in your terminal:
+
+> **Step 1:** Step into the module folder  
+> `cd Collision_Risk`
+>
+> **Step 2:** Initialize the dashboard interface  
+> `streamlit run app.py`
+
+*(Note: If you need to perform raw data modifications or check local sensitivity calibration metrics for this safety environment, execute `python jor_fusion.py` or `python jor_pymc_runner.py` while your terminal is remaining inside this subfolder).*
 
 ---
 **Methodology:** The James Orion Report (JOR) Framework  
-**Implementation:** V3.1 - Operational Safety Overlay
+**Implementation:** V3.1 - Operational Safety Overlay  
