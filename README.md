@@ -3,7 +3,7 @@
 
 📌 **DOI:** [https://doi.org/10.5281/zenodo.18157347](https://doi.org/10.5281/zenodo.18157347)  
 📦 **Zenodo Record:** [https://zenodo.org/records/18157347](https://zenodo.org/records/18157347)  
-📟 **Operational App Interface:** `app.py` (Streamlit Safety Command Center UI)
+📟 **Operational App Interface:** `Collision_Risk/app.py` (Streamlit Safety Command Center UI)
 
 The **James Orion Report (JOR) Bayesian Fusion** framework is a probabilistic analysis system designed to evaluate Unidentified Anomalous Phenomena (UAP) using structured evidentiary scoring combined with **Markov Chain Monte Carlo (MCMC)** sampling via **PyMC**.
 
@@ -29,6 +29,8 @@ The system integrates qualitative observation rubrics with quantitative Bayesian
 * **🌲 Evidentiary Uncertainty Forest:** An MCMC posterior uncertainty range check that isolates active target profiles with a prominent target lock overlay against background context fleets (95% Confidence Intervals).
 * **🔍 Active Track Auditor & Sidebar Controls:** Real-time dropdown isolation engines that immediately focus all three graphical tracking maps onto a single selected asset.
 
+> ⚠️ **IMPORTANT INTERACTIVE UI NOTE:** To launch and run the Streamlit Command Center dashboard (`app.py`), you must navigate into the `Collision_Risk` directory and use the specialized versions of `jor_fusion.py`, `jor_pymc_runner.py`, and `jor_pymc.py` stored inside that specific folder. Running the dashboard utilizing the main root folder's python files will cause dependency and path alignment errors.
+
 ---
 
 ## 📂 Repository Structure
@@ -36,10 +38,10 @@ The system integrates qualitative observation rubrics with quantitative Bayesian
 | File / Folder | Description |
 | :--- | :--- |
 | **Full Methodology Report** | [Original theoretical framework and evidentiary rubric definitions](https://doi.org/10.5281/zenodo.18157347) |
-| `app.py` | **UI Dashboard:** Streamlit-powered analytical frontend displaying active tracking filters and tactical plots. |
-| `jor_fusion.py` | **Scorer:** Interactive CLI tool for structured case input and deterministic scoring. |
-| `jor_pymc.py` | **Bayesian Engine:** PyMC-based probabilistic model for posterior estimation via MCMC sampling. |
-| `jor_pymc_runner.py` | **Batch Orchestrator:** Executes multiple case evaluations and generates confidence intervals. |
+| `Collision_Risk/` | **Dedicated UI Folder:** Contains `app.py` and the localized backend scripts explicitly modified to drive the Command Center interface. |
+| `jor_fusion.py` | **Root Scorer:** Interactive CLI tool for standard, standalone terminal-based scoring. |
+| `jor_pymc.py` | **Root Bayesian Engine:** Core PyMC-based probabilistic model for standalone MCMC sampling. |
+| `jor_pymc_runner.py` | **Root Batch Orchestrator:** Standalone terminal tool for executing multiple case evaluations. |
 | `jor_scores.csv` | **Outputs:** Model-generated posterior estimates, means, and credible intervals for evaluated cases. |
 
 ---
@@ -75,61 +77,43 @@ This distinction is critical: v3.1 does not simply re-weight outputs—it modifi
 ## 🧪 The Bayesian Logic
 
 The framework evaluates competing hypotheses:
+* $H$ (Human / Prosaic Origin)
+* $NH$ (Non-Human / Anomalous Origin)
 
-* **H (Human/Prosaic Origin)** * **NH (Non-Human / Anomalous Origin)** Priors are initialized as:
-
-* $P(H) = 0.80$  
-* $P(NH) = 0.20$  
+Priors are initialized as:
+$$P(H) = 0.80$$
+$$P(NH) = 0.20$$
 
 These priors represent conservative baseline assumptions under conditions of uncertainty.
 
----
-
 ### Stochastic Flight Modeling
 
-A key component of the model is the **Flight Effect**, which introduces a probabilistic modulation of physical evidence strength based on observed kinematic anomalies and assumed measurement uncertainty.
+A key component of the model is the *Flight Effect*, which introduces a probabilistic modulation of physical evidence strength based on observed kinematic anomalies and assumed measurement uncertainty. 
 
 This adjustment is applied at the evidence interpretation stage:
-
-$$P_{Anomalous} = \text{clip}(P \times (1 + \text{Flight Effect}), 0.0, 0.95)$$
+$$P_{\text{Anomalous}} = \text{clip}(P \times (1 + \text{Flight Effect}), 0.0, 0.95)$$
 
 Where the Flight Effect is modeled as a truncated distribution:
-
 $$\text{TruncatedNormal}(\mu = \text{mod}, \sigma = 0.03, \text{lower} = 0.0, \text{upper} = 0.10)$$
 
 This formulation ensures that anomalous flight characteristics contribute proportionally to evidence strength while remaining bounded by observational uncertainty.
 
----
-
 ### K-Calibration Constant (Heuristic Likelihood Proxy)
 
 To maintain conservative inference behavior aligned with uncertainty constraints, the framework includes a calibration constant:
-
-$$P(E|H) = \min(1, 1 - NHP + K \cdot SOP)$$
+$$P(E|H) = \min(1, 1 - \text{NHP} + K \cdot \text{SOP})$$
 
 Where:
+* $K = 0.20$ (calibration constant aligned with AARO Standards)
+* $\text{SOP}$ = Solid Object Probability
+* $\text{NHP}$ = Non-Human Probability (intermediate estimate)
 
-* $K = 0.20$ (calibration constant aligned with AARO Standards)  
-* $\text{SOP}$ = Solid Object Probability  
-* $\text{NHP}$ = Non-Human Probability (intermediate estimate)  
-
-This expression is a **heuristic likelihood proxy**, not a strict probabilistic identity. It is used to stabilize inference under incomplete observational data.
+This expression is a *heuristic likelihood proxy*, not a strict probabilistic identity. It is used to stabilize inference under incomplete observational data.
 
 ---
 
-## 🛠️ Usage
+## 🛠️ Usage & Execution
 
-### Requirements and Execution
-
-Install dependencies and run the framework (CLI tools or Streamlit GUI Dashboard):
-
+First, ensure you have all framework dependencies installed:
 ```bash
-# Install framework dependencies
 pip install pymc pytensor pandas numpy colorama streamlit matplotlib seaborn
-
-# Run analytical backend pipeline scripts
-python jor_fusion.py
-python jor_pymc_runner.py
-
-# Launch the interactive Safety Command Center UI
-streamlit run app.py
