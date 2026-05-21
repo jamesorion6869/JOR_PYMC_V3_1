@@ -114,6 +114,15 @@ This expression is a *heuristic likelihood proxy*, not a strict probabilistic id
 
 ## 🛠️ Usage & Execution
 
-First, ensure you have all framework dependencies installed:
-```bash
-pip install pymc pytensor pandas numpy colorama streamlit matplotlib seaborn
+First, ensure you have all framework dependencies installed. Run these commands sequentially in your terminal:
+
+> **Step 1: Install Dependencies**  
+> `pip install pymc pytensor pandas numpy colorama streamlit matplotlib seaborn`
+>
+> **Step 2: Standard CLI Pipeline (Root Directory)**  
+> `python jor_fusion.py`  
+> `python jor_pymc_runner.py`
+>
+> **Step 3: Interactive Command Center Dashboard (Collision_Risk Directory)**  
+> `cd Collision_Risk`  
+> `streamlit run app.py`
