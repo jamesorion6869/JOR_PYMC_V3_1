@@ -1,8 +1,8 @@
 # JOR-Bayesian Fusion Framework (v3.1)
 ### Probabilistic UAP Analysis Engine & Aerospace Safety Command Center
 
-📌 **DOI:** [https://doi.org/10.5281/zenodo.18157347](https://doi.org/10.5281/zenodo.18157347)  
-📦 **Zenodo Record:** [https://zenodo.org/records/18157347](https://zenodo.org/records/18157347)  
+📌 **DOI:** [https://doi.org/10.5281/zenodo.20368678](https://doi.org/10.5281/zenodo.20368678)
+📦 **Zenodo Record:** [https://zenodo.org/records/20368678](https://zenodo.org/records/20368678)  
 📟 **Operational App Interface:** `Collision_Risk/app.py` (Streamlit Safety Command Center UI)
 
 The **James Orion Report (JOR) Bayesian Fusion** framework is a probabilistic analysis system designed to evaluate Unidentified Anomalous Phenomena (UAP) using structured evidentiary scoring combined with **Markov Chain Monte Carlo (MCMC)** sampling via **PyMC**.
@@ -37,7 +37,7 @@ The system integrates qualitative observation rubrics with quantitative Bayesian
 
 | File / Folder | Description |
 | :--- | :--- |
-| **Full Methodology Report** | [Original theoretical framework and evidentiary rubric definitions](https://doi.org/10.5281/zenodo.18157347) |
+| **Full Methodology Report** | [Original theoretical framework and evidentiary rubric definitions](https://doi.org/10.5281/zenodo.20368678) |
 | `Collision_Risk/` | **Dedicated UI Folder:** Contains `app.py` and the localized backend scripts explicitly modified to drive the Command Center interface. |
 | `jor_fusion.py` | **Root Scorer:** Interactive CLI tool for standard, standalone terminal-based scoring. |
 | `jor_pymc.py` | **Root Bayesian Engine:** Core PyMC-based probabilistic model for standalone MCMC sampling. |
