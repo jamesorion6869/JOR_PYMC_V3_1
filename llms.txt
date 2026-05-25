@@ -5,7 +5,7 @@ A Bayesian fusion engine and probabilistic modeling framework for the scientific
 ## Core Documentation
 - [README.md](README.md): Project overview, core methodology, and repository setup.
 - [Technical Manual](docs/JOR_V3_1_Technical_Manual_Complete.pdf): Full Bayesian framework and V3.1 rubric definitions (PDF).
-- [Zenodo DOI](https://doi.org/10.5281/zenodo.18157347): Formal technical methodology and archived research results.
+- [Zenodo DOI](https://doi.org/10.5281/zenodo.20368678): Formal technical methodology and archived research results.
 
 ## Mathematical Applications
 - **Collision Risk Index (CRI):** Operational safety metric defined as CRI = SOP_Mean * (1 + Flight_Mod).
