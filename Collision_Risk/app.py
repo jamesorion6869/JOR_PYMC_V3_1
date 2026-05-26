@@ -46,23 +46,22 @@ def load_data(file_path):
         
     df = pd.read_csv(file_path)
     
-    # Verify strict column logic required for visual mapping
+    # Define required columns for the UI
     required_cols = ['Case', 'SOP_Mean', 'Flight_Mod', 'Aero_Safety_Risk']
-    missing_cols = [col for col in required_cols if col not in df.columns]
     
-    if missing_cols:
-        generate_mock_workable_example(file_path)
-        df = pd.read_csv(file_path)
+    # Add missing columns with default values instead of overwriting
+    for col in required_cols:
+        if col not in df.columns:
+            st.warning(f"Column '{col}' missing. Filling with 0.0.")
+            df[col] = 0.0
     
-    # Safely compute uncertainty span for bubble sizes and truncate decimal leak tails
+    # Safely compute uncertainty span
     if 'CI_97.5%' in df.columns and 'CI_2.5%' in df.columns:
         df['Uncertainty'] = (df['CI_97.5%'] - df['CI_2.5%']).round(3)
     else:
-        df['Uncertainty'] = 0.1  # Fallback size scalar
+        df['Uncertainty'] = 0.1
         
-    if 'Hazard_Level' in df.columns:
-        df['Hazard_Level'] = df['Hazard_Level'].astype(str)
-    else:
+    if 'Hazard_Level' not in df.columns:
         df['Hazard_Level'] = 'Low'
         
     return df
