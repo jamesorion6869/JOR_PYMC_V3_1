@@ -129,7 +129,7 @@ C_hard_caps = {
 E_base_scores = {
     "Weak": "0.30-0.45: Fog, heavy cloud, night with no illumination, brief duration (<10s)",
     "Moderate": "0.50-0.60: Light cloud, partially obstructed view, nighttime with some illumination, moderate duration (10-30s)",
-    "Strong": "0.65-0.85: Clear sky OR controlled environment; multiple viewing angles, long duration (>30s)"
+    "Strong": "0.65-0.85: Unobstructed atmospheric visbility (clear sky conditions) independent of day or night; long duration (>30s). If nighttime atmospheric visibility is uncertain or cannot be confidently established as clear, apply applicable nighttime hard caps."
 }
 
 E_modifiers = {
