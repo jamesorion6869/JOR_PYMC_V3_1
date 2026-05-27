@@ -20,6 +20,12 @@ Where:
 
 ---
 
+## 🔄 Version Updates (v3.1)
+
+* **Environmental Rubric Clarification:** The "Strong" category wording has been updated to explicitly treat clear daytime and clear nighttime atmospheric visibility equivalently. This refinement improves scoring consistency across all environments and reduces interpretive variance; no mathematical weighting or posterior logic was changed.
+
+---
+
 ## 🚨 Hazard Level Classifications
 
 Based on the calculated CRI score, tracking assets are automatically sorted into specific threat tiers to provide immediate situational awareness inside the dashboard:
