@@ -19,6 +19,7 @@ The system integrates qualitative observation rubrics with quantitative Bayesian
 * **Dynamic Scorer Logic:** The interactive CLI includes conditional scoring adjustments for high-confidence observational conditions (e.g., clear daytime visibility), reducing under-weighting of high-quality data.
 * **Deterministic Data Exports:** Implemented a targeted `.round(3)` truncation limit on the `Uncertainty` column to permanently strip binary floating-point tail artifacts (e.g., converting `0.11900000000000005` to a clean `0.119`), ensuring flawless downstream spreadsheet integration.
 * **Syntax Bug Resolution:** Optimized the dashboard's `ax.errorbar` data arrays by splitting nested `np.vstack` calculations into discrete, standalone variables, eliminating trailing parenthesis compilation panics.
+* **Environmental Clarification:** Clarified Environmental Strong-category wording to explicitly treat clear daytime and clear nighttime atmospheric visibility equivalently. This change improves scoring consistency and reduces interpretive variance; no mathematical weighting or posterior logic changed.
 
 ---
 
