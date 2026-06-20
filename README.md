@@ -3,7 +3,7 @@
 
 📌 **DOI:** [https://doi.org/10.5281/zenodo.18088931](https://doi.org/10.5281/zenodo.18088931)
 📦 **Zenodo Record:** [https://zenodo.org/records/18088931](https://zenodo.org/records/18088931)  
-📟 **Operational App Interface:** `Collision_Risk/app.py` (Streamlit Safety Command Center UI)
+📟 **Operational App Interface:** `Collision_Risk/Safety_Command_Center.py` (Streamlit Safety Command Center UI)
 
 The **James Orion Report (JOR) Bayesian Fusion** framework is a probabilistic analysis system designed to evaluate Unidentified Anomalous Phenomena (UAP) using structured evidentiary scoring combined with **Markov Chain Monte Carlo (MCMC)** sampling via **PyMC**.
 
