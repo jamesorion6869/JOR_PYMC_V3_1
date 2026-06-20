@@ -23,14 +23,14 @@ The system integrates qualitative observation rubrics with quantitative Bayesian
 
 ---
 
-## 📟 Streamlit GUI Command Center Features (`app.py`)
+## 📟 Streamlit GUI Command Center Features (`Safety_Command_Center.py`)
 
 * **🌌 Kinetic Hazard Frontier:** A dynamic bubble chart using a high-visibility `plasma` color map to plot Solid Object Probability (`SOP_Mean`) against Flight Modifiers (`Flight_Mod`). Bubble sizing automatically scales according to MCMC data uncertainty span.
 * **📊 Threat Intelligence Quadrant Map:** A crosshair-synced matrix mapping physical target data against strict risk metrics, highlighting critical action limits ($>0.75$ CRI).
 * **🌲 Evidentiary Uncertainty Forest:** An MCMC posterior uncertainty range check that isolates active target profiles with a prominent target lock overlay against background context fleets (95% Confidence Intervals).
 * **🔍 Active Track Auditor & Sidebar Controls:** Real-time dropdown isolation engines that immediately focus all three graphical tracking maps onto a single selected asset.
 
-> ⚠️ **IMPORTANT INTERACTIVE UI NOTE:** To launch and run the Streamlit Command Center dashboard (`app.py`), you must navigate into the `Collision_Risk` directory and use the specialized versions of `jor_fusion.py`, `jor_pymc_runner.py`, and `jor_pymc.py` stored inside that specific folder. Running the dashboard utilizing the main root folder's python files will cause dependency and path alignment errors.
+> ⚠️ **IMPORTANT INTERACTIVE UI NOTE:** To launch and run the Streamlit Command Center dashboard (`Safety_Command_Center.py`), you must navigate into the `Collision_Risk` directory and use the specialized versions of `jor_fusion.py`, `jor_pymc_runner.py`, and `jor_pymc.py` stored inside that specific folder. Running the dashboard utilizing the main root folder's python files will cause dependency and path alignment errors.
 
 ---
 
@@ -39,7 +39,7 @@ The system integrates qualitative observation rubrics with quantitative Bayesian
 | File / Folder | Description |
 | :--- | :--- |
 | **Full Methodology Report** | [Original theoretical framework and evidentiary rubric definitions](https://doi.org/10.5281/zenodo.20368678) |
-| `Collision_Risk/` | **Dedicated UI Folder:** Contains `app.py` and the localized backend scripts explicitly modified to drive the Command Center interface. |
+| `Collision_Risk/` | **Dedicated UI Folder:** Contains `Safety_Command_Center.py` and the localized backend scripts explicitly modified to drive the Command Center interface. |
 | `jor_fusion.py` | **Root Scorer:** Interactive CLI tool for standard, standalone terminal-based scoring. |
 | `jor_pymc.py` | **Root Bayesian Engine:** Core PyMC-based probabilistic model for standalone MCMC sampling. |
 | `jor_pymc_runner.py` | **Root Batch Orchestrator:** Standalone terminal tool for executing multiple case evaluations. |
@@ -145,7 +145,7 @@ Runs the independent interactive safety dashboard and its localized backend scri
 > `cd Collision_Risk`
 >
 > **Step 2:** Launch the interactive command center dashboard:
-> `streamlit run app.py`
+> `streamlit run Safety_Command_Center.py`
 >
 > *(Note: If you need to run terminal pipeline variations for this specific safety module, use the localized `jor_fusion.py` or read the separate `readme.md` located inside this subfolder).*
 
