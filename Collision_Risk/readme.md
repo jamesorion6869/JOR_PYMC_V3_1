@@ -23,6 +23,7 @@ Where:
 ## 🔄 Version Updates (v3.1)
 
 * **Environmental Rubric Clarification:** The "Strong" category wording has been updated to explicitly treat clear daytime and clear nighttime atmospheric visibility equivalently. This refinement improves scoring consistency across all environments and reduces interpretive variance; no mathematical weighting or posterior logic was changed.
+* **Interface Architecture Refactoring:** Replaced the legacy single-script layout with a multi-page framework (`Safety_Command_Center.py` and `pages/Analytical_Deep_Dives.py`) to decouple operational fleet oversight from dense statistical auditing routines, while explicitly grounding all data indicators in historical static-read telemetry.
 
 ---
 
@@ -32,18 +33,19 @@ Based on the calculated CRI score, tracking assets are automatically sorted into
 
 | Hazard Level | Risk Score (CRI) | Operational Action |
 | :--- | :--- | :--- |
-| **🔴 Critical** | $> 0.75$ | Immediate safety-of-flight concern. Priority for active sensor-fusion audit and track containment. |
+| **🔴 Critical** | $> 0.75$ | Immediate safety-of-flight concern. Priority for manual post-event track validation and case containment. |
 | **🟡 Elevated** | $0.45 - 0.75$ | Confirmed physical presence with kinematic anomalies; secondary track verification suggested. |
 | **🟢 Low** | $< 0.45$ | Low physical certainty or standard aerodynamic characteristics; flagged for routine monitoring. |
 
 ---
 
-## 🏗️ Localized Architecture & File Profiles
+## 🏗️ Architecture & File Profiles
 
 This directory operates as a **completely self-contained ecosystem** distinct from the root folder. It utilizes localized versions of the following files:
 
-* **`app.py` (Safety Command Center UI):** The frontend Streamlit dashboard. Features a global dark theme aesthetic, dynamic background contour lines to graph the *Kinetic Hazard Frontier*, a crosshair-synced *Threat Intelligence Matrix*, and an *Active Track Auditor* sidebar that injects a prominent target lock overlay across all maps. Includes a built-in automated workable example generator if data is missing.
-* **`jor_pymc_runner.py` (Operational Bridge):** Imports your tuned constants (`PRIOR_NH`, `CALIBRATION_K`, weights) and coordinates the active sampling process. It executes the aerospace safety evaluation loop, maps the `pd.cut` hazard thresholds, and saves results locally.
+* **`Safety_Command_Center.py` (Primary SMS Interface):** The main application entry point. Features a global dark theme aesthetic permanently locked in a static **"HISTORICAL ARCHIVE" Data Mode**. It maps tracking records against background logistic contour lines to graph the *Kinetic Hazard Frontier*, visualizes a crosshair-synced *Threat Intelligence Quadrant Map*, and monitors parameter reliability using an *Evidentiary Uncertainty Forest* error plot. Includes a built-in automated workable example generator if data is missing.
+* **`pages/Analytical_Deep_Dives.py` (Statistical Validation Engine):** Nested within the localized `pages/` directory to leverage native multi-page sidebar navigation. Houses the *Master Infographic Pipeline* and the *T-Tier Buffer Separation* module, which executes unequal variance Welch's t-tests on the fly to mathematically confirm robust separation thresholds between risk classifications.
+* **`jor_pymc_runner.py` (Operational Bridge):** Imports your tuned constants (`PRIOR_NH`, `CALIBRATION_K`, weights) and coordinates the active sampling process. It executes the aerospace safety evaluation loop, maps the hazard thresholds, and saves results locally.
 * **`jor_pymc.py` (Vectorized Bayesian Engine):** A highly optimized, vectorized PyMC sampling pipeline. It applies a `TruncatedNormal` distribution to your flight mechanics and extracts the precise `SOP_Mean` trace arrays required for the safety module calculations.
 * **`jor_fusion.py` (Interactive Interface):** The localized configuration baseline used to manage scoring scripts and define global parameters ($K = 0.20$, priors, and evidence weights) explicitly for this folder.
 * **`jor_scores.csv` (Core Telemetry Ledger):** The localized data exchange spreadsheet. It securely logs inputs and saves finalized MCMC outputs rounded to a clean `.round(3)` decimal limit to eliminate floating-point tail leakage.
@@ -58,9 +60,9 @@ To run this specific safety command dashboard, you must step inside this directo
 > `cd Collision_Risk`
 >
 > **Step 2:** Initialize the dashboard interface  
-> `streamlit run app.py`
+> `streamlit run Safety_Command_Center.py`
 
-*(Note: If you need to perform raw data modifications or check local sensitivity calibration metrics for this safety environment, execute `python jor_fusion.py` or `python jor_pymc_runner.py` while your terminal is remaining inside this subfolder).*
+*(Note: If you need to perform raw data modifications or check local sensitivity calibration metrics for this safety environment, execute `python jor_fusion.py` or `python jor_pymc_runner.py` while your terminal is remaining inside this subfolder. To update active browser visualizers immediately following a backend calibration run, trigger the sidebar's hot-reload interface to purge memory cache arrays and re-read the ledger fresh).*
 
 ---
 **Methodology:** The James Orion Report (JOR) Framework  
@@ -71,4 +73,3 @@ To run this specific safety command dashboard, you must step inside this directo
 This module is an operational component of the James Orion Report (JOR) Bayesian Fusion Framework. To review the underlying methodology, probabilistic engine calculations, or to download the complete reference paper, please use the master repository DOI:
 
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.18088931-blue)](https://doi.org/10.5281/zenodo.18088931)
-
