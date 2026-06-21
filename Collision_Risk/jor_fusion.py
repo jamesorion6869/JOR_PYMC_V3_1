@@ -92,12 +92,13 @@ def yes_no(prompt):
             return False
         print(Fore.RED + "Please enter 'y' or 'n'.")
 
-def get_float_input(prompt, min_val=None, max_val=None):
+def get_float_input(prompt, min_val=0.0, max_val=1.0):
     while True:
         try:
             val = float(input(Fore.CYAN + prompt))
+            # Now, it will enforce 0.0 to 1.0 unless you specifically override it
             if (min_val is not None and val < min_val) or (max_val is not None and val > max_val):
-                print(Fore.RED + f"Value must be between {min_val} and {max_val}.")
+                print(Fore.RED + f"Error: Value must be between {min_val} and {max_val}.")
                 continue
             return val
         except ValueError:
