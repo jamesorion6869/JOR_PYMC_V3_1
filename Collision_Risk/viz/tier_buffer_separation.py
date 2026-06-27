@@ -10,6 +10,7 @@ def run_buffered_statistical_audit(csv_path, output_plot='buffered_hazard_distri
     Ingests JOR telemetry data, establishes a 0.04 Investigation Buffer Zone (0.73-0.77),
     re-triages edge cases, executes an optimized Welch's t-test on the clean groups,
     and exports an advanced distribution visualization documenting structural separation.
+    This script has been added to the Analytical_Deep_Dives.py in /pages.
     """
     if not os.path.exists(csv_path):
         print(f"[Error] Target data file '{csv_path}' not found.")
