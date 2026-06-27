@@ -6,6 +6,7 @@ def generate_combined_infographic(csv_path, top_n=10, output_image='jor_v31_mast
     """
     Loads JOR scores, extracts operational and statistical metrics, and builds
     a single, vertically stacked master infographic with the summary report in the middle.
+    This script has been added to the Analytical_Deep_Dives.py in /pages.
     """
     try:
         # 1. Load and clean data
