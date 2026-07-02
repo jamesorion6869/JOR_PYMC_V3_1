@@ -4,6 +4,10 @@ This directory contains scripts used to evaluate the performance, scalability, a
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18088931.svg)](https://doi.org/10.5281/zenodo.18088931)
 
+### Test Environment:
+
+AMD Ryzen 5 3550H @ 2.10 GHz, 8 GB DDR4 RAM.
+
 ### Included Benchmark Scripts
 
 * **`jor_stage1_degraded_test.py`**: Executes an automated stress test simulating degraded airspace environments. It evaluates the core JOR v3.1 logic under conditions of Electronic Warfare (EW) jamming and sensor dropout, verifying that the mathematical boundary integrity and zero-state constraints hold true.
