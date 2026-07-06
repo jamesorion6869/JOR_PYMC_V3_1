@@ -1,4 +1,8 @@
 # JOR-V3.1: Collision Risk Index (CRI) Module
+
+![Status](https://img.shields.io/badge/Status-Project_Complete-brightgreen.svg)  
+**Version:** 3.1 Final Release
+
 ### 📟 Operational Safety Management System (SMS) for UAP Intelligence
 
 The **Collision Risk Index (CRI)** is an operational aerospace safety overlay for the JOR Bayesian Fusion Framework. While the core root engine calculates the probability of an anomalous origin (Non-Human Hypothesis), this dedicated module translates physical sensor certainty and flight dynamics into a quantified **Operational Hazard Score**.
