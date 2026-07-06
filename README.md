@@ -1,6 +1,9 @@
 # JOR-Bayesian Fusion Framework (v3.1)
 ### Probabilistic UAP Analysis Engine & Aerospace Safety Command Center
 
+![Status](https://img.shields.io/badge/Status-Project_Complete-brightgreen.svg)  
+**Version:** 3.1 Final Release
+
 📌 **DOI:** [https://doi.org/10.5281/zenodo.18088931](https://doi.org/10.5281/zenodo.18088931)
 📦 **Zenodo Record:** [https://zenodo.org/records/18088931](https://zenodo.org/records/18088931)  
 📟 **Operational App Interface:** `Collision_Risk/Safety_Command_Center.py` (Streamlit Safety Command Center UI)
