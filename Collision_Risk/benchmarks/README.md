@@ -10,6 +10,7 @@ AMD Ryzen 5 3550H @ 2.10 GHz, 8 GB DDR4 RAM.
 
 ### Included Benchmark Scripts
 
+* **`jor_bayesian_resilience_stress_test.py`**: A high-performance benchmarking suite for the JOR V3.1 Bayesian Fusion core. It utilizes Numba's `njit` and `parallel=True` to process 100,000 profiles, measuring latency and verifying mathematical boundary integrity under simulated electronic warfare (EW) jamming and sensor dropout conditions.
 * **`jor_v31_integrity_test.py`**: A high-performance stress-test that visualizes the JOR v3.1 pipeline integrity under 30% combined sensor degradation (15% EW jamming and 15% dropout). It employs a dual-panel animation to contrast "Raw Weighted NHP" with "Bayesian Posterior NHP," demonstrating the framework’s conservative bias, resistance to probability inflation in noisy environments, and graceful degradation behavior.
 * **`jor_stage1_degraded_test.py`**: Executes an automated stress test simulating degraded airspace environments. It evaluates the core JOR v3.1 logic under conditions of Electronic Warfare (EW) jamming and sensor dropout, verifying that the mathematical boundary integrity and zero-state constraints hold true.
 * **`jor_stage1_test.py`**: Provides an automated stress-testing suite for JOR v3.1 Stage 1 core logic. It tests high-volume throughput, kinematic step-function boundary limits, and saturation caps to ensure mathematical containment.
