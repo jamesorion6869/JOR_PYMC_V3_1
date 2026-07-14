@@ -8,8 +8,17 @@ This directory contains scripts used to evaluate the performance, scalability, a
 
 AMD Ryzen 5 3550H @ 2.10 GHz, 8 GB DDR4 RAM.
 
+### Dependencies
+
+To run the JOR V3.1 simulation and benchmarking scripts, you will need a Python environment with the following packages installed:
+
+* **`numpy`**: For vectorized numerical operations.
+* **`numba`**: Provides the `njit` decorator, which is critical for the high-performance execution of the JOR V3.1 Bayesian core.
+* **`matplotlib`**: Required for scripts that generate visualizations and animations (e.g., `jor_anomaly_response_sim.py`).
+
 ### Included Benchmark Scripts
 
+* **`jor_anomaly_response_sim.py`**: A 300s recursive Bayesian fusion simulation demonstrating system stability under a high-intensity "Major Anomaly" flight profile. It utilizes the validated JOR V3.1 math to track Posterior NH behavior in real-time, visualizing the transition from the normal flight baseline (0.30) through an 80s anomalous event (t=155s–230s) and subsequent recovery. The simulation provides a visual baseline for detection latency, peak response, and decay characteristics, confirming the absence of oscillation or runaway convergence in the current model.
 * **`jor_sensor_flight_simulation_njit.py`**: A recursive, time-series simulation of the JOR V3.1 Bayesian Fusion core tracking a single object over a 60-second window (12 steps of 5s each), carrying the posterior forward as each step's prior rather than resetting to the fixed baseline every evaluation. Identifies and corrects a runaway-convergence failure mode in naive recursive updating (via `PRIOR_RETENTION` blending) across four flight profiles (Conventional, Minor/Moderate/Major Anomaly). Numba JIT-compiled, boundary-validated every step, with configurable retention factor for sensitivity analysis.
 * **`jor_bayesian_batch_ew.py`**: A multi-batch scalability benchmark for the JOR V3.1 Bayesian Fusion core, sweeping batch sizes from 50,000 to 500,000 simulated profiles under 15% EW jamming and 15% sensor dropout. Numba JIT-compiled (`njit`, `fastmath=True`, `parallel=True`) with 10 warm-up iterations to exclude compilation overhead, reporting median latency, per-profile throughput, and validated posterior boundary integrity ([0,1] range, no NaN/inf) at each scale.
 * **`jor_bayesian_resilience_stress_test.py`**: A high-performance benchmarking suite for the JOR V3.1 Bayesian Fusion core. It utilizes Numba's `njit` and `parallel=True` to process 100,000 profiles, measuring latency and verifying mathematical boundary integrity under simulated electronic warfare (EW) jamming and sensor dropout conditions.
