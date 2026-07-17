@@ -130,6 +130,48 @@ This separation creates a reusable pattern where domain-specific measurements ar
 
 ---
 
+# JOR V4.0 Evidence Metrics
+
+JOR V4.0 uses a Bayesian evidence-fusion architecture where multiple evidence inputs are combined into fused evidence scores and posterior state estimates.
+
+The fusion engine processes three primary evidence inputs:
+
+| Variable | Description |
+|---|---|
+| `theta_s` | System or structural condition evidence |
+| `theta_c` | Operational context evidence |
+| `theta_o` | Sensor observation evidence |
+
+The fusion process produces two primary outputs:
+
+## SOP — Signal Object Processing
+
+SOP is the fused evidence score computed from:
+
+- `theta_s` — system evidence
+- `theta_c` — operational context evidence
+- `theta_o` — observed sensor evidence
+
+SOP represents the overall strength of the detected operational condition based on the available evidence inputs.
+
+SOP is an evidence score and should not be interpreted as a direct probability.
+
+## NHP — Non-Healthy Probability
+
+NHP is the posterior probability produced by the Bayesian fusion engine that the monitored equipment is in a non-healthy operating state.
+
+Higher NHP values indicate increased probability of:
+
+- equipment degradation
+- abnormal operation
+- potential fault conditions
+
+NHP is not a direct sensor measurement. It is the result of recursive Bayesian evidence fusion using the configured prior, evidence inputs, retention behavior, and calibration parameters.
+
+Because the engine tracks state recursively, NHP represents an evolving estimate rather than an instantaneous classification. A temporary increase in evidence may therefore persist briefly after the initiating condition has improved, depending on retention settings and recovery behavior. Alert activation and clearing behavior are controlled separately through the hysteresis logic described in the Alert Logic section.
+
+---
+
 # Vibration Adapter
 
 `adapters.py` provides the sensor-processing and feature-extraction layer.
