@@ -5,7 +5,8 @@
 **Version:** 3.1 Final Release
 
 📌 **DOI:** [https://doi.org/10.5281/zenodo.18088931](https://doi.org/10.5281/zenodo.18088931)
-📦 **Zenodo Record:** [https://zenodo.org/records/18088931](https://zenodo.org/records/18088931)  
+📦 **Zenodo Record:** [https://zenodo.org/records/18088931](https://zenodo.org/records/18088931)
+🧩 **Domain Demonstrations:** Predictive Maintenance, Collision Risk Analysis
 📟 **Operational App Interface:** `Collision_Risk/Safety_Command_Center.py` (Streamlit Safety Command Center UI)
 
 The **James Orion Report (JOR) Bayesian Fusion** framework is a probabilistic analysis system designed to evaluate Unidentified Anomalous Phenomena (UAP) using structured evidentiary scoring combined with **Markov Chain Monte Carlo (MCMC)** sampling via **PyMC**.
@@ -47,6 +48,35 @@ The system integrates qualitative observation rubrics with quantitative Bayesian
 | `jor_pymc.py` | **Root Bayesian Engine:** Core PyMC-based probabilistic model for standalone MCMC sampling. |
 | `jor_pymc_runner.py` | **Root Batch Orchestrator:** Standalone terminal tool for executing multiple case evaluations. |
 | `jor_scores.csv` | **Outputs:** Model-generated posterior estimates, means, and credible intervals for evaluated cases. |
+
+---
+
+## 🔬 Domain Demonstration Projects
+
+The JOR Bayesian Evidence Fusion architecture is being evaluated through domain adaptation demonstrations that apply evidence-based probabilistic reasoning beyond the original UAP analysis domain.
+
+### Predictive Maintenance Demonstration
+
+**Location:**
+
+`Projects/Predictive_Maintenance/`
+
+This demonstration applies the JOR evidence-fusion architecture to industrial condition monitoring using simulated vibration sensor data.
+
+Capabilities include:
+
+- Sensor feature extraction
+- Evidence representation mapping
+- Recursive health-state tracking
+- Adaptive baseline calibration
+- Hysteresis-based anomaly alerting
+- Persistent fusion-state logging
+
+The demonstration shows how domain-specific measurements can be translated into structured evidence inputs before probabilistic state evaluation.
+
+Documentation:
+
+`Projects/Predictive_Maintenance/README.md`
 
 ---
 
