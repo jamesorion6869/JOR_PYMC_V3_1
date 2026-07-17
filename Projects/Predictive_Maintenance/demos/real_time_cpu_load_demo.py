@@ -24,7 +24,7 @@ engine = JOREngine(
     retention=0.70
 )
 
-print("=== JOR V4.0 Real-Time CPUpy Load Test ===")
+print("=== JOR V4.0 Real-Time CPU Load Test ===")
 print("Press Ctrl+C to stop.\n")
 
 try:
