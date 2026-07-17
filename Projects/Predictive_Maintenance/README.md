@@ -1,8 +1,20 @@
 # JOR V4.0 Predictive Maintenance Demonstration
 
+## Related Project
+
+This demonstration is part of the broader JOR (James Orion Report) Bayesian Evidence Fusion Framework. The Predictive Maintenance demonstration is maintained as an application example within the broader JOR framework repository.
+
+Main Repository:
+
+https://github.com/jamesorion6869/JOR_PYMC_V3_1
+
+Cite All Versions:
+
+https://doi.org/10.5281/zenodo.18088931
+
 ## Overview
 
-This project demonstrates an application of the JOR (James Orion Report) Bayesian Evidence Fusion architecture to a predictive maintenance scenario.
+This project demonstrates an application of the JOR (James Orion Report) Bayesian Evidence Fusion Framework architecture to a predictive maintenance scenario.
 
 The objective is to demonstrate how the JOR evidence-fusion approach can be adapted from its original evidence-triage applications into an industrial monitoring domain by separating:
 
