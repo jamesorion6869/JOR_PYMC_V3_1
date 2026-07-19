@@ -80,6 +80,34 @@ Documentation:
 
 ---
 
+### Cloud VM Service Health Demonstration
+
+**Location:**
+
+`Projects/Cloud_VM_Service_Health/`
+
+This demonstration applies the JOR evidence-fusion architecture to cloud infrastructure and service reliability monitoring using simulated telemetry inputs.
+
+Capabilities include:
+
+- Cloud telemetry feature extraction
+- Service health evidence mapping
+- Recursive health-state tracking
+- Self-calibrating baseline estimation
+- Per-instance gray-failure detection
+- IQR-based outlier analysis
+- EMA persistence tracking
+- Hysteresis-based operational alerting
+- Persistent fusion-state logging
+
+The demonstration shows how operational telemetry from distributed computing environments can be converted into structured evidence inputs for recursive probabilistic health-state evaluation.
+
+Documentation:
+
+`Projects/Cloud_VM_Service_Health/README.md`
+
+---
+
 ## 📊 Example Dataset
 
 A curated dataset of 50 evaluated UAP cases using the v3.1 framework is included:
