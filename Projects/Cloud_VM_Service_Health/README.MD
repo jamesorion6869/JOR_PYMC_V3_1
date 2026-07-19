@@ -1,5 +1,26 @@
 # JOR 4.0 Cloud VM Service Health Fusion Engine
 
+## Related Project
+
+This demonstration is part of the broader **JOR (James Orion Report) Bayesian Evidence Fusion Framework**.
+
+The JOR framework provides a general recursive evidence-fusion architecture that can be adapted across operational domains through domain-specific evidence adapters.
+
+Related application demonstrations include:
+
+- Predictive Maintenance — industrial sensor health monitoring
+- Cloud VM Service Health — cloud telemetry and service reliability monitoring
+
+Main Repository:
+
+https://github.com/jamesorion6869/JOR_PYMC_V3_1
+
+Cite All Versions:
+
+https://doi.org/10.5281/zenodo.18088931
+
+---
+
 ## Overview
 
 This project demonstrates a domain adaptation of the James Orion Report (JOR) recursive Bayesian fusion architecture for cloud VM and service health monitoring.
