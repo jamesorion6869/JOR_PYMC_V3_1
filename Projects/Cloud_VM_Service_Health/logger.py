@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 
 class FusionLogger:
-    def __init__(self, log_file="maintenance_log.json"):
+    def __init__(self, log_file="cloud_vm_log.json"):
         self.log_file = Path(log_file)
         self.log_file.parent.mkdir(parents=True, exist_ok=True)
         
