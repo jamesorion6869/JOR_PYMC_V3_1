@@ -1,0 +1,13 @@
+numpy
+pandas
+matplotlib
+pymc
+pytensor
+
+# colorama is also auto-installed at runtime by jor_fusion.py (via subprocess/pip)
+# if it isn't already present. It's listed here anyway so `pip install -r
+# requirements.txt` covers it up front instead of relying on the runtime
+# fallback. If you'd rather not have jor_fusion.py silently pip-install
+# anything on import, remove the auto-install block near the top of that
+# file and just keep the plain `from colorama import ...` line.
+colorama
