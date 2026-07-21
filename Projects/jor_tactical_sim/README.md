@@ -86,8 +86,8 @@ A logistics-constrained run with a scripted coordination failure at tick 110:
 ![JOR fusion chart](maneuver_log_logistics_constrained.png)
 
 ```
-Baseline SOP (t=0-24): 0.355
-Final SOP (t=119):     0.932
+Baseline SOP (t=0-24):  0.355
+Final SOP (t=119):      0.932
 Final NHP:              0.953
 ALERT Duration:         92 steps (76.7%)
 Collapse Signature:     FRIENDLY COLLAPSE
