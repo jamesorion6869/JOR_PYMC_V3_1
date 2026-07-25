@@ -25,7 +25,19 @@ def main():
 
     t = np.linspace(0, 1, 10000)
 
-    base_rms = 5.0
+    # NOTE: base_rms rescaled from the original 3.0-5.0g arbitrary-unit range.
+    # Under VibrationAdapter's ISO 20816-3 grounded conversion (acceleration
+    # -> RMS velocity), 5.0g at ~180Hz computes to ~34 mm/s RMS velocity --
+    # deep in Zone D (catastrophic) rather than the "normal, healthy
+    # vibration" this test intends to hold constant while sweeping load/temp.
+    # 0.12g reproduces the same realistic Zone-A healthy baseline used in
+    # main.py's demo.
+    #
+    # Also renamed from "rms" to "peak_accel_g": this value is the
+    # zero-to-peak amplitude fed into the sine generator below, not an RMS
+    # value (for a pure sinusoid, true RMS = peak / sqrt(2)). The genuine
+    # RMS is what VibrationAdapter.extract_features() computes downstream.
+    base_peak_accel_g = 0.12
     base_freq = 180
 
     steps = 48
@@ -41,7 +53,15 @@ def main():
         temp = np.linspace(20, 80, steps)[step]
 
         # Normal vibration conditions
-        rms = base_rms + np.random.normal(0, 0.3)
+        # NOTE: jitter/noise magnitudes rescaled proportionally to
+        # base_peak_accel_g (same 5%/15% pattern used in main.py). The
+        # original fixed magnitudes (std=0.3 for peak jitter, std=0.5 for
+        # noise) were sized for the old base_rms=5.0 regime -- at the new
+        # realistic 0.12g baseline, those same fixed values would swamp the
+        # signal entirely (jitter alone could go negative, which is
+        # physically meaningless amplitude) rather than adding a small
+        # amount of realistic variation on top of it.
+        peak_accel_g = base_peak_accel_g + np.random.normal(0, base_peak_accel_g * 0.05)
         freq = base_freq + np.random.normal(0, 2.0)
 
         harm_amp = 0.1
@@ -57,11 +77,11 @@ def main():
             mod_amp
         )
 
-        noise = np.random.normal(0, 0.5, 10000)
+        noise = np.random.normal(0, base_peak_accel_g * 0.15, 10000)
 
         raw_buffer = (
-            rms * mod +
-            rms * harm +
+            peak_accel_g * mod +
+            peak_accel_g * harm +
             noise
         )
 
