@@ -46,3 +46,4 @@ Run from the Predictive Maintenance project root directory:
 
 ```bash
 python demos/real_time_cpu_load_demo.py
+```
