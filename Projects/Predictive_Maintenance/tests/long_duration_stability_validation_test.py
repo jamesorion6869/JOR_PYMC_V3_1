@@ -21,7 +21,17 @@ def main():
 
     t = np.linspace(0, 1, 10000)
 
-    base_rms = 5.0
+    # NOTE: base_peak_accel_g rescaled from 5.0g. Under VibrationAdapter's ISO
+    # 20816-3 grounded conversion, 5.0g computed to Zone D (theta_o pegged
+    # at exactly 1.0 every step) -- which is why the ORIGINAL run of this
+    # test reported an SOP range of 0.7365-0.7365 across 1000 steps: a
+    # perfectly flat, zero-variance output, despite peak_accel_g/freq/noise all
+    # being randomized every step. That's not genuine long-duration
+    # stability, it's a saturated ceiling masking all the intended
+    # variation. Rescaled to a realistic healthy Zone A baseline so the
+    # per-step random jitter (previously a fixed +/-0.3 and +/-0.5, sized
+    # for the old 5.0g regime) can actually reach the output.
+    base_peak_accel_g = 0.12
     base_freq = 180
 
     alert_seen = False
@@ -34,16 +44,16 @@ def main():
     for step in range(steps):
 
         # Stable baseline vibration with small random variation
-        rms = base_rms + np.random.normal(0, 0.3)
+        peak_accel_g = base_peak_accel_g + np.random.normal(0, base_peak_accel_g * 0.05)
         freq = base_freq + np.random.normal(0, 2.0)
 
         harm = 0.1 * np.sin(2 * np.pi * (freq * 2) * t)
         mod = np.sin(2 * np.pi * freq * t)
-        noise = np.random.normal(0, 0.5, 10000)
+        noise = np.random.normal(0, base_peak_accel_g * 0.15, 10000)
 
         raw_buffer = (
-            rms * mod +
-            rms * harm +
+            peak_accel_g * mod +
+            peak_accel_g * harm +
             noise
         )
 
