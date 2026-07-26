@@ -21,7 +21,21 @@ def main():
 
     t = np.linspace(0, 1, 10000)
 
-    base_rms = 5.0
+    # NOTE: base_peak_accel_g rescaled from 5.0g, and noise magnitude rescaled from a
+    # fixed absolute 2.0 (which, at the old 5.0g scale, was a deliberately
+    # heavy 40% noise-to-signal ratio meant to stress-test robustness).
+    # Under VibrationAdapter's ISO 20816-3 grounded conversion, the OLD
+    # values computed to Zone D saturation (theta_o pegged at exactly 1.0),
+    # which is why the original run reported a perfectly flat SOP range of
+    # 0.7365-0.7365 across 100 steps -- despite peak_accel_g/freq/noise all being
+    # randomized every step, zero variation was actually reaching the
+    # output. That's not "robust to noise," it's "noise never had a chance
+    # to matter because the signal was already maxed out." Rescaled to a
+    # realistic Zone A/B baseline, preserving the same ~40% heavy-noise
+    # ratio relative to the new base_peak_accel_g so this is still a genuine
+    # heavy-noise stress test, just at a scale where its result means
+    # something.
+    base_peak_accel_g = 0.5
     base_freq = 180
 
     alert_seen = False
@@ -35,7 +49,7 @@ def main():
     for step in range(steps):
 
         # Healthy operating condition
-        rms = base_rms + np.random.normal(0, 0.5)
+        peak_accel_g = base_peak_accel_g + np.random.normal(0, base_peak_accel_g * 0.10)
         freq = base_freq + np.random.normal(0, 5.0)
 
         load = 60.0
@@ -48,12 +62,14 @@ def main():
             np.sin(2 * np.pi * (freq * 2) * t)
         )
 
-        # Increased measurement noise
-        noise = np.random.normal(0, 2.0, 10000)
+        # Increased measurement noise (heavy, ~40% of base_peak_accel_g, same
+        # stress-test ratio as the original fixed value relative to the
+        # old base_peak_accel_g=5.0)
+        noise = np.random.normal(0, base_peak_accel_g * 0.40, 10000)
 
         raw_buffer = (
-            rms * mod +
-            rms * harm +
+            peak_accel_g * mod +
+            peak_accel_g * harm +
             noise
         )
 
