@@ -22,7 +22,18 @@ def main():
 
     t = np.linspace(0, 1, 10000)
 
-    base_rms = 5.0
+    # NOTE: base_peak_accel_g and burst peak_accel_g rescaled from 5.0g/90.0g. Under
+    # VibrationAdapter's ISO 20816-3 grounded conversion, BOTH the old
+    # "normal" (5.0g) and "burst" (90.0g) values independently computed to
+    # Zone D saturation (theta_o pegged at exactly 1.0 for both) -- meaning
+    # there was zero vibration-channel signal distinguishing quiet baseline
+    # from severe anomaly at all. That's the actual root cause of this
+    # test's current FAIL: with no theta_o contrast between phases, the
+    # engine had nothing telling it conditions had improved, so NHP never
+    # dropped enough to demonstrate recovery between bursts. Rescaled so
+    # normal operation sits in Zone A (healthy) and burst events genuinely
+    # spike into Zone D (severe), restoring the intended contrast.
+    base_peak_accel_g = 0.12
     base_freq = 180
 
     # Validation tracking
@@ -42,7 +53,7 @@ def main():
 
         if (10 <= step <= 34) or (50 <= step <= 74) or (90 <= step <= 114):
 
-            rms = 90.0
+            peak_accel_g = 2.0
             freq = 350.0
             burst_amp = 0.8
 
@@ -66,7 +77,7 @@ def main():
         else:
 
             # Normal operating baseline
-            rms = base_rms + np.random.normal(0, 0.3)
+            peak_accel_g = base_peak_accel_g + np.random.normal(0, base_peak_accel_g * 0.05)
             freq = base_freq + np.random.normal(0, 2.0)
             burst_amp = 0.0
 
@@ -90,11 +101,11 @@ def main():
             np.sin(2 * np.pi * 40 * t)
         )
 
-        noise = np.random.normal(0, 0.5, 10000)
+        noise = np.random.normal(0, peak_accel_g * 0.05, 10000)
 
         raw_buffer = (
-            rms * mod +
-            rms * harm +
+            peak_accel_g * mod +
+            peak_accel_g * harm +
             burst +
             noise
         )
