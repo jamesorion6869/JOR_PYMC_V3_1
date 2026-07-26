@@ -21,7 +21,20 @@ def main():
 
     t = np.linspace(0, 1, 10000)
 
-    base_rms = 5.0
+    # NOTE: base_peak_accel_g and the per-mode "slightly elevated" deltas rescaled
+    # from the original 5.0g / +1.5g / +0.25 harm_amp / 1.3 mod_amp values.
+    # Under VibrationAdapter's ISO 20816-3 grounded conversion, the ORIGINAL
+    # base_peak_accel_g=5.0g alone already computed to Zone D (theta_o pegged at
+    # 1.0) -- meaning all four "borderline" modes were already saturated
+    # before any of their intended subtle differences could matter. That
+    # made the test pass, but not for the reason it claims to (that
+    # near-threshold indicators don't falsely combine); it passed because a
+    # maxed-out, unchanging reading never crossed the alert threshold.
+    # Rescaled so base_peak_accel_g represents a genuine mid-Zone-A/B healthy
+    # reading, and the elevation deltas are proportional to it, so the four
+    # modes actually represent the kind of subtle, individually-borderline
+    # variation this test is meant to probe.
+    base_peak_accel_g = 0.65
     base_freq = 180
 
     alert_triggered = False
@@ -37,28 +50,28 @@ def main():
 
         if mode == 0:
             # Slightly elevated RMS
-            rms = base_rms + 1.5
+            peak_accel_g = base_peak_accel_g + (base_peak_accel_g * 0.30)
             freq = base_freq
             harm_amp = 0.1
             mod_amp = 1.0
 
         elif mode == 1:
             # Slightly elevated frequency
-            rms = base_rms
+            peak_accel_g = base_peak_accel_g
             freq = base_freq + 20
             harm_amp = 0.1
             mod_amp = 1.0
 
         elif mode == 2:
             # Slightly elevated harmonics
-            rms = base_rms
+            peak_accel_g = base_peak_accel_g
             freq = base_freq
             harm_amp = 0.25
             mod_amp = 1.0
 
         else:
             # Slightly elevated modulation depth
-            rms = base_rms
+            peak_accel_g = base_peak_accel_g
             freq = base_freq
             harm_amp = 0.1
             mod_amp = 1.3
@@ -74,13 +87,13 @@ def main():
 
         noise = np.random.normal(
             0,
-            0.5,
+            base_peak_accel_g * 0.15,
             10000
         )
 
         raw_buffer = (
-            rms * mod +
-            rms * harm +
+            peak_accel_g * mod +
+            peak_accel_g * harm +
             noise
         )
 
