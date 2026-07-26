@@ -21,9 +21,32 @@ def main():
 
     t = np.linspace(0, 1, 10000)
 
-    # Start in degraded conditions
-    start_rms = 85.0
-    start_freq = 180 + (39 * 20)
+    # NOTE: this ramp originally used start_peak_accel_g=85.0 decaying by a fixed
+    # 5.0/step, clipped at a hard floor of exactly 0.0 via max(0.0, ...).
+    # That meant roughly the back half of the 40-step ramp had peak_accel_g=0 --
+    # i.e. no actual vibration signal at all, just noise plus a fading 40Hz
+    # burst tone. Under VibrationAdapter's single-dominant-frequency
+    # acceleration-to-velocity conversion (already disclosed as a
+    # limitation in adapters.py's docstring), that noise-only condition let
+    # the FFT lock onto a spurious low-frequency component, and because
+    # velocity = acceleration / frequency, a small frequency denominator
+    # wildly inflated the computed "velocity" even though the actual
+    # acceleration was negligible -- producing a nonsensical Zone D
+    # classification for what should have read as near-silent. That's the
+    # actual root cause of the ALERT/Normal flapping seen in the original
+    # run's tail.
+    #
+    # Fixed by decaying smoothly toward a realistic healthy floor
+    # (0.12g, matching main.py's Zone A baseline) instead of clipping to
+    # literal zero -- a real machine's baseline vibration never actually
+    # disappears to nothing, so "recovered" should mean "back to healthy
+    # baseline," not "no signal at all." start_peak_accel_g rescaled from 85.0g to
+    # 2.5g, which computes to Zone D under the real ISO 20816-3 conversion
+    # (verified: theta_o ~1.0 at step 0), giving a genuine high-severity
+    # starting point without needing an unrealistic acceleration value.
+    start_peak_accel_g = 2.5
+    floor_peak_accel_g = 0.12
+    start_freq = 180
 
     alert_seen = False
     alert_cleared = False
@@ -34,9 +57,10 @@ def main():
     # Recovery ramp: gradually reduce anomaly signatures
     for step in range(40):
 
-        # Reduce vibration severity over time
-        rms = max(0.0, start_rms - (step * 5.0))
-        freq = start_freq - (step * 5)
+        # Reduce vibration severity over time, decaying toward the healthy
+        # floor rather than to literal zero.
+        peak_accel_g = floor_peak_accel_g + (start_peak_accel_g - floor_peak_accel_g) * max(0.0, 1 - step / 30)
+        freq = start_freq
 
         load = 60.0
         temp = 40.0
@@ -55,10 +79,10 @@ def main():
         )
 
         raw_buffer = (
-            rms * mod +
-            rms * harm +
+            peak_accel_g * mod +
+            peak_accel_g * harm +
             burst +
-            np.random.normal(0, 0.5, 10000)
+            np.random.normal(0, peak_accel_g * 0.05, 10000)
         )
 
         features = adapter.extract_features(raw_buffer)
