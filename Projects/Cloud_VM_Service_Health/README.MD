@@ -29,6 +29,8 @@ The prototype applies JOR evidence fusion concepts to cloud telemetry by convert
 
 This is a research prototype demonstrating architecture transfer. It is not intended to replace production observability platforms or operational monitoring systems.
 
+DOI: https://doi.org/10.5281/zenodo.21613188
+
 ---
 
 # Architecture
