@@ -15,7 +15,7 @@ Main Repository:
 
 https://github.com/jamesorion6869/JOR_PYMC_V3_1
 
-Cite All Versions:
+Cite All Versions (JOR 3.1):
 
 https://doi.org/10.5281/zenodo.18088931
 
