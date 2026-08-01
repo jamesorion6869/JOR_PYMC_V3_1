@@ -89,10 +89,10 @@ Burst 1
 30s - 65s
 
 Burst 2
-80s - 115s
+85s - 120s
 
 Burst 3
-130s - 165s
+140s - 175s
 
 
 The gaps are intentionally placed inside the recursive decay window so each burst begins while the previous posterior remains elevated.
