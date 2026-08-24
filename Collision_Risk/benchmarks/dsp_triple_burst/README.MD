@@ -241,9 +241,7 @@ Burst accumulation summary
 
 jor_dsp_triple_burst.gif
 
----
-
-## Live Variant: Microsecond Fusion Readout
+Live Variant: Microsecond Fusion Readout
 
 `Triple_Burst_Microsecond_Fusion.py` is a companion script built on the same
 validated triple-burst DSP pipeline above, restructured to run live rather
