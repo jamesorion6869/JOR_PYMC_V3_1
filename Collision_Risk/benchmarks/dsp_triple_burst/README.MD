@@ -193,6 +193,7 @@ The system should demonstrate accumulation without runaway probability inflation
 Generated file:
 jor_dsp_triple_burst.gif
 
+*For a live, frame-by-frame variant with a real-time engine-timing readout, see [Triple_Burst_Microsecond_Fusion.py](#live-variant-microsecond-fusion-readout), which exports `triple_burst_microsecond_fusion.mp4`.*
 
 The animation contains:
 
@@ -239,6 +240,22 @@ Baseline posterior check
 Burst accumulation summary
 
 jor_dsp_triple_burst.gif
+
+## Live Variant: Microsecond Fusion Readout
+
+`Triple_Burst_Microsecond_Fusion.py` is a companion script built on the same
+validated triple-burst DSP pipeline above, restructured to run live rather
+than precomputed:
+
+- Each frame computes its Bayesian fusion step in real time during
+  animation, one step per frame, instead of being batch-precomputed
+  beforehand.
+- A third panel is added below the existing two: a terminal-style scrolling
+  readout showing genuine per-step engine compute time and throughput,
+  measured with `time.perf_counter()` around the actual numba-JIT fusion
+  call.
+- All three panels render into a single figure and export to one `.mp4`
+  (`triple_burst_microsecond_fusion.mp4`), suitable for direct upload.
 
 Summary
 
