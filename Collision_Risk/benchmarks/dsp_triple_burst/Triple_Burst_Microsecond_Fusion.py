@@ -8,8 +8,7 @@ terminal-style scrolling readout showing genuine per-step engine compute time
 and throughput, measured with time.perf_counter() around the actual numba-JIT
 fusion call -- not a simulated or decorative number.
 
-Everything renders into ONE matplotlib figure and exports to a single .mp4,
-so it's ready to upload directly (e.g. to LinkedIn) with no compositing needed.
+Everything renders into ONE matplotlib figure and exports to a single .mp4.
 """
 
 import time
@@ -143,8 +142,7 @@ BURST_TIMES = [((s + 1) * STEP_SECONDS, (e + 1) * STEP_SECONDS) for s, e in BURS
 
 # ---------------------------------------------------------------
 # Live simulation state (computed frame-by-frame inside the animation,
-# not precomputed in a batch -- this is what makes the engine-timing
-# readout genuine rather than decorative)
+# not precomputed in a batch
 # ---------------------------------------------------------------
 class LiveState:
     def __init__(self):
