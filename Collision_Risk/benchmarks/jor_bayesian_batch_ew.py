@@ -28,7 +28,7 @@ E_base = np.random.uniform(0.30, 0.85, MAX_PROFILES)
 P_base = np.random.uniform(0.30, 0.95, MAX_PROFILES)
 Flight_mod = np.random.choice([0.00, 0.02, 0.04, 0.05], size=MAX_PROFILES, p=[0.4, 0.3, 0.2, 0.1])
 
-# 2. Apply your Electronic Warfare and Sensor Dropout masking rules
+# 2. Apply Electronic Warfare and Sensor Dropout masking rules
 ew_mask = np.random.random(MAX_PROFILES) < EW_JAM_RATE
 adjusted_dropout_rate = DROPOUT_RATE / (1.0 - EW_JAM_RATE)
 raw_dropout_mask = np.random.random(MAX_PROFILES) < adjusted_dropout_rate
@@ -46,7 +46,7 @@ weighted_C = W_C * C_base
 weighted_E = W_E * E_base
 weighted_P = W_P * P_base
 
-# 4. Your exact, full JOR mathematical core function
+# 4. Full JOR mathematical core function
 @njit(fastmath=True, parallel=True)
 def bayesian_fusion_core(weighted_C, weighted_E, weighted_P, P_base, Flight_mod, K, P_PRIOR_NH, P_PRIOR_H):
     SOP = weighted_C + weighted_E + weighted_P
@@ -83,7 +83,7 @@ for current_batch in batch_sizes:
     for i in range(BENCHMARK_ITERATIONS):
         t_start = time.perf_counter()
         
-        # Executes your complete Bayesian processing array
+        # Executes complete Bayesian processing array
         last_result = bayesian_fusion_core(w_C_slice, w_E_slice, w_P_slice, 
                                  P_base_slice, flight_slice, 
                                  K, P_PRIOR_NH, P_PRIOR_H)
