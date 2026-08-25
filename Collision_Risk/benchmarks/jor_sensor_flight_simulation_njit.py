@@ -129,7 +129,7 @@ def run_profile(profile_name, profile_cfg):
             "posterior_NH": posterior_NH, "posterior_H": posterior_H,
         })
 
-        # Prior regularization (your design)
+        # Prior regularization
         prior_NH = (PRIOR_RETENTION * posterior_NH) + ((1 - PRIOR_RETENTION) * P_PRIOR_NH_INITIAL)
         prior_H = 1.0 - prior_NH
 
