@@ -575,7 +575,7 @@ if __name__ == "__main__":
     def plot_single_track(ax, seed, scenario, post, flag_step, thr):
         t = np.arange(TIME_STEPS)
         ax.plot(t, scenario["C"], label="C (witness)", color="#1f77b4", lw=1.4, alpha=0.85)
-        ax.plot(t, scenario["E"], label="E (evidence)", color="#2ca02c", lw=1.4, alpha=0.85)
+        ax.plot(t, scenario["E"], label="E (environmental)", color="#2ca02c", lw=1.4, alpha=0.85)
         ax.plot(t, scenario["P"], label="P (physical)", color="#ff7f0e", lw=1.4, alpha=0.85)
         ax.plot(t, post, label="Posterior (NH)", color="#d62728", lw=2.2)
 
