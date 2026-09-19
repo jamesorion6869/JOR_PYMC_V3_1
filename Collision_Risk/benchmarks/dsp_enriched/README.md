@@ -38,7 +38,7 @@ The benchmark uses three completely isolated random-seed partitions:
 
 The code performs explicit integrity checks to verify that the three partitions contain unique, mutually exclusive seeds before evaluation begins.
 
-The threshold is optimized using the TRAIN partition only. The resulting threshold is then frozen and evaluated independently on the VAL and TEST partitions. :contentReference[oaicite:1]{index=1}
+The threshold is optimized using the TRAIN partition only. The resulting threshold is then frozen and evaluated independently on the VAL and TEST partitions.
 
 ---
 
@@ -60,7 +60,7 @@ Each condition modifies factors such as:
 - Sensor dropout probability
 - Detection probability
 
-This allows the fusion pipeline to be evaluated under both nominal and degraded sensing conditions. :contentReference[oaicite:2]{index=2}
+This allows the fusion pipeline to be evaluated under both nominal and degraded sensing conditions.
 
 ---
 
@@ -126,7 +126,7 @@ The DSP layer includes:
 - Track-consistency estimation
 - Maneuver-index estimation
 
-The resulting processed features are converted into normalized evidence values for the JOR fusion engine. :contentReference[oaicite:7]{index=7}
+The resulting processed features are converted into normalized evidence values for the JOR fusion engine.
 
 ---
 
