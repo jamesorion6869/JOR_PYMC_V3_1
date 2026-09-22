@@ -102,7 +102,7 @@ This demo shows that the JOR fusion architecture does something real when given 
 ## Running it
 
 ```bash
-python3 jor_dsp_maritime_acoustic_sonar_demo.py
+python jor_dsp_maritime_acoustic_sonar_demo.py
 ```
 
 Requires `numpy`, `matplotlib`, and `ffmpeg` (for the MP4; the script degrades gracefully to PNG-only output if `ffmpeg` isn't available). Full run — scenario generation, hyperparameter search, detection-logic search, tiered evaluation, all figures and the video — takes a few minutes.
