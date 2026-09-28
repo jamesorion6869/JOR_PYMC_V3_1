@@ -1,3 +1,17 @@
+# ============================================================
+# SUPERSEDED — kept at this path so existing links stay valid.
+# This version: recall 0.466 / FPR 0.081 / F1 0.615 on a frozen
+# TEST set, missing 92 of 300 held-out scenarios. FPR was within
+# budget; recall was the limitation, concentrated in weak/sparse
+# and internally-conflicting contact types (see README).
+#
+# See jor_dsp_maritime_sonar_streaming.py for the current version:
+# recall 0.704 / FPR 0.027 / F1 0.818, with a widened (400-scenario)
+# validation set to correct a generalization gap found in an
+# intermediate iteration. Full history in the README's Version
+# History section.
+# ============================================================
+
 """
 JOR V3.1-enriched -- Maritime/Acoustic Sonar Concept Demo
 ---------------------------------------------------------
