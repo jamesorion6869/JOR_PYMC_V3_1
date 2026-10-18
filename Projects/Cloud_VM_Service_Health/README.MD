@@ -159,7 +159,7 @@ Features:
 
 ---
 
-## cloud_vm_demo.py
+## Cloud_VM_Demo.py
 
 Demonstration workflow.
 
