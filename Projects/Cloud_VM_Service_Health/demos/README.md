@@ -1,6 +1,6 @@
 # Real-Time Local Service Health Demos
 
-This folder contains two live demonstrations of the **JOR 4.0 Cloud VM Service Health Fusion Engine** operating on *genuine* latency measurements. Unlike the synthetic harnesses in `tests/`, these scripts launch multiple lightweight HTTP instances on your local machine and measure **actual round-trip latency** using Python's standard library (plus NumPy).
+This folder contains three live demonstrations of the **JOR 4.0 Cloud VM Service Health Fusion Engine** operating on *genuine* latency measurements. Unlike the synthetic harnesses in `tests/`, these scripts launch multiple lightweight HTTP instances on your local machine and measure **actual round-trip latency** using Python's standard library (plus NumPy).
 
 No cloud account and no external services. The traffic, the latency, and the jitter are real; the degradation is a deliberate delay injected into one instance so the detector has something to find.
 
@@ -8,6 +8,7 @@ No cloud account and no external services. The traffic, the latency, and the jit
 |---|---|
 | `real_time_service_test.py` | The original command-line test. Latency only (θₒ); θₛ and θ_c are fixed at 0.2. |
 | `real_time_service_gui.py` | The same test plus a live status window, optional live laptop metrics (memory, CPU, disk) feeding θₛ / θ_c, and CLI labels that match the engine state. |
+| `speed_test_service.py` | Speed test of the monitor itself: stage-by-stage timings (fusion step, adapter, laptop sampler, full cycle, logging) plus one real HTTP measurement round. Writes a results image and JSON. |
 
 ---
 
@@ -136,6 +137,14 @@ Close the window or press `Ctrl+C` in the terminal to stop. Ports 9001–9005 mu
 | `--calibration-steps N` | Number of calibration steps (default 20). |
 | `--bad-after S` / `--recover-after S` | When the injected fault starts and ends, in seconds (defaults 25 and 45). |
 
+**Speed test**
+
+```bash
+PYTHONPATH=. python demos/speed_test_service.py
+```
+
+It starts the 5 local test servers itself for the live HTTP round, so ports 9001–9005 must be free (`--no-live` skips that round). It imports `real_time_service_gui.py`, so run it with the same `PYTHONPATH` setup as the other scripts. `psutil` (laptop sampler stage) and `matplotlib` (results image) are optional. Timings are single-thread, offline concept-demo numbers, not a real-time or production claim.
+
 ---
 
 ## Things to Know
@@ -150,4 +159,4 @@ Close the window or press `Ctrl+C` in the terminal to stop. Ports 9001–9005 mu
 
 ## Output Files
 
-Both scripts append to `real_time_service_log.json` in the directory you run them from (one JSON record per step). The GUI script also records the phase label, θₛ / θ_c and the raw laptop readings in each record. These are run output and do not need to be committed.
+`real_time_service_test.py` and `real_time_service_gui.py` append to `real_time_service_log.json` in the directory you run them from (one JSON record per step). The GUI script also records the phase label, θₛ / θ_c and the raw laptop readings in each record. `speed_test_service.py` writes `speed_test_service_results.json` and `speed_test_service_results.png` there instead. All of these are run output and do not need to be committed.
