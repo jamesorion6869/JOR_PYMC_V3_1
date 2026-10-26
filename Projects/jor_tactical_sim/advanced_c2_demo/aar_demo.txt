@@ -1,0 +1,80 @@
+
+====================================================
+  AFTER-ACTION SUMMARY
+====================================================
+  Scenario:      baseline
+  Ticks:         136
+  Final state:   DEGRADED
+  Collapse:      Brief breach at t=118: all 4 conditions for 2 tick(s); 5 needed
+  First alert:   t=58   Mean NHP: 0.3762
+  Peak NHP:      0.937
+  Final NHP:     0.937
+  Alert ticks:   71
+  θs / θc / θo:  0.1929 / 0.9656 / 0.5567
+  Morale:        0.0
+  Decisions:     16
+    t=  0  PRESSURE_EARLY    choice=1  Coordination strain emerging. Choose:
+    t=  6  OUTCOMES_EARLY    choice=1  Friction emerging. Choose:
+    t= 10  PRESSURE          choice=1  Coordination load heavy. Choose:
+    t= 20  PRESSURE          choice=1  Coordination load heavy. Choose:
+    t= 30  PRESSURE          choice=1  Coordination load heavy. Choose:
+    t= 40  PRESSURE          choice=1  Coordination load heavy. Choose:
+    t= 50  PRESSURE          choice=1  Coordination load heavy. Choose:
+    t= 60  PRESSURE          choice=1  Coordination load heavy. Choose:
+    t= 70  PRESSURE          choice=1  Coordination load heavy. Choose:
+    t= 80  PRESSURE          choice=1  Coordination load heavy. Choose:
+    t= 90  PRESSURE          choice=1  Coordination load heavy. Choose:
+    t=100  PRESSURE          choice=1  Coordination load heavy. Choose:
+    t=110  PRESSURE          choice=1  Coordination load heavy. Choose:
+    t=111  OUTCOMES          choice=1  Unit friction detected. Choose:
+    t=112  FATIGUE_EARLY     choice=1  Early signs of fatigue. Choose:
+    t=113  CATASTROPHIC      choice=1  Collapse imminent. Choose:
+  Degraded:      TF 3-8 AR
+====================================================
+
+==================================================================
+  DEBRIEF — WHAT HAPPENED AND WHY
+==================================================================
+  HELD — by a hair (all collapse conditions aligned at t=118 for 2 tick(s); 5 needed)   [DEGRADED]
+  Brief breach at t=118: all 4 conditions for 2 tick(s); 5 needed
+  Severity: mean 0.22, peak 0.78 at t=119 (CRITICAL)
+
+  TIMELINE
+   t=  0 + Decision: Coordination strain emerging. → [1] Reinforce comms lightly
+            immediate: pressure -0.11; severity 0.00 → 0.00 over the next 5 ticks (little change)
+   t=  6 + Decision: Friction emerging. → [1] Rotate units lightly
+            immediate: outcomes -0.07; severity 0.00 → 0.00 over the next 5 ticks (little change)
+   t= 10 + Decision: Coordination load heavy. → [1] Strongly reinforce comms  (×2)
+            immediate each time: pressure -0.21; severity 0.00 → 0.03 across the stretch
+   t= 30 ! Local strain on a task force
+   t= 30 + Decision: Coordination load heavy. → [1] Strongly reinforce comms  (×8)
+            immediate each time: pressure -0.21; severity 0.16 → 0.27 across the stretch
+   t= 58 ! NHP alert armed
+            NHP 0.50
+   t=110 x Catastrophic event: Operational overextension + coordination failure
+   t=110 ! Severity reached STRAINED
+            severity 0.56
+   t=110 + Decision: Coordination load heavy. → [1] Strongly reinforce comms
+            immediate: pressure -0.21; during the shock: later changes are not attributable to this choice
+   t=111 x Severity reached CRITICAL
+            severity 0.69
+   t=111 + Decision: Unit friction detected. → [1] Aggressively rotate units
+            immediate: outcomes -0.10; during the shock: later changes are not attributable to this choice
+   t=112 + Decision: Early signs of fatigue. → [1] Slightly reduce tempo
+            immediate: readiness +0.07, pressure -0.11; during the shock: later changes are not attributable to this choice
+   t=113 + Decision: Collapse imminent. → [1] Attempt strong emergency stabilization
+            immediate: readiness +0.35, pressure -0.35, outcomes -0.15; during the shock: later changes are not attributable to this choice
+   t=118 ! Brief breach of all collapse conditions
+            2 tick(s); 5 needed
+
+  WHAT TO TAKE AWAY
+   1. A call that paid off
+      'Strongly reinforce comms' (8 times, t=30–100): pressure -0.21 each time.
+   2. Close, and preparation made the difference
+      You entered the catastrophe (t=110) with readiness 0.48, morale 1.00, severity 0.28 after 12 active decisions. Brief breach at t=118: all 4 conditions for 2 tick(s); 5 needed.
+   3. Emergency response
+      Your emergency call at t=113 was 'Attempt strong emergency stabilization' — immediate readiness +0.35, pressure -0.35, outcomes -0.15.
+
+  Notes: 'immediate' is the direct effect of the choice on that tick. The severity change over the next 5 ticks is what followed, not a controlled
+  comparison — the scenario keeps moving. Synthetic training scenario, not a prediction.
+==================================================================
