@@ -1,3 +1,66 @@
+# JOR — Bayesian Sequential Fusion for Tactical Maneuver Simulation
+
+> **PROJECT UPDATE (JOR 4.0 Advanced C2 Platform)**
+> 
+> This repository hosts two iterations of the JOR tactical decision-support framework:
+> * **[`advanced_c2_demo/`](./advanced_c2_demo/) — Interactive C2 Decision Support Platform (Latest)**  
+>   Features a real-time web dashboard (Leaflet spatial heatmaps, MIL-STD-2525 symbols), decision timers, a graded severity gauge, and an automated cause-and-effect post-mission debrief engine.
+> * **[`legacy_sim/`](./legacy_sim/) — Baseline Sequential Fusion Engine (Original)**  
+>   The initial command-line testbed and Matplotlib time-series log analyzer detailed below.
+
+---
+
+## 📁 Repository Directory Structure
+
+```text
+jor_tactical_sim/
+├── README.md                  # Unified project overview (this file)
+│
+├── advanced_c2_demo/          # JOR 4.0 Interactive C2 Decision Support Platform
+│   ├── dashboard.html         # Web UI with spatial heatmaps & live decision dock
+│   ├── stream_server.py       # Telemetry streaming & decision API server
+│   ├── engine.py              # Bayesian fusion engine (SOP, NHP, discounted mode)
+│   ├── debrief.py             # Cause-and-effect post-mortem debrief generator
+│   ├── aar_summary.py         # Terminal & UI after-action report builder
+│   ├── severity.py            # Graded 0-1 excess risk gauge
+│   ├── maneuver_sim_interactive.py # Multi-dimensional scenario driver
+│   ├── map_view.py            # MIL-STD-2525 unit rendering & heatfield generator
+│   ├── force_structure.py     # TO&E named unit designations
+│   ├── decision_catalog.py    # Decision prompt catalog & menu definitions
+│   ├── vignettes.py           # Automated training scenarios & grading
+│   ├── test_suite.py          # Complete unit test suite
+│   ├── demo_map.py            # Headless runner & GIF renderer
+│   └── DEMO_SCRIPT.txt        # Canonical 5-minute presentation guide
+│
+└── legacy_sim/                # Original Baseline Terminal Simulation
+    ├── engine.py              # Initial JOREngine core
+    ├── maneuver_adapter.py    # Input-to-signal converter (theta_s, theta_c, theta_o)
+    ├── logger.py              # JSON-lines telemetry logger
+    ├── maneuver_sim_interactive.py # Original interactive CLI driver
+    └── plot_maneuver_log.py   # Matplotlib log visualizer
+```
+
+---
+
+## 🚀 Quick Start
+
+### Running the Advanced C2 Platform (`advanced_c2_demo`)
+```bash
+cd advanced_c2_demo
+pip install -r requirements.txt
+python run_demo.py
+```
+Open `http://localhost:8000` to interact with the real-time C2 dashboard.
+
+### Running the Baseline Simulator (`legacy_sim`)
+```bash
+cd legacy_sim
+pip install -r requirements.txt
+python maneuver_sim_interactive.py
+```
+
+---
+
 # JOR — Bayesian Sequential Fusion for Wargame-Style Anomaly Detection
 
 JOR is a Bayesian posterior-fusion engine that tracks force health over time from
@@ -42,9 +105,9 @@ the fusion engine and how it behaves under stress, not the scenario dressing.
    aligned and the 4th just missed looks identical to a run where nothing
    happened at all, unless you're also tracking how close it got. This layer
    reports that proximity explicitly instead of collapsing it into a single
-   detected/not-detected result.
+    detected/not-detected result.
 
-## Files
+## Files (`legacy_sim/`)
 
 | File | Purpose |
 |---|---|
@@ -85,7 +148,7 @@ A logistics-constrained run with a scripted coordination failure at tick 110:
 
 ![JOR fusion chart](maneuver_log_logistics_constrained.png)
 
-```
+```text
 Baseline SOP (t=0-24):  0.355
 Final SOP (t=119):      0.932
 Final NHP:              0.953
