@@ -1,0 +1,7 @@
+# JOR 4.0 Advanced C2 Simulation Platform Dependencies
+
+# Core matrix operations & state vector scaling
+numpy>=1.22.0
+
+# Geospatial map rendering & telemetry chart plotting
+matplotlib>=3.5.0
