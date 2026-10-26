@@ -1,6 +1,6 @@
 # James Orion Report (JOR 4.0) — Advanced C2 Decision Support Platform
 
-![JOR 4.0 Tactical Simulation Interface](Projects/jor_tactical_sim/tactical_image.png)
+![JOR 4.0 Tactical Simulation Interface](<tactical image.png>)
 
 ## Overview
 
