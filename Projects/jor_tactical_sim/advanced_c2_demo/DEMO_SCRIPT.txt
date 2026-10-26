@@ -1,0 +1,53 @@
+JOR 4.0 — Canonical synthetic demo script (~5 minutes)
+======================================================
+
+LOCKED CONFIG (do not change for the pitch)
+  scenario = baseline
+  seed     = 42
+  units    = 6
+  skill    = expert
+  policy   = intervene
+  ticks    = 120
+
+START
+  python3 run_demo.py
+  → open the printed URL
+  → click "Live stream"
+  → press M (Map focus)
+
+MINUTE 0–1  Opening picture
+  Green readiness bars, low NHP (~0.05), OSM dark map with TF symbols.
+  Point out: TF 1-6 INF, TF 3-8 AR, TRP A RCN, SPT CO LOG.
+  Say: "Force is healthy; decision support is quiet."
+
+MINUTE 1–2  First decision
+  Right rail shows PRESSURE_EARLY / similar with T-minus.
+  Click [1] Reinforce / reduce tempo (intervene policy).
+  Say: "Commander intervenes under time pressure."
+
+MINUTE 2–3  Local strain (t≈30)
+  TF card highlights degraded (e.g. TF 3-8 AR *).
+  Readiness dips on that unit; risk ring tightens.
+  Say: "Local friction appears without force-wide collapse."
+
+MINUTE 3–4  Pressure climb
+  NHP and θc rise; ALERT may arm; heat / red rings expand.
+  Optional: press ] to show decision rail if Map focus was on.
+
+MINUTE 4–5  Catastrophic stress (t≈110)
+  Deep red rings, stacked cues, low readiness fills.
+  Say: "Overextension + coordination failure — NHP peaks."
+
+CLOSE
+  After-action card appears (UI) and prints in the terminal:
+    final state, peak NHP, decisions, degraded units.
+  Say: "Same seed → same arc. Demo is repeatable."
+
+KEYS
+  [  toggle readiness matrix
+  ]  toggle decision panel
+  M  map only / restore panels
+
+OFFLINE (no stream)
+  python3 run_demo.py --offline
+  python3 run_demo.py --playback
