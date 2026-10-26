@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>JOR 4.0 — Tactical Maneuver Simulation</title>
+<link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<style>
+  :root {
+    --bg: #0b1220;
+    --panel: #121c2e;
+    --panel-border: #1e2f4a;
+    --text: #d7e3f4;
+    --muted: #8aa0bf;
+    --accent: #3d7eff;
+    --ok: #3dd68c;
+    --warn: #f0c14a;
+    --bad: #ff5c5c;
+    --halo-ok: rgba(61, 214, 140, 0.25);
+    --halo-bad: rgba(255, 92, 92, 0.35);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    overflow: hidden;
+  }
+  .app {
+    display: grid;
+    grid-template-rows: 48px 1fr 40px;
+    height: 100%;
+  }
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px;
+    background: linear-gradient(90deg, #0e1a2f, #152a48 40%, #0e1a2f);
+    border-bottom: 1px solid var(--panel-border);
+    letter-spacing: 0.08em;
+  }
+  header h1 {
+    margin: 0; font-size: 15px; font-weight: 600;
+    color: #9ec1ff;
+  }
+  header h1 span { color: #e8f0ff; font-weight: 700; }
+  .header-right { display: flex; gap: 12px; align-items: center; font-size: 12px; color: var(--muted); }
+
+  .workspace {
+    display: grid;
+    grid-template-columns: minmax(200px, 260px) 1fr minmax(200px, 260px);
+    gap: 8px;
+    padding: 8px;
+    min-height: 0;
+  }
+  .workspace.left-collapsed {
+    grid-template-columns: 0 1fr minmax(200px, 260px);
+  }
+  .workspace.right-collapsed {
+    grid-template-columns: minmax(200px, 260px) 1fr 0;
+  }
+  .workspace.left-collapsed.right-collapsed {
+    grid-template-columns: 0 1fr 0;
+  }
+  .workspace.left-collapsed > .panel-left,
+  .workspace.right-collapsed > .panel-right {
+    overflow: hidden;
+    border: none;
+    padding: 0;
+    min-width: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  @media (max-width: 1200px) {
+    .workspace {
+      grid-template-columns: minmax(180px, 220px) 1fr minmax(180px, 220px);
+    }
+  }
+  /* Half-screen / split layout (e.g. browser snapped beside a terminal on one
+     monitor): map on top at full width; readiness matrix and decision prompt
+     side by side underneath. Nothing stacks into a long scrolling column. */
+  @media (max-width: 1000px) {
+    header h1 { font-size: 13px; }
+    #hdr-scenario, .header-right label { display: none; }
+    .workspace {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: minmax(0, 1fr) minmax(0, 36vh);
+      grid-template-areas: "map map" "units decide";
+    }
+    .workspace.left-collapsed,
+    .workspace.right-collapsed,
+    .workspace.left-collapsed.right-collapsed { grid-template-columns: 1fr 1fr; }
+    .workspace > .panel-center { grid-area: map; }
+    .workspace > .panel-left   { grid-area: units; }
+    .workspace > .panel-right  { grid-area: decide; }
+    .workspace .panel-left .feedback { display: none; }
+    .workspace .unit-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                            gap: 6px; padding: 6px; align-content: start; }
+    .workspace .unit-card { padding: 5px 7px; }
+    .workspace .unit-sub, .workspace .metric ~ .metric { display: none; }
+    .workspace .metric { grid-template-columns: 44px 1fr 30px; }
+    .workspace .unit-head { margin-bottom: 3px; }
+    /* decision dock: prompt first (that is what needs a reaction), then numbers */
+    .workspace .decision { padding: 8px; gap: 6px; }
+    .workspace .decision .panel-title { display: none; }
+    .workspace .decision .timer { order: 0; font-size: 20px; padding: 6px; }
+    .workspace .decision #decision-menu { order: 1; }
+    .workspace .decision .force-metrics { order: 2; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+    .workspace .decision #alerts { order: 4; }
+    .workspace .decision #aar-card.done { order: 3; }
+    .workspace .force-metrics .cell { padding: 4px; }
+    .workspace .force-metrics .cell .v { font-size: 14px; }
+    footer { gap: 6px; padding: 0 8px; }
+    footer #ui-hint { display: none; }
+    footer button { padding: 4px 7px; }
+    /* collapsing a dock panel gives its space to the other one / the map */
+    .workspace.left-collapsed > .panel-left,
+    .workspace.right-collapsed > .panel-right { display: none; }
+    .workspace.left-collapsed { grid-template-areas: "map map" "decide decide"; }
+    .workspace.right-collapsed { grid-template-areas: "map map" "units units"; }
+    .workspace.left-collapsed.right-collapsed { grid-template-rows: 1fr; grid-template-areas: "map map"; }
+  }
+  @media (max-width: 1000px) and (max-height: 640px) {
+    .workspace { grid-template-rows: minmax(0, 1fr) minmax(0, 40vh); }
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    display: flex; flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .panel-title {
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted);
+    padding: 10px 12px 6px;
+    border-bottom: 1px solid var(--panel-border);
+  }
+
+  /* Left: readiness matrix */
+  .unit-list { overflow: auto; padding: 8px; display: flex; flex-direction: column; gap: 8px; }
+  .unit-card {
+    background: #0e1728;
+    border: 1px solid var(--panel-border);
+    border-radius: 5px;
+    padding: 8px 10px;
+  }
+  .unit-card.degraded { border-color: #a33; box-shadow: 0 0 0 1px rgba(255,80,80,0.25); }
+  .unit-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .unit-name { font-size: 12px; font-weight: 600; }
+  .unit-sub { font-size: 10px; color: var(--muted); margin-bottom: 6px; }
+  .unit-role {
+    font-size: 10px; padding: 2px 6px; border-radius: 3px;
+    background: #1a2b48; color: #9ec1ff;
+  }
+  .metric { display: grid; grid-template-columns: 70px 1fr 36px; gap: 6px; align-items: center;
+            font-size: 10px; color: var(--muted); margin: 3px 0; }
+  .bar {
+    height: 6px; border-radius: 3px; background: #1a2438; overflow: hidden;
+  }
+  .bar > i {
+    display: block; height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, var(--ok), var(--warn), var(--bad));
+    background-size: 200% 100%;
+  }
+  .bar > i.ok { background: var(--ok); }
+  .bar > i.mid { background: var(--warn); }
+  .bar > i.bad { background: var(--bad); }
+
+  .feedback {
+    border-top: 1px solid var(--panel-border);
+    padding: 8px 10px 10px;
+  }
+  .feedback canvas { width: 100%; height: 90px; background: #0a1220; border-radius: 4px; }
+
+  /* Center map */
+  .map-wrap { position: relative; flex: 1; min-height: 0; background: #0a1520; }
+  #terrain {
+    position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+  }
+  #map {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+  }
+  .map-idle-hint {
+    position: absolute; inset: 0; z-index: 500;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    pointer-events: none; text-align: center; padding: 24px;
+    background: rgba(8, 14, 24, 0.55);
+  }
+  .map-idle-hint.hidden { display: none; }
+  .map-idle-hint .primary {
+    font-size: 16px; font-weight: 600; color: #e8f0ff; letter-spacing: 0.02em;
+  }
+  .map-idle-hint .primary b { color: #9ec1ff; }
+  .map-idle-hint .secondary {
+    margin-top: 8px; font-size: 12px; color: #8aa0bf;
+  }
+  .map-overlay {
+    position: absolute; left: 10px; bottom: 10px;
+    font-size: 11px; color: var(--muted);
+    background: rgba(10,18,32,0.75); padding: 6px 10px; border-radius: 4px;
+    border: 1px solid var(--panel-border);
+  }
+  .badge {
+    position: absolute; top: 10px; left: 10px;
+    font-size: 10px; letter-spacing: 0.1em;
+    background: rgba(30, 60, 120, 0.55); color: #b8d0ff;
+    padding: 4px 8px; border-radius: 3px; border: 1px solid #2a4a7a;
+  }
+
+  /* Right: decision support */
+  .decision { padding: 12px; display: flex; flex-direction: column; gap: 10px; overflow: auto; }
+  .timer {
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 28px; font-weight: 700; color: #ffb347;
+    text-align: center; padding: 12px;
+    background: #0e1728; border: 1px solid #5a3a10; border-radius: 5px;
+  }
+  .timer.idle { color: var(--muted); border-color: var(--panel-border); }
+  .alert-item {
+    background: #0e1728; border-left: 3px solid var(--warn);
+    padding: 8px 10px; border-radius: 0 4px 4px 0;
+    font-size: 12px;
+  }
+  .alert-item.high { border-left-color: var(--bad); }
+  .alert-item .tag { font-size: 10px; color: var(--muted); margin-bottom: 2px; }
+  .decision .timer { order: -4; }
+  .decision .force-metrics { order: -3; }
+  .decision #aar-card.done { order: -1; }
+  .force-metrics {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .force-metrics .cell {
+    background: #0e1728; border: 1px solid var(--panel-border);
+    border-radius: 4px; padding: 8px; text-align: center;
+  }
+  .force-metrics .cell .v { font-size: 18px; font-weight: 700; }
+  .force-metrics .cell .k { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; }
+
+  /* Severity gauge (graded companion to NHP) */
+  .sev { grid-column: 1 / -1; background:#0e1728; border:1px solid var(--panel-border); border-radius:4px; padding:6px 8px; }
+  .sev-head { display:flex; align-items:baseline; gap:8px; font-size:10px; letter-spacing:.08em; color:var(--muted); }
+  .sev-head b { font-size:16px; color:var(--text); letter-spacing:0; }
+  .sev-head em { font-style:normal; font-weight:700; margin-left:auto; }
+  .sev-bar { position:relative; height:8px; margin-top:5px; border-radius:4px; overflow:hidden;
+             background:linear-gradient(90deg, rgba(61,214,140,.22) 0 20%, rgba(155,208,90,.22) 20% 40%,
+               rgba(240,193,74,.22) 40% 60%, rgba(255,154,61,.22) 60% 80%, rgba(255,92,92,.25) 80% 100%); }
+  .sev-bar i { position:absolute; left:0; top:0; bottom:0; width:0; background:var(--ok); transition:width .25s, background .25s; }
+  /* Debrief */
+  .debrief-overlay { display:none; position:fixed; inset:0; z-index:2000; background:rgba(5,10,20,.8);
+                     align-items:center; justify-content:center; padding:2vh 2vw; }
+  .debrief-overlay.open { display:flex; }
+  .debrief-card { width:min(940px,96vw); max-height:94vh; overflow:auto; background:var(--panel);
+                  border:1px solid var(--panel-border); border-radius:8px; padding:16px 20px 18px; position:relative; }
+  .debrief-card h2 { margin:0 0 2px; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  .debrief-close { position:absolute; top:10px; right:12px; background:#1a2b48; color:var(--text);
+                   border:1px solid var(--panel-border); border-radius:4px; padding:3px 10px; cursor:pointer; font-size:12px; }
+  .db-verdict { font-size:20px; font-weight:700; margin:6px 0 2px; }
+  .db-verdict.collapse { color:var(--bad); } .db-verdict.close, .db-verdict.aborted { color:var(--warn); } .db-verdict.held { color:var(--ok); }
+  .db-sub { color:var(--muted); font-size:12px; margin-bottom:10px; }
+  .db-stats { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 12px; }
+  .db-stat { background:#0e1728; border:1px solid var(--panel-border); border-radius:5px; padding:6px 10px; font-size:11px; color:var(--muted); }
+  .db-stat b { display:block; font-size:15px; color:var(--text); }
+  #debrief-chart { width:100%; height:170px; background:#0a1220; border-radius:5px; display:block; }
+  .db-legend { font-size:10px; color:var(--muted); margin:4px 0 12px; display:flex; flex-wrap:wrap; gap:12px; }
+  .db-h { font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin:14px 0 6px; }
+  .db-tl { list-style:none; margin:0; padding:0; }
+  .db-tl li { display:grid; grid-template-columns: 86px 1fr; gap:8px; padding:6px 8px; border-left:3px solid var(--panel-border);
+              background:#0e1728; margin-bottom:4px; border-radius:0 4px 4px 0; font-size:12px; }
+  .db-tl li.good { border-left-color:var(--ok); } .db-tl li.warn { border-left-color:var(--warn); }
+  .db-tl li.bad { border-left-color:var(--bad); } .db-tl li.info { border-left-color:var(--accent); }
+  .db-tl .tt { color:var(--muted); font-family:Consolas,monospace; font-size:11px; }
+  .db-tl .det { color:var(--muted); font-size:11px; margin-top:2px; }
+  .db-less { margin:0; padding-left:18px; font-size:12px; }
+  .db-less li { margin-bottom:8px; } .db-less .ev { color:var(--muted); display:block; margin-top:1px; }
+  .db-note { color:var(--muted); font-size:10px; margin-top:12px; }
+  /* Decision menu + after-action card */
+  .decision-menu { background:#0e1728; border:1px solid #5a3a10; border-radius:5px; padding:8px; display:flex; flex-direction:column; gap:5px; }
+  .d-title { font-size:13px; font-weight:600; color:#ffd9a0; padding:2px 2px 4px; }
+  .d-opt { background:#13213a; border:1px solid var(--panel-border); border-radius:4px; padding:6px 9px; font-size:12px; }
+  .d-opt:hover { background:#1a2d4e; border-color:var(--accent); }
+  .d-opt.selected { background:#1d3a2c; border-color:var(--ok); color:#c9f5dd; }
+  .d-chosen { font-size:11px; color:var(--ok); padding:2px; }
+  .d-meta { font-size:10px; color:var(--muted); letter-spacing:.06em; padding:2px; }
+  .aar-card { display:none; background:#0e1728; border:1px solid var(--panel-border); border-radius:5px; padding:10px 12px; font-size:12px; }
+  .aar-card h3 { margin:0 0 8px; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  .aar-card .row { display:flex; justify-content:space-between; gap:12px; padding:3px 0; border-bottom:1px solid #16243b; }
+  .aar-card .row:last-child { border-bottom:none; }
+  .aar-card .row span { color:var(--muted); }
+  .aar-card .row b { font-weight:600; text-align:right; }
+  .aar-card.live-pending { opacity:.75; }
+  footer {
+    display: flex; align-items: center; gap: 12px;
+    padding: 0 12px;
+    border-top: 1px solid var(--panel-border);
+    background: #0e1728;
+    font-size: 12px; color: var(--muted);
+  }
+  footer input[type=range] { flex: 1; }
+  footer button {
+    background: #1a2b48; color: var(--text); border: 1px solid var(--panel-border);
+    border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 12px;
+  }
+  footer button:hover { background: #243a5e; }
+  #file-input { font-size: 11px; color: var(--muted); }
+
+  /* SVG symbols */
+  .sym-frame { fill: #1a3a6e; stroke: #4d8dff; stroke-width: 2; }
+  .sym-frame.alert { stroke: #ff6b6b; fill: #4a1a1a; }
+  .sym-icon { fill: none; stroke: #cfe0ff; stroke-width: 1.8; }
+  .sym-label { fill: #e8f0ff; font-size: 10px; font-family: system-ui, sans-serif; font-weight: 600; }
+  .halo-ok { fill: var(--halo-ok); stroke: rgba(61,214,140,0.5); stroke-width: 1.5; }
+  .halo-bad { fill: var(--halo-bad); stroke: rgba(255,92,92,0.55); stroke-width: 1.5; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1><span>JOR 4.0</span> TACTICAL MANEUVER SIMULATION</h1>
+    <div class="header-right">
+      <span id="hdr-scenario">—</span>
+      <span id="hdr-state">—</span>
+      <span id="hdr-mode" style="color:#9ec1ff">playback</span>
+      <label style="cursor:pointer">
+        Load frames
+        <input id="file-input" type="file" accept=".jsonl,.json,application/json" />
+      </label>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <!-- LEFT -->
+    <section class="panel panel-left">
+      <div class="panel-title">Theater Readiness Matrix</div>
+      <div class="unit-list" id="unit-list"></div>
+      <div class="feedback">
+        <div class="panel-title" style="border:none;padding:0 0 6px">System State Feedback Loop</div>
+        <canvas id="feedback-chart" width="260" height="90"></canvas>
+      </div>
+    </section>
+
+    <!-- CENTER -->
+    <section class="panel panel-center">
+      <div class="panel-title">MIL-STD-2525 Theater Map</div>
+      <div class="map-wrap">
+        <div id="map"></div>
+        <div class="badge">MIL-STD-2525 · OSM</div>
+        <div class="map-overlay" id="map-metrics">NHP —</div>
+        <div id="map-idle-hint" class="map-idle-hint">
+          <div class="primary">Click <b>Live stream</b> to begin the mission</div>
+          <div class="secondary">Map and decisions appear when the run starts</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT -->
+    <section class="panel panel-right">
+      <div class="panel-title">Decision Support Engine</div>
+      <div class="decision">
+        <div class="timer idle" id="timer">T-minus ——</div>
+        <div class="force-metrics">
+          <div class="cell"><div class="v" id="m-nhp">—</div><div class="k">NHP</div></div>
+          <div class="cell"><div class="v" id="m-alert">—</div><div class="k">ALERT</div></div>
+          <div class="cell"><div class="v" id="m-ths">—</div><div class="k">θs</div></div>
+          <div class="cell"><div class="v" id="m-thc">—</div><div class="k">θc</div></div>
+          <div class="sev" title="How far the force has moved from healthy (graded; NHP is the probability something is wrong)">
+            <div class="sev-head"><span>SEVERITY</span><b id="sev-val">—</b><em id="sev-band"></em></div>
+            <div class="sev-bar"><i id="sev-fill"></i></div>
+          </div>
+        </div>
+        <div class="panel-title" style="border:none;padding:4px 0">Decision Prompt</div>
+        <div id="decision-menu" class="decision-menu" style="display:none"></div>
+        <div class="panel-title" style="border:none;padding:4px 0">Active Cues</div>
+        <div id="alerts"></div>
+        <div id="aar-card" class="aar-card"></div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <span id="ui-hint" style="color:#8aa0bf;font-size:11px;margin-right:8px">M = map focus · ] = decisions · Live stream for real-time</span>
+    <button id="btn-toggle-left" title="Toggle readiness panel">◀ Matrix</button>
+    <button id="btn-toggle-right" title="Toggle decision panel">Decision ▶</button>
+    <button id="btn-map-only" title="Map only / restore panels">Map focus</button>
+    <button id="btn-debrief" style="display:none" title="Open the end-of-run debrief (D)">Debrief</button>
+    <button id="btn-live">Live stream</button>
+    <button id="btn-play">Play</button>
+    <button id="btn-prev">−1</button>
+    <input id="scrub" type="range" min="0" max="0" value="0" />
+    <button id="btn-next">+1</button>
+    <span id="tick-label">t=0</span>
+  </footer>
+</div>
+
+<div class="debrief-overlay" id="debrief">
+  <div class="debrief-card">
+    <button class="debrief-close" id="debrief-close">Close (Esc)</button>
+    <h2>Debrief — what happened and why</h2>
+    <div id="debrief-body"></div>
+  </div>
+</div>
+
+<script>
+const FALLBACK_ROLES = ["infantry", "armor", "infantry", "recon", "logistics", "armor", "infantry", "hq"];
+const ROLE_LABEL = { infantry: "INF", armor: "AR", recon: "CAV", logistics: "BSB", hq: "HQ", artillery: "FA", engineer: "ENG" };
+
+let frames = [];
+let idx = 0;
+let playing = false;
+let playTimer = null;
+let liveMode = false;
+let eventSource = null;
+const history = { morale: [], friction: [] };
+let map = null;
+let unitLayer = null;
+let haloLayer = null;
+let heatLayer = null;
+let decisionCountdown = null;   // { endsAt, total, type, t, selected }
+let decisionTimerHandle = null;
+let lastDecisionKey = null;
+
+const $ = (id) => document.getElementById(id);
+
+function unitRole(u) { return u.role || FALLBACK_ROLES[u.id % FALLBACK_ROLES.length]; }
+function unitName(u) { return u.name || ("TF U" + u.id); }
+function unitShort(u) { return u.short || ROLE_LABEL[unitRole(u)] || "U"; }
+function readinessBar(v) {
+  if (v >= 0.65) return "ok";
+  if (v >= 0.40) return "mid";
+  return "bad";
+}
+function pressureBar(v) {
+  if (v <= 0.45) return "ok";
+  if (v <= 0.70) return "mid";
+  return "bad";
+}
+
+
+function setIdleHint(show) {
+  const el = $("map-idle-hint");
+  if (!el) return;
+  el.classList.toggle("hidden", !show);
+}
+
+function initMap() {
+  if (map) return;
+  const el = document.getElementById("map");
+  map = L.map(el, { zoomControl: true, attributionControl: true }).setView([34.05, 35.55], 11);
+  // Dark basemap (Carto Dark Matter)
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: "&copy; OpenStreetMap"
+  }).addTo(map);
+  // Dark-ops look without a paid tile key: invert/grade the raster pane
+  const pane = document.querySelector(".leaflet-tile-pane");
+  if (pane) pane.style.filter = "brightness(0.75) invert(1) hue-rotate(180deg) contrast(1.1) saturate(0.7)";
+  haloLayer = L.layerGroup().addTo(map);
+  unitLayer = L.layerGroup().addTo(map);
+  setTimeout(() => map.invalidateSize(), 50);
+}
+
+function unitIconSVG(u) {
+  const role = unitRole(u);
+  const stroke = (u.degraded || u.readiness < 0.45) ? "#ff6b6b" : "#4d8dff";
+  const fill = u.readiness >= 0.65 ? "#1a4a2a" : u.readiness >= 0.4 ? "#4a4a1a" : "#4a1a1a";
+  let icon = "";
+  if (role === "infantry") icon = '<path d="M8 6 L24 18 M8 18 L24 6" stroke="#cfe0ff" stroke-width="2" fill="none"/>';
+  else if (role === "armor") icon = '<ellipse cx="16" cy="12" rx="10" ry="5" stroke="#cfe0ff" stroke-width="2" fill="none"/>';
+  else if (role === "logistics") icon = '<rect x="8" y="6" width="16" height="12" stroke="#cfe0ff" stroke-width="2" fill="none"/>';
+  else if (role === "artillery") icon = '<circle cx="16" cy="12" r="4" fill="#cfe0ff"/>';
+  else if (role === "engineer") icon = '<path d="M9 18 V7 H23 V18" stroke="#cfe0ff" stroke-width="2" fill="none"/>';
+  else if (role === "hq") icon = '<path d="M10 18 V6 H22" stroke="#cfe0ff" stroke-width="2" fill="none"/>';
+  else icon = '<path d="M8 16 L16 5 L24 16" stroke="#cfe0ff" stroke-width="2" fill="none"/>';
+  const slash = u.degraded ? '<line x1="6" y1="20" x2="26" y2="4" stroke="#111" stroke-width="2.5"/>' : "";
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 32 28">' +
+    '<rect x="2" y="2" width="28" height="20" rx="2" fill="' + fill + '" stroke="' + stroke + '" stroke-width="2"/>' +
+    icon + slash + "</svg>";
+}
+
+function renderMap(frame) {
+  initMap();
+  haloLayer.clearLayers();
+  unitLayer.clearLayers();
+
+  const bounds = [];
+  const heatPts = [];
+
+  for (const u of frame.units) {
+    const lon = u.lon != null ? u.lon : (35.40 + u.x * 0.018);
+    const lat = u.lat != null ? u.lat : (33.85 + u.y * 0.018);
+    bounds.push([lat, lon]);
+
+    // Client-side risk intensity from force NHP + local readiness deficit
+    const intensity = Math.min(1, frame.nhp * (0.55 + 0.45 * (1 - u.readiness)) * (u.degraded ? 1.35 : 1));
+    heatPts.push([lat, lon, Math.max(0.05, intensity)]);
+
+    const risk = intensity;
+    const radiusM = 500 + risk * 2200;
+    const color = (frame.nhp > 0.5 || u.degraded) ? "#ff5c5c" : "#3dd68c";
+    L.circle([lat, lon], {
+      radius: radiusM,
+      color: color,
+      weight: 1.5,
+      fillColor: color,
+      fillOpacity: 0.12 + 0.2 * risk,
+      opacity: 0.5
+    }).addTo(haloLayer);
+
+    const html = '<div style="text-align:center;line-height:1">' + unitIconSVG(u) +
+      '<div style="font-size:10px;font-weight:700;color:#e8f0ff;text-shadow:0 1px 2px #000">' +
+      unitShort(u) + (u.degraded ? "*" : "") + "</div></div>";
+    const icon = L.divIcon({ className: "jor-unit-marker", html: html, iconSize: [40, 44], iconAnchor: [20, 22] });
+    L.marker([lat, lon], { icon: icon })
+      .bindPopup("<strong>" + unitName(u) + "</strong><br/>Readiness " + (u.readiness * 100).toFixed(0) + "%")
+      .addTo(unitLayer);
+  }
+
+  // Client-side heatmap (leaflet.heat) — no server-side contour images
+  if (heatLayer) {
+    map.removeLayer(heatLayer);
+    heatLayer = null;
+  }
+  if (typeof L.heatLayer === "function" && heatPts.length) {
+    try {
+      heatLayer = L.heatLayer(heatPts, {
+        radius: 35,
+        blur: 25,
+        maxZoom: 14,
+        max: 1.0,
+        gradient: {
+          0.0: "#0b1220",
+          0.25: "#1a3a5c",
+          0.45: "#f0c14a",
+          0.7: "#ff8c42",
+          1.0: "#ff2d2d"
+        }
+      }).addTo(map);
+    } catch (err) { console.warn("heatLayer", err); }
+  }
+
+  if (bounds.length) {
+    map.fitBounds(bounds, { padding: [60, 60], maxZoom: 13 });
+  }
+  map.invalidateSize();
+
+  $("map-metrics").textContent =
+    "NHP " + frame.nhp.toFixed(3) + "  |  " + (frame.alert ? "ALERT" : "Normal") + "  |  " +
+    "θs " + frame.theta_s.toFixed(2) + "  θc " + frame.theta_c.toFixed(2) + "  θo " + frame.theta_o.toFixed(2) +
+    (frame.severity != null ? "  |  SEV " + frame.severity.toFixed(2) : "") +
+    (frame.scenario ? "  |  " + frame.scenario : "");
+}
+
+function renderUnitList(frame) {
+  const list = $("unit-list");
+  list.innerHTML = "";
+  const pressure = frame.pressure, morale = frame.morale;
+  for (const u of frame.units) {
+    const role = unitRole(u);
+    const card = document.createElement("div");
+    card.className = "unit-card" + (u.degraded ? " degraded" : "");
+    card.innerHTML =
+      '<div class="unit-head"><span class="unit-name">' + unitName(u) + (u.degraded ? " *" : "") +
+      '</span><span class="unit-role">' + unitShort(u) + "</span></div>" +
+      '<div class="unit-sub">' + ((u.echelon || "").toUpperCase()) + " · " + role + "</div>" +
+      '<div class="metric"><span>Readiness (θs)</span><div class="bar"><i class="' + readinessBar(u.readiness) +
+      '" style="width:' + (u.readiness*100).toFixed(0) + '%"></i></div><span>' + (u.readiness*100).toFixed(0) + "%</span></div>" +
+      '<div class="metric"><span>Pressure (θc)</span><div class="bar"><i class="' + pressureBar(pressure) +
+      '" style="width:' + (pressure*100).toFixed(0) + '%"></i></div><span>' + (pressure*100).toFixed(0) + "%</span></div>" +
+      '<div class="metric"><span>Morale</span><div class="bar"><i class="' + readinessBar(morale) +
+      '" style="width:' + (morale*100).toFixed(0) + '%"></i></div><span>' + (morale*100).toFixed(0) + "%</span></div>";
+    list.appendChild(card);
+  }
+}
+
+function drawFeedback() {
+  const canvas = $("feedback-chart");
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = "#1e2f4a";
+  for (let i = 1; i < 4; i++) {
+    const y = (h / 4) * i;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+  }
+  function line(arr, color) {
+    if (arr.length < 2) return;
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
+    for (let i = 0; i < arr.length; i++) {
+      const x = (i / Math.max(arr.length - 1, 1)) * (w - 4) + 2;
+      const y = h - 4 - Math.min(1, arr[i]) * (h - 8);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+  line(history.morale, "#f0a030");
+  line(history.friction, "#ff5c5c");
+  ctx.fillStyle = "#8aa0bf"; ctx.font = "9px system-ui";
+  ctx.fillText("Morale deficit", 6, 12);
+  ctx.fillStyle = "#ff8a8a"; ctx.fillText("Friction / pressure", 110, 12);
+}
+
+function showAAR(summary) {
+  const card = $("aar-card");
+  if (!card || !summary) { if (card) card.style.display = "none"; return; }
+  card.style.display = "block";
+  card.classList.add("done");       // finished summary sits right under the metrics
+  let html = "<h3>After-Action Summary</h3>";
+  const rows = [
+    ["Final state", summary.final_state],
+    ["Collapse", summary.collapse_detail],
+    ["First alert", summary.first_alert_t == null ? "never" : "t=" + summary.first_alert_t],
+    ["Mean / peak NHP", summary.mean_nhp + " / " + summary.peak_nhp],
+    ["Final NHP", summary.final_nhp],
+    ["Alert ticks", summary.alert_ticks],
+    ["Decisions", summary.n_decisions],
+    ["θs / θc / θo", (summary.final_theta_s + " / " + summary.final_theta_c + " / " + summary.final_theta_o)],
+  ];
+  for (const [k, v] of rows) {
+    html += '<div class="row"><span>' + k + '</span><b>' + v + '</b></div>';
+  }
+  if (summary.degraded_units && summary.degraded_units.length) {
+    html += '<div class="row"><span>Degraded</span><b>' + summary.degraded_units.join(", ") + '</b></div>';
+  }
+  if (summary.decisions && summary.decisions.length) {
+    html += '<div style="margin-top:6px;color:var(--muted)">Choices:</div>';
+    for (const d of summary.decisions.slice(0, 8)) {
+      html += '<div class="row"><span>t=' + d.t + ' · ' + (d.type || "") + '</span><b>choice ' + (d.selected || "—") + '</b></div>';
+    }
+  }
+  card.innerHTML = html;
+}
+
+function formatTminus(secs) {
+  secs = Math.max(0, Math.ceil(secs));
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return "T-minus " + String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+}
+
+function stopDecisionTimer() {
+  if (decisionTimerHandle) {
+    clearInterval(decisionTimerHandle);
+    decisionTimerHandle = null;
+  }
+}
+
+function tickDecisionTimer() {
+  const timer = $("timer");
+  if (!timer || !decisionCountdown) return;
+  if (decisionCountdown.selected) {
+    timer.textContent = "SELECTED · " + decisionCountdown.selected;
+    timer.classList.remove("idle", "urgent");
+    return;
+  }
+  const left = (decisionCountdown.endsAt - Date.now()) / 1000;
+  timer.textContent = formatTminus(left);
+  timer.classList.remove("idle");
+  if (left <= 3) timer.classList.add("urgent");
+  else timer.classList.remove("urgent");
+  if (left <= 0) {
+    timer.textContent = "T-minus 00:00 · FORFEIT";
+    timer.classList.add("urgent");
+    stopDecisionTimer();
+  }
+}
+
+function startDecisionTimer(totalSec, key, type, t) {
+  stopDecisionTimer();
+  decisionCountdown = {
+    endsAt: Date.now() + totalSec * 1000,
+    total: totalSec,
+    type: type,
+    t: t,
+    selected: null,
+    key: key,
+  };
+  tickDecisionTimer();
+  decisionTimerHandle = setInterval(tickDecisionTimer, 200);
+}
+
+let cliMode = false;   // set from /config when the terminal owns the run (--serve)
+
+function postDecision(selected) {
+  if (cliMode) {
+    const timer = $("timer");
+    if (timer) timer.textContent = "TYPE IT IN THE TERMINAL";
+    return;
+  }
+  selected = String(selected);
+  if (decisionCountdown) decisionCountdown.selected = selected;
+  else decisionCountdown = { selected: selected, endsAt: Date.now(), total: 0, key: "manual" };
+  tickDecisionTimer();
+
+  const menu = $("decision-menu");
+  if (menu) {
+    menu.style.display = "block";
+    // If options are not in the DOM yet, build a minimal confirmation panel
+    if (!menu.querySelector(".d-opt")) {
+      menu.innerHTML = '<div class="d-title">Decision recorded</div>' +
+        '<div class="d-chosen">YOU SELECTED OPTION [' + selected + ']</div>' +
+        '<div class="d-meta">Waiting for simulation to apply choice…</div>';
+    } else {
+      menu.querySelectorAll(".d-opt").forEach(el => {
+        const id = el.getAttribute("data-id");
+        el.classList.toggle("selected", id === selected);
+        const base = el.getAttribute("data-label") || el.textContent.replace(/\s*←.*$/, "").replace(/^✓\s*/, "");
+        el.textContent = (id === selected ? "✓ " : "") + base + (id === selected ? "  ← YOUR CHOICE" : "");
+      });
+      let banner = menu.querySelector(".d-chosen");
+      if (!banner) {
+        banner = document.createElement("div");
+        banner.className = "d-chosen";
+        menu.appendChild(banner);
+      }
+      banner.textContent = "YOU SELECTED OPTION [" + selected + "]";
+    }
+  }
+  // Always surface the timer strip
+  const timer = $("timer");
+  if (timer) {
+    timer.textContent = "SELECTED · " + selected;
+    timer.classList.remove("idle", "urgent");
+  }
+  fetch("/decision", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ selected: selected })
+  }).catch(() => {});
+}
+
+function renderDecision(frame) {
+  $("m-nhp").textContent = frame.nhp.toFixed(2);
+  $("m-nhp").style.color = frame.nhp > 0.5 ? "var(--bad)" : frame.nhp > 0.4 ? "var(--warn)" : "var(--ok)";
+  $("m-alert").textContent = frame.alert ? "ON" : "off";
+  $("m-alert").style.color = frame.alert ? "var(--bad)" : "var(--muted)";
+  $("m-ths").textContent = frame.theta_s.toFixed(2);
+  $("m-thc").textContent = frame.theta_c.toFixed(2);
+  renderSeverity(frame);
+
+  const timer = $("timer");
+  const d = frame.decision;
+  const timeoutS = (d && d.timeout_s) || frame.decision_timeout_s;
+
+  if (d) {
+    const key = String(frame.t) + ":" + (d.type || "");
+    const win = timeoutS && timeoutS > 0 ? Number(timeoutS) : 8;
+    // Live countdown only in liveMode. Playback shows static label / recorded choice.
+    if (key !== lastDecisionKey) {
+      lastDecisionKey = key;
+      if (liveMode) {
+        startDecisionTimer(win, key, d.type, frame.t);
+        const ws = document.querySelector(".workspace");
+        if (ws && ws.classList.contains("right-collapsed")) {
+          localStorage.setItem("jor_hide_right", "0");
+          applyPanelLayout();
+        }
+      } else {
+        stopDecisionTimer();
+        decisionCountdown = null;
+        const timer = $("timer");
+        if (d.selected) {
+          timer.textContent = "SELECTED · " + d.selected;
+          timer.classList.remove("idle", "urgent");
+        } else {
+          timer.textContent = "DECISION (playback)";
+          timer.classList.remove("idle", "urgent");
+        }
+      }
+    } else if (liveMode) {
+      if (decisionCountdown && decisionCountdown.selected) {
+        /* keep */
+      } else {
+        tickDecisionTimer();
+      }
+    }
+
+    // Logged selection from telemetry (playback) wins if present and we have not clicked
+    if (d.selected && decisionCountdown && !decisionCountdown.selected) {
+      decisionCountdown.selected = String(d.selected);
+    }
+
+    const menu = $("decision-menu");
+    menu.style.display = "block";
+    const activeSel = (decisionCountdown && decisionCountdown.selected) || d.selected || "";
+    let html = '<div class="d-title">' + String(d.title || d.type).replace(/\s*Choose:\s*$/, "") + "</div>";
+    for (const opt of (d.options || [])) {
+      const sel = String(activeSel) === String(opt.id);
+      const label = "[" + opt.id + "] " + opt.label;
+      html += '<div class="d-opt' + (sel ? " selected" : "") + '" data-id="' + opt.id +
+        '" data-label="' + label.replace(/"/g, "&quot;") +
+        '" style="cursor:' + (cliMode ? "default" : "pointer") + '">' + (sel ? "✓ " : "") + label +
+        (sel ? "  ← YOUR CHOICE" : "") + "</div>";
+    }
+    if (activeSel) {
+      html += '<div class="d-chosen">Recorded: option [' + activeSel + "]</div>";
+    }
+    html += '<div class="d-meta">' + (d.type || "") +
+      (liveMode ? (cliMode ? " · answer in the terminal" : " · click [1] [2] or [3]") : " · playback") + "</div>";
+    menu.innerHTML = html;
+    menu.querySelectorAll(".d-opt").forEach(el => {
+      el.addEventListener("click", () => {
+        const id = el.getAttribute("data-id");
+        postDecision(id);
+      });
+    });
+  } else {
+    // No decision this tick — clear only if countdown finished or never started
+    if (!decisionCountdown || decisionCountdown.selected ||
+        (decisionCountdown.endsAt && Date.now() > decisionCountdown.endsAt + 1500)) {
+      stopDecisionTimer();
+      decisionCountdown = null;
+      lastDecisionKey = null;
+      $("decision-menu").style.display = "none";
+      timer.textContent = "T-minus ——";
+      timer.classList.add("idle");
+      timer.classList.remove("urgent");
+    }
+  }
+
+  const alerts = $("alerts");
+  alerts.innerHTML = "";
+  const cues = [];
+  for (const u of frame.units) {
+    const nm = unitName(u);
+    if (u.degraded) cues.push({ high: true, text: nm + " — Local strain detected" });
+    if (u.readiness < 0.35) cues.push({ high: true, text: nm + " — High strain (readiness)" });
+    else if (u.readiness < 0.55) cues.push({ high: false, text: nm + " — Elevated fatigue" });
+  }
+  if (frame.alert) cues.unshift({ high: true, text: "Force NHP above ALERT threshold" });
+  if (frame.mission_state && frame.mission_state !== "STABLE") {
+    cues.unshift({ high: String(frame.mission_state).includes("COLLAPSE"), text: "Mission state: " + frame.mission_state });
+  }
+  if (!cues.length) {
+    alerts.innerHTML = '<div class="alert-item"><div class="tag">STATUS</div>No active strain cues</div>';
+  } else {
+    for (const c of cues.slice(0, 6)) {
+      const el = document.createElement("div");
+      el.className = "alert-item" + (c.high ? " high" : "");
+      el.innerHTML = '<div class="tag">CUE</div>' + c.text;
+      alerts.appendChild(el);
+    }
+  }
+}
+
+function show(i) {
+  if (!frames.length) { setIdleHint(true); return; }
+  setIdleHint(false);
+  idx = Math.max(0, Math.min(frames.length - 1, i));
+  const frame = frames[idx];
+  $("hdr-scenario").textContent = (frame.scenario || "").toUpperCase();
+  if (liveMode) {
+    $("hdr-state").textContent = (frame.mission_state && frame.mission_state !== "STABLE")
+      ? ("LIVE · " + frame.mission_state) : "LIVE";
+  } else {
+    $("hdr-state").textContent = frame.mission_state || "";
+  }
+  $("tick-label").textContent = "t=" + frame.t;
+  $("scrub").value = String(idx);
+  $("scrub").max = String(Math.max(0, frames.length - 1));
+  history.morale = frames.slice(0, idx + 1).map(f => Math.max(0, 0.75 - (f.morale || 0)));
+  history.friction = frames.slice(0, idx + 1).map(f => f.pressure || 0);
+  renderUnitList(frame);
+  // Decision UI first — map errors must not block the prompt/timer
+  try { renderDecision(frame); } catch (e) { console.error("renderDecision", e); }
+  try { renderMap(frame); } catch (e) { console.error("renderMap", e); }
+  try { drawFeedback(); } catch (e) {}
+}
+
+function ingestFrame(frame) {
+  if (!frame || frame.type === "end") return;
+  if (frame.t == null) return;
+  frames.push(frame);
+  if (frames.length > 500) frames = frames.slice(-400);
+  show(frames.length - 1);
+}
+
+// Same sustained-collapse rule as the terminal summary / aar_summary.py:
+// all joint conditions must hold for COLLAPSE_SUSTAIN ticks in a row.
+const COLLAPSE_SUSTAIN = 5;
+function longestRuns(ticks, met) {
+  const runs = []; let start = null, len = 0, prev = null;
+  for (let i = 0; i < ticks.length; i++) {
+    if (met[i]) {
+      if (len && ticks[i] === prev + 1) len++;
+      else { if (len) runs.push([start, len]); start = ticks[i]; len = 1; }
+    } else if (len) { runs.push([start, len]); start = null; len = 0; }
+    prev = ticks[i];
+  }
+  if (len) runs.push([start, len]);
+  const first = runs.find(r => r[1] >= COLLAPSE_SUSTAIN) || null;
+  let longest = null;
+  for (const r of runs) if (!longest || r[1] > longest[1]) longest = r;
+  return { collapsed: !!first, onset: first ? first[0] : null, held: first ? first[1] : 0, longest: longest };
+}
+
+function clientSummaryFromFrames(fr0) {
+  if (!fr0 || !fr0.length) return null;
+  // one resolved frame per tick (drop pending-decision frames and repeats)
+  const seen = new Set(), fr = [];
+  for (const f of fr0) {
+    if (f.decision && f.decision.pending) continue;
+    if (f.t == null || f.t < 0 || seen.has(f.t)) continue;
+    seen.add(f.t); fr.push(f);
+  }
+  if (!fr.length) return null;
+  let peak = 0, alertTicks = 0, sumNhp = 0, firstAlert = null;
+  const decisions = [], degraded = new Set();
+  for (const f of fr) {
+    peak = Math.max(peak, f.nhp || 0);
+    sumNhp += f.nhp || 0;
+    if (f.alert) { alertTicks++; if (firstAlert === null) firstAlert = f.t; }
+    if (f.decision) decisions.push({ t: f.t, type: f.decision.type, selected: f.decision.selected });
+    for (const u of (f.units || [])) if (u.degraded) degraded.add(u.name || ("U" + u.id));
+  }
+  const ticks = fr.map(f => f.t);
+  const fflags = fr.map(f => [f.theta_s < 0.20, f.theta_c > 0.90, f.theta_o > 0.40, f.morale < 0.30]);
+  const eflags = fr.map(f => { const e = f.enemy; return e ? [e.readiness < 0.20, e.pressure > 0.90, e.morale < 0.30] : [false, false, false]; });
+  const fRun = longestRuns(ticks, fflags.map(x => x.every(Boolean)));
+  const eRun = longestRuns(ticks, eflags.map(x => x.every(Boolean)));
+  const names = ["readiness", "pressure", "outcomes", "morale"];
+  let bestN = 0, bestT = null, bestMet = [];
+  fflags.forEach((fl, i) => { const n = fl.filter(Boolean).length; if (n >= bestN && n > 0) { bestN = n; bestT = ticks[i]; bestMet = names.filter((_, k) => fl[k]); } });
+
+  let finalState = null;
+  if (fRun.collapsed && eRun.collapsed) finalState = "MUTUAL_COLLAPSE";
+  else if (fRun.collapsed) finalState = "FRIENDLY_COLLAPSE";
+  else if (eRun.collapsed) finalState = "ENEMY_COLLAPSE";
+  else {
+    finalState = "STABLE";
+    for (let i = fr.length - 1; i >= 0; i--) {
+      const st = fr[i].mission_state;
+      if (st && st !== "STABLE" && !/COLLAPSE$/.test(st)) { finalState = st; break; }
+    }
+  }
+  let detail;
+  if (fRun.collapsed) detail = "Collapse at t=" + fRun.onset + ": all 4 conditions held " + fRun.held + " ticks (≥" + COLLAPSE_SUSTAIN + " needed)";
+  else if (bestN === 4) detail = "Brief breach at t=" + fRun.longest[0] + ": all 4 conditions for " + fRun.longest[1] + " tick(s); " + COLLAPSE_SUSTAIN + " needed";
+  else if (bestN === 3) detail = "Near-collapse: " + bestMet.join(", ") + " aligned at t=" + bestT;
+  else if (bestN > 0) detail = "Contained: " + bestMet.join(", ") + " at t=" + bestT;
+  else detail = "Contained: collapse conditions never overlapped";
+
+  const last = fr[fr.length - 1];
+  return {
+    final_state: finalState, collapse_detail: detail, first_alert_t: firstAlert,
+    mean_nhp: +(sumNhp / fr.length).toFixed(4),
+    peak_nhp: +peak.toFixed(4), final_nhp: +(last.nhp || 0).toFixed(4),
+    alert_ticks: alertTicks, n_decisions: decisions.length, decisions: decisions,
+    degraded_units: Array.from(degraded),
+    final_theta_s: +(last.theta_s || 0).toFixed(4),
+    final_theta_c: +(last.theta_c || 0).toFixed(4),
+    final_theta_o: +(last.theta_o || 0).toFixed(4),
+  };
+}
+
+
+// ---------------------------------------------------------------------------
+// Severity gauge + debrief
+// ---------------------------------------------------------------------------
+const BAND_COLORS = { NOMINAL: "#3dd68c", ELEVATED: "#9bd05a", STRAINED: "#f0c14a", CRITICAL: "#ff9a3d", BREAKING: "#ff5c5c" };
+function bandFor(v) { return v < 0.20 ? "NOMINAL" : v < 0.40 ? "ELEVATED" : v < 0.60 ? "STRAINED" : v < 0.80 ? "CRITICAL" : "BREAKING"; }
+
+function renderSeverity(frame) {
+  const val = $("sev-val"), band = $("sev-band"), fill = $("sev-fill");
+  if (!val) return;
+  if (frame.severity == null) { val.textContent = "—"; band.textContent = ""; fill.style.width = "0"; return; }
+  const b = frame.severity_band || bandFor(frame.severity);
+  val.textContent = frame.severity.toFixed(2);
+  band.textContent = b;
+  band.style.color = BAND_COLORS[b];
+  fill.style.width = Math.round(Math.min(1, Math.max(0, frame.severity)) * 100) + "%";
+  fill.style.background = BAND_COLORS[b];
+}
+
+let currentDebrief = null;
+function esc(x) { return String(x == null ? "" : x).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function setDebrief(d) {
+  currentDebrief = d || null;
+  const b = $("btn-debrief");
+  if (b) b.style.display = currentDebrief ? "" : "none";
+}
+function openDebrief() {
+  if (!currentDebrief) return;
+  renderDebrief(currentDebrief);
+  $("debrief").classList.add("open");
+  drawDebriefChart(currentDebrief);
+}
+function closeDebrief() { $("debrief").classList.remove("open"); }
+
+function renderDebrief(d) {
+  const sv = d.severity || {};
+  const en = d.entering_shock;
+  let h = '<div class="db-verdict ' + esc(d.outcome) + '">' + esc(d.headline) + '</div>';
+  h += '<div class="db-sub">' + esc(d.final_state || "") + " · " + esc(d.collapse_detail || "") + "</div>";
+  h += '<div class="db-stats">' +
+    '<div class="db-stat">Mean ' + esc(d.metric) + "<b>" + (sv.mean != null ? sv.mean.toFixed(2) : "—") + "</b></div>" +
+    '<div class="db-stat">Peak ' + esc(d.metric) + "<b>" + (sv.peak != null ? sv.peak.toFixed(2) : "—") + " at t=" + esc(sv.peak_t) + (sv.peak_band ? " · " + esc(sv.peak_band) : "") + "</b></div>" +
+    '<div class="db-stat">Decisions<b>' + (d.decisions ? d.decisions.length : 0) + "</b></div>";
+  if (en) h += '<div class="db-stat">Entering the shock (t=' + esc(en.t) + ")<b>readiness " + en.readiness.toFixed(2) + " · morale " + en.morale.toFixed(2) + "</b></div>";
+  h += "</div>";
+  h += '<canvas id="debrief-chart"></canvas>';
+  h += '<div class="db-legend"><span style="color:#3dd68c">● acted</span><span style="color:#ff5c5c">● accepted risk</span>' +
+       '<span style="color:#f0c14a">● aborted</span><span style="color:#ff5c5c">◯ timed out</span>' +
+       '<span>┆ scenario event</span><span style="color:#8aa0bf">┄ NHP (probability)</span></div>';
+  h += '<div class="db-h">Timeline</div><ul class="db-tl">';
+  for (const e of d.timeline || []) {
+    const when = e.t_end != null && e.t_end !== e.t ? "t=" + e.t + "–" + e.t_end : "t=" + e.t;
+    h += '<li class="' + esc(e.tone) + '"><span class="tt">' + when + "</span><div><b>" + esc(e.title) + "</b>" +
+         (e.detail ? '<div class="det">' + esc(e.detail) + "</div>" : "") + "</div></li>";
+  }
+  h += "</ul>";
+  h += '<div class="db-h">What to take away</div><ol class="db-less">';
+  for (const l of d.lessons || []) h += "<li><b>" + esc(l.title) + '</b><span class="ev">' + esc(l.evidence) + "</span></li>";
+  h += "</ol>";
+  h += '<div class="db-note">“Immediate” is the direct effect of the choice on that tick. The ' + esc(d.metric) +
+       " change that follows is an observation over time, not a controlled comparison — the scenario keeps moving. Synthetic training scenario, not a prediction.</div>";
+  $("debrief-body").innerHTML = h;
+}
+
+function drawDebriefChart(d) {
+  const cv = $("debrief-chart");
+  if (!cv || !d.series || !d.series.t.length) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = cv.clientWidth, H = cv.clientHeight;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const g = cv.getContext("2d"); g.scale(dpr, dpr);
+  const L = 34, R = 8, T = 8, B = 20;
+  const t0 = d.series.t[0], t1 = d.series.t[d.series.t.length - 1];
+  const X = t => L + (W - L - R) * (t1 === t0 ? 0 : (t - t0) / (t1 - t0));
+  const Y = v => T + (H - T - B) * (1 - Math.min(1, Math.max(0, v)));
+  // band shading
+  const edges = [[0, 0.2, "NOMINAL"], [0.2, 0.4, "ELEVATED"], [0.4, 0.6, "STRAINED"], [0.6, 0.8, "CRITICAL"], [0.8, 1.0, "BREAKING"]];
+  for (const [a, b, n] of edges) { g.fillStyle = BAND_COLORS[n] + "18"; g.fillRect(L, Y(b), W - L - R, Y(a) - Y(b)); }
+  g.fillStyle = "#8aa0bf"; g.font = "10px system-ui"; g.textAlign = "right";
+  for (const v of [0, 0.2, 0.4, 0.6, 0.8, 1]) g.fillText(v.toFixed(1), L - 4, Y(v) + 3);
+  g.textAlign = "center";
+  const step = Math.max(10, Math.ceil((t1 - t0) / 8 / 10) * 10);
+  for (let t = Math.ceil(t0 / step) * step; t <= t1; t += step) g.fillText("t=" + t, X(t), H - 6);
+  // collapse shading
+  const col = (d.timeline || []).find(e => e.kind === "collapse");
+  if (col) { g.fillStyle = "rgba(255,92,92,.16)"; g.fillRect(X(col.t), T, X(t1) - X(col.t), H - T - B); }
+  // events
+  g.setLineDash([4, 3]); g.lineWidth = 1;
+  for (const e of (d.timeline || []).filter(e => e.kind === "event")) {
+    g.strokeStyle = e.tone === "bad" ? "#ff5c5c" : "#f0c14a";
+    g.beginPath(); g.moveTo(X(e.t), T); g.lineTo(X(e.t), H - B); g.stroke();
+    g.fillStyle = g.strokeStyle; g.textAlign = "left";
+    g.fillText(/^Catastroph/i.test(e.title) ? "catastrophe" : "strain", X(e.t) + 3, T + 9);
+  }
+  g.setLineDash([]);
+  // NHP (dashed, muted) then severity
+  const line = (arr, color, w, dash) => {
+    g.beginPath(); g.setLineDash(dash || []); g.strokeStyle = color; g.lineWidth = w;
+    arr.forEach((v, i) => { const x = X(d.series.t[i]), y = Y(v); i ? g.lineTo(x, y) : g.moveTo(x, y); });
+    g.stroke(); g.setLineDash([]);
+  };
+  line(d.series.nhp, "#8aa0bf", 1, [3, 3]);
+  line(d.series.severity, "#9ec1ff", 2);
+  // decisions
+  const sevAt = t => { const i = d.series.t.indexOf(t); return i >= 0 ? d.series.severity[i] : 0; };
+  const pc = { act: "#3dd68c", accept: "#ff5c5c", abort: "#f0c14a", timeout: "#ff5c5c" };
+  for (const x of d.decisions || []) {
+    g.beginPath(); g.arc(X(x.t), Y(sevAt(x.t)), x.posture === "timeout" ? 5 : 3.5, 0, 6.283);
+    if (x.posture === "timeout") { g.strokeStyle = pc.timeout; g.lineWidth = 2; g.stroke(); }
+    else { g.fillStyle = pc[x.posture] || "#9ec1ff"; g.fill(); }
+  }
+}
+
+$("btn-debrief").onclick = () => { $("debrief").classList.contains("open") ? closeDebrief() : openDebrief(); };
+$("debrief-close").onclick = closeDebrief;
+$("debrief").addEventListener("click", (e) => { if (e.target === $("debrief")) closeDebrief(); });
+window.addEventListener("resize", () => { if ($("debrief").classList.contains("open") && currentDebrief) drawDebriefChart(currentDebrief); });
+
+function loadText(text) {
+  if (cliMode || liveMode) return;     // never replace a live run with the demo file
+  liveMode = false;
+  $("hdr-mode").textContent = "saved demo playback";
+  const parsed = text.trim().split("\n").filter(Boolean).map(l => JSON.parse(l));
+  const endRec = parsed.find(r => r.type === "end");        // optional trailer: summary + debrief
+  frames = parsed.filter(r => r.type !== "end");
+  if (!frames.length) { setIdleHint(true); setDebrief(null); return; }
+  setDebrief(endRec && endRec.debrief);
+  history.morale = []; history.friction = [];
+  $("scrub").max = String(Math.max(0, frames.length - 1));
+  initMap();
+  let start = 0;
+  const m = /t=(\d+)/.exec(location.hash || "");
+  if (m) {
+    const tt = Number(m[1]);
+    const i = frames.findIndex(f => f.t === tt);
+    start = i >= 0 ? i : 0;
+  }
+  show(start);
+  // Offline: show AAR only as a full-run recap (not mid-scrub confusion)
+  const aar = $("aar-card");
+  if (aar) {
+    aar.classList.remove("live-pending");
+    showAAR(endRec && endRec.summary ? endRec.summary : clientSummaryFromFrames(frames));
+  }
+}
+
+let runEnded = false;
+function startLiveStream() {
+  runEnded = false;
+  setDebrief(null);
+  if (eventSource) { eventSource.close(); eventSource = null; }
+  liveMode = true;
+  frames = [];
+  setIdleHint(true);
+  history.morale = []; history.friction = [];
+  $("hdr-mode").textContent = "LIVE";
+  $("btn-live").textContent = "Stop stream";
+  const aar = $("aar-card");
+  if (aar) {
+    aar.style.display = "block";
+    aar.className = "aar-card live-pending";   // (drops "done")
+    aar.innerHTML = "<h3>After-Action Summary</h3><div class=\"row\"><span>Status</span><b>Mission in progress…</b></div><div class=\"row\"><span>Tip</span><b>Use Map focus (M) · click decisions when prompted</b></div>";
+  }
+  initMap();
+  eventSource = new EventSource("/stream");
+  eventSource.onmessage = (ev) => {
+    try {
+      const frame = JSON.parse(ev.data);
+      if (frame.type === "end") {
+        runEnded = true;
+        $("hdr-mode").textContent = "ENDED";
+        liveMode = false;
+        $("btn-live").textContent = "Live stream";
+        if (frame.debrief) { setDebrief(frame.debrief); openDebrief(); }
+        if (frame.summary) {
+          showAAR(frame.summary);
+          // the header's per-tick label is instantaneous; once the run is over show the verdict
+          $("hdr-state").textContent = "FINAL · " + frame.summary.final_state;
+          const a = $("aar-card");
+          if (a) a.classList.remove("live-pending");
+        }
+        return;
+      }
+      ingestFrame(frame);
+    } catch (e) {}
+  };
+  eventSource.onerror = () => {
+    // After the run's end frame the server may simply exit (terminal run finished):
+    // keep showing ENDED and stop retrying instead of "reconnecting…".
+    if (runEnded) { if (eventSource) { eventSource.close(); eventSource = null; } return; }
+    $("hdr-mode").textContent = "live (reconnecting…)";
+  };
+}
+
+function stopLiveStream() {
+  if (eventSource) { eventSource.close(); eventSource = null; }
+  liveMode = false;
+  $("hdr-mode").textContent = "playback";
+  $("btn-live").textContent = "Live stream";
+}
+
+
+function applyPanelLayout() {
+  const ws = document.querySelector(".workspace");
+  if (!ws) return;
+  ws.classList.toggle("left-collapsed", localStorage.getItem("jor_hide_left") === "1");
+  ws.classList.toggle("right-collapsed", localStorage.getItem("jor_hide_right") === "1");
+  if (map) setTimeout(() => map.invalidateSize(), 80);
+}
+function toggleLeft() {
+  const hide = localStorage.getItem("jor_hide_left") === "1" ? "0" : "1";
+  localStorage.setItem("jor_hide_left", hide);
+  applyPanelLayout();
+}
+function toggleRight() {
+  const hide = localStorage.getItem("jor_hide_right") === "1" ? "0" : "1";
+  localStorage.setItem("jor_hide_right", hide);
+  applyPanelLayout();
+}
+function toggleMapFocus() {
+  const bothHidden = localStorage.getItem("jor_hide_left") === "1" && localStorage.getItem("jor_hide_right") === "1";
+  if (bothHidden) {
+    localStorage.setItem("jor_hide_left", "0");
+    localStorage.setItem("jor_hide_right", "0");
+  } else {
+    localStorage.setItem("jor_hide_left", "1");
+    localStorage.setItem("jor_hide_right", "1");
+  }
+  applyPanelLayout();
+}
+
+$("btn-toggle-left").onclick = toggleLeft;
+$("btn-toggle-right").onclick = toggleRight;
+$("btn-map-only").onclick = toggleMapFocus;
+applyPanelLayout();
+
+$("file-input").addEventListener("change", async (e) => {
+  cliMode = false;
+  stopLiveStream();
+  const file = e.target.files[0];
+  if (!file) return;
+  loadText(await file.text());
+});
+$("scrub").addEventListener("input", (e) => { if (!liveMode) show(Number(e.target.value)); });
+$("btn-prev").onclick = () => { if (!liveMode) show(idx - 1); };
+$("btn-next").onclick = () => { if (!liveMode) show(idx + 1); };
+$("btn-play").onclick = () => {
+  if (liveMode) return;
+  playing = !playing;
+  $("btn-play").textContent = playing ? "Pause" : "Play";
+  if (playing) {
+    playTimer = setInterval(() => {
+      if (idx >= frames.length - 1) { playing = false; $("btn-play").textContent = "Play"; clearInterval(playTimer); return; }
+      show(idx + 1);
+    }, 150);
+  } else clearInterval(playTimer);
+};
+$("btn-live").onclick = () => {
+  if (liveMode) stopLiveStream();
+  else startLiveStream();
+};
+window.addEventListener("resize", () => { if (map) map.invalidateSize(); });
+window.addEventListener("keydown", (e) => {
+  if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+  if (e.key === "Escape") closeDebrief();
+  if (e.key === "d" || e.key === "D") { if (currentDebrief) $("btn-debrief").click(); }
+  if (e.key === "[") toggleLeft();
+  if (e.key === "]") toggleRight();
+  if (e.key === "m" || e.key === "M") toggleMapFocus();
+  if ((e.key === "1" || e.key === "2" || e.key === "3")) {
+    const canChoose = liveMode && (!decisionCountdown || !decisionCountdown.selected);
+    const menuOpen = $("decision-menu") && $("decision-menu").style.display !== "none";
+    if (canChoose || menuOpen) postDecision(e.key);
+  }
+});
+
+// When launched with `maneuver_sim_interactive.py --serve`, the terminal owns the
+// run: attach to its live stream straight away and treat decisions as read-only.
+fetch("/config").then(r => r.ok ? r.json() : null).then(cfg => {
+  if (cfg && cfg.mode === "cli") {
+    cliMode = true;
+    $("ui-hint").textContent = "Live from the terminal · type decisions there · M = map focus";
+    startLiveStream();
+    const aar = $("aar-card");
+    if (aar) aar.innerHTML = "<h3>After-Action Summary</h3><div class=\"row\"><span>Status</span><b>Waiting for the terminal run…</b></div>";
+  }
+}).catch(() => {});
+
+// Offline playback default; live via button when stream_server is running
+fetch("map_frames_baseline.jsonl").then(r => r.ok ? r.text() : Promise.reject()).then(loadText).catch(() => {
+  fetch("map_out/map_frames_baseline.jsonl").then(r => r.ok ? r.text() : Promise.reject()).then(loadText).catch(() => {
+    setIdleHint(true);
+  });
+});
+</script>
+</body>
+</html>
