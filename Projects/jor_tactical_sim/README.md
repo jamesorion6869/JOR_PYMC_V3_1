@@ -2,10 +2,10 @@
 
 > **PROJECT UPDATE (JOR 4.0 Advanced C2 Platform)**
 > 
-> This repository hosts two iterations of the JOR tactical decision-support framework:
+> This repository hosts the JOR tactical decision-support framework across two tiers:
 > * **[`advanced_c2_demo/`](./advanced_c2_demo/) — Interactive C2 Decision Support Platform (Latest)**  
->   Features a real-time web dashboard (Leaflet spatial heatmaps, MIL-STD-2525 symbols), decision timers, a graded severity gauge, and an automated cause-and-effect post-mission debrief engine.
-> * **[`legacy_sim/`](./legacy_sim/) — Baseline Sequential Fusion Engine (Original)**  
+>   Features a real-time web dashboard (Leaflet spatial heatmaps, MIL-STD-2525 symbols), Server-Sent Events (SSE) telemetry streaming, decision timers, a graded severity gauge, and an automated cause-and-effect post-mission debrief engine.
+> * **Root-Level Files — Baseline Sequential Fusion Engine (Original)**  
 >   The initial command-line testbed and Matplotlib time-series log analyzer detailed below.
 
 ---
@@ -14,44 +14,42 @@
 
 ```text
 jor_tactical_sim/
-├── README.md                  # Unified project overview (this file)
-├── requirements.txt           # Core Python dependencies
+├── README.md                          # Unified project overview (this file)
+├── requirements.txt                   # Core Python dependencies
+├── engine.py                          # Initial JOREngine core
+├── logger.py                          # JSON-lines telemetry logger
+├── maneuver_adapter.py                # Input-to-signal converter (theta_s, theta_c, theta_o)
+├── maneuver_sim_interactive.py        # Original interactive CLI driver
+├── plot_maneuver_log.py               # Matplotlib log visualizer
+├── maneuver_log_logistics_constrained.png # Reference log visualization chart
 │
-├── advanced_c2_demo/          # JOR 4.0 Interactive C2 Decision Support Platform
-│   ├── README.md              # Detailed platform documentation & image assets
-│   ├── tactical image.png     # Tactical C2 Dashboard Screenshot
-│   ├── engine.py              # Dynamic Bayesian network & state update core
-│   ├── severity.py            # Severity band and threshold calculations
-│   ├── maneuver_adapter.py    # Tactical maneuver dynamics & force coupling
-│   ├── force_structure.py     # Unit identity, echelon, and role definitions
-│   ├── theater_layout.py      # Abstract theater spatial initialization
-│   ├── decision_catalog.py    # Decision prompts, interventions, & options
-│   ├── map_telemetry.py       # Per-tick frame builder & JSON-lines sink
-│   ├── map_view.py            # Geospatial coordinate transforms (WGS84) & MIL-STD-2525 rendering
-│   ├── stream_server.py       # HTTP Server-Sent Events (SSE) (port 8766) & REST decision server
-│   ├── maneuver_sim_interactive.py # Interactive CLI & main engine harness
-│   ├── maneuver_sim_original.py    # Legacy baseline reference engine
-│   ├── headless_runner.py     # Automated headless execution & policy drivers
-│   ├── run_demo.py            # One-command synthetic demo launcher
-│   ├── vignettes.py           # Pre-scripted operational vignettes & debt modeling
-│   ├── logger.py              # Append-only fusion logger
-│   ├── plot_maneuver_log.py   # Matplotlib telemetry & NHP plot generator
-│   ├── aar_summary.py         # After-Action Report metrics harvester
-│   ├── debrief.py             # Structured cause-and-effect debrief builder
-│   ├── dashboard.html         # Leaflet & MIL-STD-2525 web GUI dashboard
-│   ├── demo_map.py            # Visual test harness for geospatial rendering
-│   ├── test_suite.py          # Platform unit and integration test suite
-│   ├── test_regression.py     # Historical regression & parity test runner
-│   ├── DEMO_SCRIPT.txt        # Presenter talk track & demo instructions
-│   ├── README_JOR40.txt       # Quickstart CLI reference guide
-│   └── aar_demo.txt           # Sample generated after-action summary
-│
-└── legacy_sim/                # Original Baseline Terminal Simulation
-    ├── engine.py              # Initial JOREngine core
-    ├── maneuver_adapter.py    # Input-to-signal converter (theta_s, theta_c, theta_o)
-    ├── logger.py              # JSON-lines telemetry logger
-    ├── maneuver_sim_interactive.py # Original interactive CLI driver
-    └── plot_maneuver_log.py   # Matplotlib log visualizer
+└── advanced_c2_demo/                  # JOR 4.0 Advanced C2 Decision Support Platform
+    ├── README.md                      # Detailed platform documentation & image assets
+    ├── tactical image.png             # Tactical C2 Dashboard Screenshot
+    ├── engine.py                      # Dynamic Bayesian network & state update core
+    ├── severity.py                    # Severity band and threshold calculations
+    ├── maneuver_adapter.py            # Tactical maneuver dynamics & force coupling
+    ├── force_structure.py             # Unit identity, echelon, and role definitions
+    ├── theater_layout.py              # Abstract theater spatial initialization
+    ├── decision_catalog.py            # Decision prompts, interventions, & options
+    ├── map_telemetry.py               # Per-tick frame builder & JSON-lines sink
+    ├── map_view.py                    # Geospatial coordinate transforms (WGS84) & MIL-STD-2525 rendering
+    ├── stream_server.py               # HTTP Server-Sent Events (SSE) (port 8766) & REST decision server
+    ├── maneuver_sim_interactive.py    # Interactive CLI & main engine harness
+    ├── headless_runner.py             # Automated headless execution & policy drivers
+    ├── run_demo.py                    # One-command synthetic demo launcher
+    ├── vignettes.py                   # Pre-scripted operational vignettes & debt modeling
+    ├── logger.py                      # Append-only fusion logger
+    ├── plot_maneuver_log.py           # Matplotlib telemetry & NHP plot generator
+    ├── aar_summary.py                 # After-Action Report metrics harvester
+    ├── debrief.py                     # Structured cause-and-effect debrief builder
+    ├── dashboard.html                 # Leaflet & MIL-STD-2525 web GUI dashboard
+    ├── demo_map.py                    # Visual test harness for geospatial rendering
+    ├── test_suite.py                  # Platform unit and integration test suite
+    ├── test_regression.py             # Historical regression & parity test runner
+    ├── DEMO_SCRIPT.txt                # Presenter talk track & demo instructions
+    ├── README_JOR40.txt               # Quickstart CLI reference guide
+    └── aar_demo.txt                   # Sample generated after-action summary
 ```
 
 ---
@@ -64,11 +62,10 @@ cd advanced_c2_demo
 pip install -r requirements.txt
 python run_demo.py
 ```
-Open `http://localhost:8000` to interact with the real-time C2 dashboard.
+Open `http://127.0.0.1:8766/` to interact with the real-time C2 dashboard.
 
-### Running the Baseline Simulator (`legacy_sim`)
+### Running the Root Baseline Simulator
 ```bash
-cd legacy_sim
 pip install -r requirements.txt
 python maneuver_sim_interactive.py
 ```
@@ -119,9 +116,9 @@ the fusion engine and how it behaves under stress, not the scenario dressing.
    aligned and the 4th just missed looks identical to a run where nothing
    happened at all, unless you're also tracking how close it got. This layer
    reports that proximity explicitly instead of collapsing it into a single
-    detected/not-detected result.
+   detected/not-detected result.
 
-## Files (`legacy_sim/`)
+## Root Baseline Files
 
 | File | Purpose |
 |---|---|
@@ -131,7 +128,7 @@ the fusion engine and how it behaves under stress, not the scenario dressing.
 | `maneuver_sim_interactive.py` | The interactive scenario driver — scenario presets, commander skill levels, enemy posture model, decision points, mission summary with collapse/near-collapse reporting |
 | `plot_maneuver_log.py` | Reads a log file and renders a chart of the fused signals, NHP posterior, hysteresis band, and scripted event markers over time |
 
-## Running it
+## Running the Baseline Simulator
 
 ```bash
 pip install -r requirements.txt
