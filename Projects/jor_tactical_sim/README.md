@@ -15,22 +15,36 @@
 ```text
 jor_tactical_sim/
 ├── README.md                  # Unified project overview (this file)
+├── requirements.txt           # Core Python dependencies
 │
 ├── advanced_c2_demo/          # JOR 4.0 Interactive C2 Decision Support Platform
-│   ├── dashboard.html         # Web UI with spatial heatmaps & live decision dock
-│   ├── stream_server.py       # Telemetry streaming & decision API server
-│   ├── engine.py              # Bayesian fusion engine (SOP, NHP, discounted mode)
-│   ├── debrief.py             # Cause-and-effect post-mortem debrief generator
-│   ├── aar_summary.py         # Terminal & UI after-action report builder
-│   ├── severity.py            # Graded 0-1 excess risk gauge
-│   ├── maneuver_sim_interactive.py # Multi-dimensional scenario driver
-│   ├── map_view.py            # MIL-STD-2525 unit rendering & heatfield generator
-│   ├── force_structure.py     # TO&E named unit designations
-│   ├── decision_catalog.py    # Decision prompt catalog & menu definitions
-│   ├── vignettes.py           # Automated training scenarios & grading
-│   ├── test_suite.py          # Complete unit test suite
-│   ├── demo_map.py            # Headless runner & GIF renderer
-│   └── DEMO_SCRIPT.txt        # Canonical 5-minute presentation guide
+│   ├── README.md              # Detailed platform documentation & image assets
+│   ├── tactical image.png     # Tactical C2 Dashboard Screenshot
+│   ├── engine.py              # Dynamic Bayesian network & state update core
+│   ├── severity.py            # Severity band and threshold calculations
+│   ├── maneuver_adapter.py    # Tactical maneuver dynamics & force coupling
+│   ├── force_structure.py     # Unit identity, echelon, and role definitions
+│   ├── theater_layout.py      # Abstract theater spatial initialization
+│   ├── decision_catalog.py    # Decision prompts, interventions, & options
+│   ├── map_telemetry.py       # Per-tick frame builder & JSON-lines sink
+│   ├── map_view.py            # Geospatial coordinate transforms (WGS84) & MIL-STD-2525 rendering
+│   ├── stream_server.py       # HTTP Server-Sent Events (SSE) (port 8766) & REST decision server
+│   ├── maneuver_sim_interactive.py # Interactive CLI & main engine harness
+│   ├── maneuver_sim_original.py    # Legacy baseline reference engine
+│   ├── headless_runner.py     # Automated headless execution & policy drivers
+│   ├── run_demo.py            # One-command synthetic demo launcher
+│   ├── vignettes.py           # Pre-scripted operational vignettes & debt modeling
+│   ├── logger.py              # Append-only fusion logger
+│   ├── plot_maneuver_log.py   # Matplotlib telemetry & NHP plot generator
+│   ├── aar_summary.py         # After-Action Report metrics harvester
+│   ├── debrief.py             # Structured cause-and-effect debrief builder
+│   ├── dashboard.html         # Leaflet & MIL-STD-2525 web GUI dashboard
+│   ├── demo_map.py            # Visual test harness for geospatial rendering
+│   ├── test_suite.py          # Platform unit and integration test suite
+│   ├── test_regression.py     # Historical regression & parity test runner
+│   ├── DEMO_SCRIPT.txt        # Presenter talk track & demo instructions
+│   ├── README_JOR40.txt       # Quickstart CLI reference guide
+│   └── aar_demo.txt           # Sample generated after-action summary
 │
 └── legacy_sim/                # Original Baseline Terminal Simulation
     ├── engine.py              # Initial JOREngine core
