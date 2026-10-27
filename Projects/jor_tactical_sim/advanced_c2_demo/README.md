@@ -24,32 +24,33 @@ The platform is designed to:
 JOR_PYMC_V3_1/
 └── Projects/
     └── jor_tactical_sim/
-        ├── engine.py                  # Dynamic Bayesian network & state update core
-        ├── severity.py                # Severity band and threshold calculations
-        ├── maneuver_adapter.py        # Tactical maneuver dynamics & force coupling
-        ├── force_structure.py         # Unit identity, echelon, and role definitions
-        ├── theater_layout.py          # Abstract theater spatial initialization
-        ├── decision_catalog.py        # Decision prompts, interventions, & options
-        ├── map_telemetry.py           # Per-tick frame builder & JSON-lines sink
-        ├── map_view.py                # Geospatial coordinate transforms (WGS84)
-        ├── stream_server.py           # HTTP Server-Sent Events (SSE) & REST decision server
-        ├── maneuver_sim_interactive.py# Interactive CLI & main engine harness
-        ├── maneuver_sim_original.py   # Legacy baseline reference engine
-        ├── headless_runner.py         # Automated headless execution & policy drivers
-        ├── run_demo.py                # One-command synthetic demo launcher
-        ├── vignettes.py               # Pre-scripted operational vignettes
-        ├── logger.py                  # Append-only fusion logger
-        ├── plot_maneuver_log.py       # Matplotlib telemetry & NHP plot generator
-        ├── aar_summary.py             # After-Action Report metrics harvester
-        ├── debrief.py                 # Structured debrief builder
-        ├── dashboard.html             # Leaflet & MIL-STD-2525 web GUI dashboard
-        ├── demo_map.py                # Visual test harness for geospatial rendering
-        ├── test_suite.py              # Platform unit and integration test suite
-        ├── test_regression.py         # Historical regression & parity test runner
-        ├── DEMO_SCRIPT.txt            # Presenter talk track & demo instructions
-        ├── README_JOR40.txt           # Quickstart CLI reference guide
-        ├── aar_demo.txt               # Sample generated after-action summary
-        └── tactical_image.png         # Reference UI dashboard screenshot
+        └── advanced_c2_demo/
+            ├── engine.py                   # Dynamic Bayesian network & state update core
+            ├── severity.py                 # Severity band and threshold calculations
+            ├── maneuver_adapter.py         # Tactical maneuver dynamics & force coupling
+            ├── force_structure.py          # Unit identity, echelon, and role definitions
+            ├── theater_layout.py           # Abstract theater spatial initialization
+            ├── decision_catalog.py         # Decision prompts, interventions, & options
+            ├── map_telemetry.py            # Per-tick frame builder & JSON-lines sink
+            ├── map_view.py                 # Geospatial coordinate transforms (WGS84)
+            ├── stream_server.py            # HTTP Server-Sent Events (SSE) & REST decision server
+            ├── maneuver_sim_interactive.py # Interactive CLI & main engine harness
+            ├── maneuver_sim_original.py    # Legacy baseline reference engine
+            ├── headless_runner.py          # Automated headless execution & policy drivers
+            ├── run_demo.py                 # One-command synthetic demo launcher
+            ├── vignettes.py                # Pre-scripted operational vignettes
+            ├── logger.py                   # Append-only fusion logger
+            ├── plot_maneuver_log.py        # Matplotlib telemetry & NHP plot generator
+            ├── aar_summary.py              # After-Action Report metrics harvester
+            ├── debrief.py                  # Structured debrief builder
+            ├── dashboard.html              # Leaflet & MIL-STD-2525 web GUI dashboard
+            ├── demo_map.py                 # Visual test harness for geospatial rendering
+            ├── test_suite.py               # Platform unit and integration test suite
+            ├── test_regression.py          # Historical regression & parity test runner
+            ├── DEMO_SCRIPT.txt             # Presenter talk track & demo instructions
+            ├── README_JOR40.txt            # Quickstart CLI reference guide
+            ├── aar_demo.txt                # Sample generated after-action summary
+            └── tactical image.png          # Reference UI dashboard screenshot
 ```
 
 ## Quickstart & Installation
