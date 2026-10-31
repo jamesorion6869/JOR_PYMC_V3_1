@@ -559,3 +559,7 @@ Future extensions may include:
 - A citable, standards-derived weighting scheme for theta_s/theta_c/theta_o, if one is established
 - Extraction of shared fusion components into a reusable core library
 
+## License
+
+[MIT](LICENSE) — Copyright (c) 2026 [Jake James]
+
