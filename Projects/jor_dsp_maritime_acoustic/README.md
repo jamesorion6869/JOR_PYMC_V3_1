@@ -139,3 +139,7 @@ python jor_dsp_maritime_sonar_streaming.py
 Requires `numpy`, `matplotlib`, and `ffmpeg` (for the MP4; the script degrades gracefully to PNG-only output if `ffmpeg` isn't available). Full run — scenario generation, hyperparameter search, detection-logic search, tiered evaluation, all figures and the video — takes a few minutes; widening VAL further than 400 increases this roughly linearly with VAL size.
 
 The archived `jor_dsp_maritime_acoustic_sonar_demo.py` still runs standalone the same way, for anyone comparing the two versions directly.
+
+## License
+
+[MIT](LICENSE) — Copyright (c) 2026 [Jake James]
