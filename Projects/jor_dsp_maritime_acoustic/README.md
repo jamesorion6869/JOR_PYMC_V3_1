@@ -142,4 +142,4 @@ The archived `jor_dsp_maritime_acoustic_sonar_demo.py` still runs standalone the
 
 ## License
 
-[MIT](LICENSE.txt) — Copyright (c) 2026 [Jake James]
+[MIT](LICENSE.txt) — Copyright (c) 2026 Jake James
