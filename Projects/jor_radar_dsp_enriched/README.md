@@ -138,7 +138,6 @@ The benchmark maps processed sensor information into the JOR evidence framework:
 
 For this synthetic sensor benchmark, the credibility component is represented by an assumed baseline:
 
-```text
 C ≈ 0.65
 
 [MIT](LICENSE.txt) — Copyright (c) 2026 [Jake James]
