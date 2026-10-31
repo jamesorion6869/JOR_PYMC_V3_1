@@ -210,3 +210,4 @@ Runs the independent interactive safety dashboard and its localized backend scri
 >
 > *(Note: If you need to run terminal pipeline variations for this specific safety module, use the localized `jor_fusion.py` or read the separate `readme.md` located inside this subfolder).*
 
+[MIT](LICENSE.txt) — Copyright (c) 2026 [Jake James]
