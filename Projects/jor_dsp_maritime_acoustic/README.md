@@ -125,6 +125,9 @@ This demo shows that the JOR fusion architecture does something real when given 
 |---|---|
 | `jor_dsp_maritime_sonar_streaming.py` | **Current.** Full script: scenario generation, fusion/detection tuning, tiered evaluation, all figures and the video. 400-scenario VAL set. |
 | `jor_dsp_maritime_acoustic_sonar_demo.py` | **Archived, superseded.** Original version (150-scenario VAL, lower recall, no FPR issue). Kept in place so existing external links to it keep working; carries an in-file header pointing to the current version. |
+| `speed_test_maritime.py` | Offline speed test of the JOR fusion core: per-scenario latency, throughput and single-step cost. Measures the offline Bayesian recursion only; not a claim about real-time sonar performance. |
+| `requirements.txt` | Python dependencies (`numpy`, `matplotlib`). `ffmpeg` is installed separately and is only needed for the MP4. |
+| `LICENSE.txt` | MIT License. |
 | `jor_vs_naive_baseline_recall_fpr.png` | JOR vs. naive SNR-threshold, frozen operating points + exploratory TEST curves (current version) |
 | `jor_maritime_example_tracks_overview.png` | Six example TEST scenarios: 4 confirmed, 1 review-tier catch, 1 honest miss (current version) |
 | `jor_maritime_seed_20011_poster.png` | Single-scenario detail view |
