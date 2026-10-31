@@ -1,2 +1,3 @@
 numpy>=1.22
 matplotlib>=3.5
+imageio-ffmpeg>=0.4.9  # optional: bundled ffmpeg binary, only needed for the MP4
