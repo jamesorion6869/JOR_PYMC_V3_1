@@ -78,4 +78,4 @@ This module is an operational component of the James Orion Report (JOR) Bayesian
 
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.18088931-blue)](https://doi.org/10.5281/zenodo.18088931)
 
-[MIT](LICENSE.txt) — Copyright (c) 2026 [Jake James]
+[MIT](LICENSE.txt) — Copyright (c) 2026 Jake James
