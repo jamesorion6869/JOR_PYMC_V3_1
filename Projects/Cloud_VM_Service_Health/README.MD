@@ -257,4 +257,4 @@ Production cloud monitoring systems require additional engineering consideration
 
 ## License
 
-[MIT](LICENSE.txt) — Copyright (c) 2026 [Jake James]
+[MIT](LICENSE.txt) — Copyright (c) 2026 Jake James
