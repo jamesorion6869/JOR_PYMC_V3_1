@@ -300,4 +300,4 @@ Read these before drawing any conclusions from the demo.
 
 ## License
 
-[MIT](LICENSE) — Copyright (c) 2026 [Jake James]
+[MIT](LICENSE.txt) — Copyright (c) 2026 [Jake James]
