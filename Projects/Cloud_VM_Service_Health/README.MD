@@ -254,3 +254,7 @@ Production cloud monitoring systems require additional engineering consideration
 - distributed state management  
 - security controls  
 - deployment validation
+
+## License
+
+[MIT](LICENSE.txt) — Copyright (c) 2026 [Jake James]
