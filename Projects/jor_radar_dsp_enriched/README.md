@@ -140,4 +140,4 @@ For this synthetic sensor benchmark, the credibility component is represented by
 
 C ≈ 0.65
 
-[MIT](LICENSE.txt) — Copyright (c) 2026 [Jake James]
+[MIT](LICENSE.txt) — Copyright (c) 2026 Jake James
