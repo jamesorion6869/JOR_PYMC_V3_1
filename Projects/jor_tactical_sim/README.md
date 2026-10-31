@@ -185,3 +185,5 @@ resource and mission-capability ratings back to actual historical performance
 rather than hand-set constants. The fusion *architecture* here is the real
 contribution; the specific numbers plugged into it are a starting point for
 tuning, not a finished result.
+
+[MIT](LICENSE.txt) — Copyright (c) 2026 [Jake James]
