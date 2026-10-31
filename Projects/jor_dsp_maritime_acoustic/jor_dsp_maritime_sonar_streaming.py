@@ -644,7 +644,7 @@ class StreamingJOR:
     """Live-facing counterpart to run_jor(): call .step(...) once per
     incoming ping instead of handing the whole track to run_jor() at
     once. Same jor_step() core, so results are identical to run_jor() by
-    construction -- see test_streaming_equivalence.py."""
+    construction."""
     def __init__(self, params):
         self.params = params
         self.state = new_jor_state()
