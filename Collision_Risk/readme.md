@@ -77,3 +77,5 @@ To run this specific safety command dashboard, you must step inside this directo
 This module is an operational component of the James Orion Report (JOR) Bayesian Fusion Framework. To review the underlying methodology, probabilistic engine calculations, or to download the complete reference paper, please use the master repository DOI:
 
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.18088931-blue)](https://doi.org/10.5281/zenodo.18088931)
+
+[MIT](LICENSE.txt) — Copyright (c) 2026 [Jake James]
