@@ -5,7 +5,7 @@ A synthetic, reproducible benchmark that asks one narrow question: **when JOR (J
 - Author: Jake James (independent researcher)
 - Background: JOR is described in the original paper, James Orion Report (JOR) V3.1, https://doi.org/10.5281/zenodo.18088931. This repository is a synthetic radar/DSP benchmark built on that framework; it does not repeat the framework's derivation.
 - Licence: MIT, Copyright (c) 2026 Jake James (see `LICENSE.txt`)
-- DOI: **[Zenodo DOI to be added once the record is published]**
+- DOI: https://doi.org/10.5281/zenodo.23980949
 - Status: synthetic benchmark only. Nothing here has been tested on real radar data.
 
 ---
@@ -155,7 +155,7 @@ Reproduction check: the full run on seeds 60000–60999 was repeated on a separa
 
 ## Citation
 
-Zenodo DOI: **[placeholder, to be added once published]**
+Zenodo DOI: https://doi.org/10.5281/zenodo.23980949
 
 This benchmark accompanies the JOR V3.1 work (Zenodo DOI 10.5281/zenodo.18088931). Please cite the specific version of this record once it has a DOI.
 
