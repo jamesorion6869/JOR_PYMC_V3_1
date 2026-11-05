@@ -3,6 +3,7 @@
 A synthetic, reproducible benchmark that asks one narrow question: **when JOR (James Orion Report, V3.1) is placed on top of ordinary DSP outputs, does it score and fuse the evidence better than simpler scoring/fusion layers fed the same signals?**
 
 - Author: Jake James (independent researcher)
+- Background: JOR is described in the original paper, James Orion Report (JOR) V3.1, https://doi.org/10.5281/zenodo.18088931. This repository is a synthetic radar/DSP benchmark built on that framework; it does not repeat the framework's derivation.
 - Licence: MIT, Copyright (c) 2026 Jake James (see `LICENSE.txt`)
 - DOI: **[Zenodo DOI to be added once the record is published]**
 - Status: synthetic benchmark only. Nothing here has been tested on real radar data.
