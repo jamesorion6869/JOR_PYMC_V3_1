@@ -160,4 +160,4 @@ This benchmark accompanies the JOR V3.1 work (Zenodo DOI 10.5281/zenodo.18088931
 
 ## Licence
 
-MIT. Copyright (c) 2026 Jake James.
+[MIT](LICENSE.txt) — Copyright (c) 2026 Jake James
