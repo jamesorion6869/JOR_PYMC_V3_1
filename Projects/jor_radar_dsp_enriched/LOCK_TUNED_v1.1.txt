@@ -1,0 +1,15 @@
+Version 1.1 lock.
+
+jor_tuned_study_v1.1.py       sha256 0d1843bb9652ae4566fccbfce7a0c4f53339c3408690ec5da3a8011027a00132
+PREDECLARED_CLAIMS_TUNED.md   sha256 0b786a882f2e20d8929d3df7f5f527c22ed4a6ea5f3ad606974bcf76d110b921   (unchanged from v1.0)
+
+v1.0 (study as run, TEST seeds 60000-60999):  archive/jor_tuned_study_v1.0.py
+                              sha256 9d847277ec14c06ed33d911fb251b9c8f1b79a3be69b8970c039d2c3f8ee9d14
+v1.1 adds only the --quick mode. In the full protocol its output is identical to v1.0 apart from the
+script-hash line and run timings (checked: full run on seeds 60000-60999, 15 of 15 claims held).
+v1.0 was also reproduced by the author on a separate Windows machine (serial search): identical output
+apart from the worker-count line and timings (results/tuned_study_reproduction_windows_serial.txt).
+
+Full study:   python jor_tuned_study_v1.1.py [--jobs N]     (--jobs helps on Linux/macOS only)
+Quick demo:   python jor_tuned_study_v1.1.py --quick        (development seeds, 20 candidates, not a result)
+The script prints its own SHA-256 at the start of every run; the filename does not affect it.

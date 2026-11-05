@@ -1,0 +1,48 @@
+MANIFEST (README not included; written separately)
+
+Files are frozen unless noted. Filenames inside frozen files may use older names:
+  jor_tuned_study.py -> jor_tuned_study_v1.0.py / jor_tuned_study_v1.1.py
+  jor_dsp_integration_demo.py -> archive/earlier_study_default_weights/jor_default_weights_study_v1.0.py
+
+LICENSE.txt
+    sha256 518576bcbc6cb5cb1058d8042b724349a2ce2a9fe53041c5469f93a64fd87e54
+    MIT licence.
+LOCK_TUNED_v1.1.txt
+    sha256 39e5319d197e60f76763d0c65938a7282b1794d1548837ca4987701d42ed0cef
+    Hash record for v1.1 and the v1.0 run.
+PREDECLARED_CLAIMS_TUNED.md
+    sha256 0b786a882f2e20d8929d3df7f5f527c22ed4a6ea5f3ad606974bcf76d110b921
+    The 15 claims fixed before the run (frozen; refers to the script by its v1.0 name).
+archive/LOCK_TUNED_v1.0.txt
+    sha256 fe5d6518c0b61fd3ba0ba29d3cb5a4d32e39ca1ddfc6ede15a53351025dad581
+    Hash record written before the v1.0 run (frozen; uses the v1.0 filenames).
+archive/earlier_study_default_weights/LOCK.txt
+    sha256 590cb3e6aaaddbd13f1225f9c1c13bc442f6004646072e95f3b2877ddccaa435
+    Hash record for the first study (frozen; uses the old script name).
+archive/earlier_study_default_weights/PREDECLARED_CLAIMS.md
+    sha256 5463ede7261139c8f0792945c7c4e657c15219f53811cf08590d182c2b5a122b
+    The original 10 claims (frozen; uses the old script name).
+archive/earlier_study_default_weights/jor_default_weights_study_v1.0.py
+    sha256 56559c5f62010d592b65df1f7888df352dee9d9c25bb5c72bdbba0e67efb0f2f
+    First study, default weights, seeds 50000-50999. Previously named jor_dsp_integration_demo.py (a modified version of the author's original demo of the same name).
+archive/earlier_study_default_weights/results_seeds50000-50999.txt
+    sha256 ac66d2d7443f0af942d302fce56fb57e4b6fe7cb4aa1809eb7409f9692055eb6
+    Output of the first study, 8 of 10 claims held.
+archive/jor_tuned_study_v1.0.py
+    sha256 9d847277ec14c06ed33d911fb251b9c8f1b79a3be69b8970c039d2c3f8ee9d14
+    The tuned study exactly as run (frozen).
+jor_tuned_study_v1.1.py
+    sha256 0d1843bb9652ae4566fccbfce7a0c4f53339c3408690ec5da3a8011027a00132
+    MAIN SCRIPT. Full tuned study, plus --quick demo mode.
+requirements.txt
+    sha256 d148dc97158d31ff8b82e85753bfb4d0e86002c9271d08263cae6a139a536627
+    numpy>=1.22.
+results/quick_mode_example_not_a_result.txt
+    sha256 72386436696e6b9360a207d62a8602bc100241fc9585a932806a751c7684f3ca
+    Example output of --quick (development seeds). Not a result.
+results/tuned_study_reproduction_windows_serial.txt
+    sha256 3882dba6da489b101b33f26e8a93fc7af50682b992ce7be06a1a8f341448a980
+    Independent reproduction on a Windows laptop (serial search); identical except worker count and timings.
+results/tuned_study_seeds60000-60999.txt
+    sha256 b6c2bdc221bcc10105940e5249d45941f58fe6c6133b1e9709ff0272918d46a0
+    Reference output of the study (v1.0 script, seeds 60000-60999).
