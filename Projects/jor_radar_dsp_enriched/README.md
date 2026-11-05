@@ -1,6 +1,6 @@
 # JOR Radar/DSP Enriched Benchmark
 
-A synthetic, reproducible benchmark that asks one narrow question: **when JOR (Joint Observation Reasoning, V3.1) is placed on top of ordinary DSP outputs, does it score and fuse the evidence better than simpler scoring/fusion layers fed the same signals?**
+A synthetic, reproducible benchmark that asks one narrow question: **when JOR (James Orion Report, V3.1) is placed on top of ordinary DSP outputs, does it score and fuse the evidence better than simpler scoring/fusion layers fed the same signals?**
 
 - Author: Jake James (independent researcher)
 - Licence: MIT, Copyright (c) 2026 Jake James (see `LICENSE.txt`)
