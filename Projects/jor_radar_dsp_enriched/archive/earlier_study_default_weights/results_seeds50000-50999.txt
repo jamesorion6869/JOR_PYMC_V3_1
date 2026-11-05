@@ -1,0 +1,241 @@
+==============================================================================================================
+JOR V3.1-enriched: CFAR-contextualized benchmark, stationary and drifting noise floor
+Script SHA-256: 56559c5f62010d592b65df1f7888df352dee9d9c25bb5c72bdbba0e67efb0f2f
+==============================================================================================================
+Seed freeze check: PASS (TEST block 50000-50999 does not overlap any development seed range)
+Seed partition check: PASS (TRAIN 1000, VAL 500, TEST 1000, 2500 unique seeds)
+
+[STATIONARY] generating scenarios and sweeping detection settings on TRAIN...
+  done in 117s
+
+DATASET SANITY CHECKS
+  TRAIN: 1000 scenarios, 636 with a true event (63.6%), 364 without; 306 with >=2 true events; 678 with false events
+    phenotype counts: {'A_STRONG_MULTI': 199, 'C_INTERMITTENT': 185, 'E_CONFLICTING': 201, 'F_SPARSE': 183, 'G_GRADUAL_ONSET': 174}
+    false-event counts: {'CLUTTER': 263, 'MULTIPATH': 246, 'TRACK_INSTABILITY': 244, 'TRANSIENT_SPIKE': 258}
+  VAL: 500 scenarios, 325 with a true event (65.0%), 175 without; 163 with >=2 true events; 334 with false events
+    phenotype counts: {'A_STRONG_MULTI': 90, 'C_INTERMITTENT': 92, 'E_CONFLICTING': 113, 'F_SPARSE': 98, 'G_GRADUAL_ONSET': 95}
+    false-event counts: {'CLUTTER': 129, 'MULTIPATH': 132, 'TRACK_INSTABILITY': 116, 'TRANSIENT_SPIKE': 130}
+  TEST: 1000 scenarios, 685 with a true event (68.5%), 315 without; 331 with >=2 true events; 657 with false events
+    phenotype counts: {'A_STRONG_MULTI': 199, 'C_INTERMITTENT': 203, 'E_CONFLICTING': 207, 'F_SPARSE': 199, 'G_GRADUAL_ONSET': 208}
+    false-event counts: {'CLUTTER': 255, 'MULTIPATH': 241, 'TRACK_INSTABILITY': 230, 'TRANSIENT_SPIKE': 241}
+
+[DRIFTING] generating scenarios and sweeping detection settings on TRAIN...
+  done in 116s
+
+Condition isolation check: PASS (events, false events and ground truth identical across conditions)
+
+==============================================================================================================
+CONDITION: STATIONARY noise floor   (settings retuned on TRAIN; FPR budget 0.12)
+==============================================================================================================
+Method                Setting                     TRAIN R / FPR   VAL R / FPR      TEST recall     FPR      F1  Latency
+  -- headline
+JOR fusion            thr=0.426                   0.462 / 0.115   0.449 / 0.177          0.457   0.079   0.612     5.59
+SNR (CFAR excess)     thr=3.8dB rise>=0.5dB       0.267 / 0.118   0.268 / 0.143          0.255   0.143   0.387     4.59
+E+P average           thr=0.706                   0.417 / 0.115   0.428 / 0.177          0.441   0.117   0.590     2.74
+  -- variant
+JOR + adaptive decay  thr=0.338                   0.440 / 0.118   0.455 / 0.189          0.467   0.133   0.611     4.31
+  -- reference (absolute SNR)
+ref: JOR abs-SNR      thr=0.466                   0.461 / 0.110   0.434 / 0.154          0.458   0.095   0.610     5.25
+ref: SNR abs dB       thr=20.2dB rise>=0.5dB      0.535 / 0.102   0.514 / 0.149          0.521   0.092   0.667     3.73
+
+  TEST 95% Wilson intervals:
+    JOR fusion             Recall 0.457 [0.420, 0.494]   FPR 0.079 [0.054, 0.115]
+    SNR (CFAR excess)      Recall 0.255 [0.224, 0.289]   FPR 0.143 [0.109, 0.186]
+    E+P average            Recall 0.441 [0.404, 0.478]   FPR 0.117 [0.086, 0.158]
+    JOR + adaptive decay   Recall 0.467 [0.430, 0.505]   FPR 0.133 [0.100, 0.175]
+    ref: JOR abs-SNR       Recall 0.458 [0.421, 0.496]   FPR 0.095 [0.068, 0.133]
+    ref: SNR abs dB        Recall 0.521 [0.484, 0.558]   FPR 0.092 [0.065, 0.129]
+
+  Paired bootstrap on TEST (2,000 resamples of scenarios), A minus B, 95% interval:
+    JOR fusion - SNR (CFAR excess):
+      Recall +0.201 [+0.165, +0.239]   FPR -0.063 [-0.109, -0.015]   F1 +0.225 [+0.185, +0.266]
+    JOR fusion - E+P average:
+      Recall +0.016 [-0.015, +0.047]   FPR -0.038 [-0.075, -0.003]   F1 +0.022 [-0.008, +0.053]
+    JOR fusion - ref: JOR abs-SNR:
+      Recall -0.001 [-0.022, +0.020]   FPR -0.016 [-0.042, +0.012]   F1 +0.002 [-0.018, +0.023]
+    SNR (CFAR excess) - ref: SNR abs dB:
+      Recall -0.266 [-0.304, -0.228]   FPR +0.051 [+0.000, +0.099]   F1 -0.280 [-0.321, -0.241]
+    JOR fusion - ref: SNR abs dB:
+      Recall -0.064 [-0.099, -0.031]   FPR -0.013 [-0.053, +0.028]   F1 -0.055 [-0.088, -0.023]
+    JOR + adaptive decay - JOR fusion:
+      Recall +0.010 [-0.021, +0.043]   FPR +0.054 [+0.016, +0.093]   F1 -0.001 [-0.030, +0.030]
+
+  Sensitivity to the FPR budget (setting chosen on TRAIN under each budget; metrics on TEST):
+    Budget  Method                 TRAIN FPR   TEST R  TEST FPR  TEST F1
+    0.05    JOR fusion                 0.049    0.359     0.029    0.523
+    0.05    SNR (CFAR excess)          0.049    0.156     0.070    0.263
+    0.05    E+P average                0.049    0.355     0.044    0.516
+    0.05    JOR + adaptive decay       0.049    0.375     0.067    0.534
+    0.08    JOR fusion                 0.069    0.404     0.063    0.564
+    0.08    SNR (CFAR excess)          0.074    0.204     0.105    0.326
+    0.08    E+P average                0.080    0.394     0.070    0.553
+    0.08    JOR + adaptive decay       0.080    0.432     0.092    0.586
+    0.12    JOR fusion                 0.115    0.457     0.079    0.612
+    0.12    SNR (CFAR excess)          0.118    0.255     0.143    0.387
+    0.12    E+P average                0.115    0.441     0.117    0.590
+    0.12    JOR + adaptive decay       0.118    0.467     0.133    0.611
+
+--- Breakdown on VAL + TEST pooled, STATIONARY (each method at its own frozen TRAIN setting) ---
+Recall by event phenotype (scenarios with a true event):
+  Stratum               n   JOR fusion                SNR (CFAR excess)         E+P average                 JOR fusion latency
+  A_STRONG_MULTI      102   0.843 [0.760, 0.901]      0.539 [0.443, 0.633]      0.843 [0.760, 0.901]                      4.93
+  C_INTERMITTENT       88   0.307 [0.220, 0.410]      0.136 [0.080, 0.223]      0.216 [0.143, 0.313]                      5.89
+  E_CONFLICTING       111   0.117 [0.070, 0.190]      0.009 [0.002, 0.049]      0.081 [0.043, 0.147]                      6.85
+  F_SPARSE            106   0.019 [0.005, 0.066]      0.009 [0.002, 0.052]      0.019 [0.005, 0.066]                      6.50
+  G_GRADUAL_ONSET     109   0.560 [0.466, 0.649]      0.193 [0.130, 0.277]      0.615 [0.521, 0.701]                      6.54
+  TWO_EVENTS          494   0.547 [0.502, 0.590]      0.348 [0.307, 0.391]      0.522 [0.478, 0.566]                      5.40
+False-positive rate by false-event category (scenarios without a true event):
+  Stratum               n   JOR fusion                SNR (CFAR excess)         E+P average               
+  CLUTTER              41   0.073 [0.025, 0.194]      0.073 [0.025, 0.194]      0.073 [0.025, 0.194]      
+  MULTIPATH            38   0.053 [0.015, 0.173]      0.158 [0.074, 0.304]      0.158 [0.074, 0.304]      
+  NO_FALSE_EVENT      183   0.087 [0.055, 0.137]      0.148 [0.103, 0.206]      0.077 [0.046, 0.124]      
+  TRACK_INSTABILITY    40   0.050 [0.014, 0.165]      0.150 [0.071, 0.291]      0.125 [0.055, 0.261]      
+  TRANSIENT_SPIKE      39   0.205 [0.108, 0.355]      0.231 [0.126, 0.383]      0.179 [0.090, 0.327]      
+  TWO_FALSE_EVENTS    149   0.168 [0.116, 0.236]      0.128 [0.083, 0.191]      0.221 [0.162, 0.295]      
+
+==============================================================================================================
+CONDITION: DRIFTING noise floor   (settings retuned on TRAIN; FPR budget 0.12)
+==============================================================================================================
+Method                Setting                     TRAIN R / FPR   VAL R / FPR      TEST recall     FPR      F1  Latency
+  -- headline
+JOR fusion            thr=0.436                   0.401 / 0.102   0.385 / 0.126          0.396   0.086   0.551     5.71
+SNR (CFAR excess)     thr=3.7dB rise>=1.0dB       0.242 / 0.118   0.249 / 0.114          0.253   0.137   0.384     4.46
+E+P average           thr=0.704                   0.426 / 0.113   0.418 / 0.160          0.466   0.127   0.611     2.75
+  -- variant
+JOR + adaptive decay  thr=0.352                   0.363 / 0.115   0.360 / 0.131          0.394   0.089   0.549     4.38
+  -- reference (absolute SNR)
+ref: JOR abs-SNR      thr=0.498                   0.286 / 0.096   0.292 / 0.097          0.296   0.063   0.447     5.50
+ref: SNR abs dB       thr=23.2dB rise>=1.0dB      0.077 / 0.093   0.092 / 0.114          0.089   0.095   0.157     4.98
+
+  TEST 95% Wilson intervals:
+    JOR fusion             Recall 0.396 [0.360, 0.433]   FPR 0.086 [0.060, 0.122]
+    SNR (CFAR excess)      Recall 0.253 [0.221, 0.286]   FPR 0.137 [0.103, 0.179]
+    E+P average            Recall 0.466 [0.429, 0.503]   FPR 0.127 [0.095, 0.168]
+    JOR + adaptive decay   Recall 0.394 [0.358, 0.431]   FPR 0.089 [0.062, 0.125]
+    ref: JOR abs-SNR       Recall 0.296 [0.263, 0.332]   FPR 0.063 [0.041, 0.096]
+    ref: SNR abs dB        Recall 0.089 [0.070, 0.113]   FPR 0.095 [0.068, 0.133]
+
+  Paired bootstrap on TEST (2,000 resamples of scenarios), A minus B, 95% interval:
+    JOR fusion - SNR (CFAR excess):
+      Recall +0.143 [+0.108, +0.179]   FPR -0.051 [-0.094, -0.007]   F1 +0.167 [+0.128, +0.207]
+    JOR fusion - E+P average:
+      Recall -0.070 [-0.102, -0.039]   FPR -0.041 [-0.076, -0.006]   F1 -0.060 [-0.091, -0.030]
+    JOR fusion - ref: JOR abs-SNR:
+      Recall +0.099 [+0.076, +0.126]   FPR +0.022 [-0.006, +0.049]   F1 +0.104 [+0.078, +0.134]
+    SNR (CFAR excess) - ref: SNR abs dB:
+      Recall +0.164 [+0.133, +0.193]   FPR +0.041 [-0.006, +0.085]   F1 +0.227 [+0.187, +0.265]
+    JOR fusion - ref: SNR abs dB:
+      Recall +0.307 [+0.272, +0.341]   FPR -0.010 [-0.052, +0.028]   F1 +0.394 [+0.355, +0.434]
+    JOR + adaptive decay - JOR fusion:
+      Recall -0.001 [-0.031, +0.028]   FPR +0.003 [-0.033, +0.042]   F1 -0.002 [-0.032, +0.029]
+
+  Sensitivity to the FPR budget (setting chosen on TRAIN under each budget; metrics on TEST):
+    Budget  Method                 TRAIN FPR   TEST R  TEST FPR  TEST F1
+    0.05    JOR fusion                 0.047    0.318     0.038    0.477
+    0.05    SNR (CFAR excess)          0.044    0.126     0.057    0.218
+    0.05    E+P average                0.041    0.315     0.032    0.474
+    0.05    JOR + adaptive decay       0.047    0.312     0.041    0.469
+    0.08    JOR fusion                 0.080    0.369     0.063    0.528
+    0.08    SNR (CFAR excess)          0.080    0.161     0.079    0.268
+    0.08    E+P average                0.074    0.401     0.073    0.560
+    0.08    JOR + adaptive decay       0.058    0.337     0.063    0.494
+    0.12    JOR fusion                 0.102    0.396     0.086    0.551
+    0.12    SNR (CFAR excess)          0.118    0.253     0.137    0.384
+    0.12    E+P average                0.113    0.466     0.127    0.611
+    0.12    JOR + adaptive decay       0.115    0.394     0.089    0.549
+
+--- Breakdown on VAL + TEST pooled, DRIFTING (each method at its own frozen TRAIN setting) ---
+Recall by event phenotype (scenarios with a true event):
+  Stratum               n   JOR fusion                SNR (CFAR excess)         E+P average                 JOR fusion latency
+  A_STRONG_MULTI      102   0.784 [0.695, 0.853]      0.490 [0.395, 0.586]      0.873 [0.794, 0.924]                      5.20
+  C_INTERMITTENT       88   0.216 [0.143, 0.313]      0.148 [0.088, 0.237]      0.307 [0.220, 0.410]                      6.16
+  E_CONFLICTING       111   0.081 [0.043, 0.147]      0.009 [0.002, 0.049]      0.108 [0.063, 0.180]                      6.67
+  F_SPARSE            106   0.009 [0.002, 0.052]      0.019 [0.005, 0.066]      0.019 [0.005, 0.066]                     13.00
+  G_GRADUAL_ONSET     109   0.440 [0.351, 0.534]      0.202 [0.137, 0.287]      0.578 [0.484, 0.666]                      6.25
+  TWO_EVENTS          494   0.484 [0.440, 0.528]      0.336 [0.296, 0.379]      0.530 [0.486, 0.574]                      5.59
+False-positive rate by false-event category (scenarios without a true event):
+  Stratum               n   JOR fusion                SNR (CFAR excess)         E+P average               
+  CLUTTER              41   0.098 [0.039, 0.225]      0.073 [0.025, 0.194]      0.122 [0.053, 0.255]      
+  MULTIPATH            38   0.079 [0.027, 0.208]      0.105 [0.042, 0.241]      0.053 [0.015, 0.173]      
+  NO_FALSE_EVENT      183   0.115 [0.076, 0.169]      0.148 [0.103, 0.206]      0.137 [0.094, 0.194]      
+  TRACK_INSTABILITY    40   0.025 [0.004, 0.129]      0.050 [0.014, 0.165]      0.025 [0.004, 0.129]      
+  TRANSIENT_SPIKE      39   0.154 [0.072, 0.297]      0.205 [0.108, 0.355]      0.179 [0.090, 0.327]      
+  TWO_FALSE_EVENTS    149   0.094 [0.057, 0.152]      0.128 [0.083, 0.191]      0.188 [0.133, 0.258]      
+
+==============================================================================================================
+CARRY-OVER: settings tuned on the STATIONARY TRAIN set applied unchanged to DRIFTING TEST data
+==============================================================================================================
+Method                Stationary FPR [95% CI]   Carried-over FPR [95% CI]    Carried recall     Retuned drift R / FPR
+JOR fusion            0.079 [0.054, 0.115]      0.137 [0.103, 0.179]                  0.453             0.396 / 0.086
+SNR (CFAR excess)     0.143 [0.109, 0.186]      0.152 [0.117, 0.196]                  0.282             0.253 / 0.137
+E+P average           0.117 [0.086, 0.158]      0.105 [0.076, 0.143]                  0.444             0.466 / 0.127
+JOR + adaptive decay  0.133 [0.100, 0.175]      0.165 [0.128, 0.210]                  0.448             0.394 / 0.089
+ref: JOR abs-SNR      0.095 [0.068, 0.133]      0.333 [0.284, 0.387]                  0.441             0.296 / 0.063
+ref: SNR abs dB       0.092 [0.065, 0.129]      0.432 [0.378, 0.487]                  0.482             0.089 / 0.095
+
+----------------------------------------------------------------------------------------------------
+TABLE F1: F_SPARSE PHENOTYPE RECALL (first detection; TRAIN-selected settings; TEST seeds)
+----------------------------------------------------------------------------------------------------
+Method                   | Stationary     | Drifting       | TEST scenarios with F_SPARSE
+JOR fusion               | 0.016          | 0.016          | 185                         
+SNR (CFAR excess)        | 0.032          | 0.032          | 185                         
+E+P average              | 0.011          | 0.016          | 185                         
+JOR + adaptive decay     | 0.022          | 0.011          | 185                         
+ref: JOR abs-SNR         | 0.027          | 0.005          | 185                         
+ref: SNR abs dB          | 0.016          | 0.000          | 185                         
+Denominator: TEST scenarios containing at least one F_SPARSE event; the first detection must match an F_SPARSE event within the lag allowance.
+
+------------------------------------------------------------------------------------------------------------------------
+TABLE F2: F_SPARSE LATER-DETECTION / EVENT-LEVEL DIAGNOSTICS (same settings; one-to-one matching)
+------------------------------------------------------------------------------------------------------------------------
+Method                   | Stat any-scn | Drift any-scn | Stat event rec | Drift event rec | Stat matched/total | Drift matched/total
+JOR fusion               | 0.016        | 0.016         | 0.015          | 0.015           | 3/199              | 3/199              
+SNR (CFAR excess)        | 0.032        | 0.043         | 0.030          | 0.040           | 6/199              | 8/199              
+E+P average              | 0.016        | 0.016         | 0.015          | 0.015           | 3/199              | 3/199              
+JOR + adaptive decay     | 0.022        | 0.011         | 0.020          | 0.010           | 4/199              | 2/199              
+ref: JOR abs-SNR         | 0.027        | 0.005         | 0.025          | 0.005           | 5/199              | 1/199              
+ref: SNR abs dB          | 0.016        | 0.000         | 0.015          | 0.000           | 3/199              | 0/199              
+First-detection audit (stationary / drifting): F_SPARSE, other phenotype, unmatched, none.
+  JOR fusion: F_SPARSE 3/3; other 39/32; unmatched 15/15; none 128/135
+  SNR (CFAR excess): F_SPARSE 6/6; other 17/24; unmatched 14/15; none 148/140
+  E+P average: F_SPARSE 2/3; other 36/40; unmatched 16/15; none 131/127
+  JOR + adaptive decay: F_SPARSE 4/2; other 41/37; unmatched 13/14; none 127/132
+  ref: JOR abs-SNR: F_SPARSE 5/1; other 41/25; unmatched 6/14; none 133/145
+  ref: SNR abs dB: F_SPARSE 3/0; other 46/10; unmatched 5/13; none 131/162
+
+----------------------------------------------------------------------------------------------------------------
+TABLE F3: F_SPARSE RAW SENSOR OBSERVABILITY (TEST seeds; independent of any detection method)
+----------------------------------------------------------------------------------------------------------------
+Condition    | Events |  Steps |   SNR % |   RCS % |  Power % | Doppler % |  Range % |  DetP % |   Any % |    3+ % | Mean max run
+Stationary   |    199 |   1595 |   42.1% |   41.3% |    40.7% |     40.1% |    43.9% |   41.3% |   94.8% |   48.8% |         2.45
+Drifting     |    199 |   1595 |   42.1% |   41.3% |    40.7% |     40.1% |    43.9% |   41.3% |   94.8% |   48.8% |         2.45
+3+ % = steps with at least three of six channels available; max run = longest run of such steps per event.
+
+==============================================================================================================
+PRE-DECLARED CLAIM CHECKS
+==============================================================================================================
+  C1   HELD      Stationary: JOR recall exceeds the CFAR SNR tracker (paired 95% CI lower bound > 0)
+        point +0.201 [+0.165, +0.239]
+  C2   HELD      Drifting: JOR recall exceeds the CFAR SNR tracker (paired 95% CI lower bound > 0)
+        point +0.143 [+0.108, +0.179]
+  C3   HELD      Stationary: JOR shows no detectable recall advantage over the E+P average (95% CI includes 0)
+        point +0.016 [-0.015, +0.047]
+  C4   NOT HELD  Drifting: JOR shows no detectable recall advantage over the E+P average (95% CI includes 0)
+        point -0.070 [-0.102, -0.039]
+  C5   HELD      Stationary: the absolute-SNR tracker's recall is at least JOR's (point estimate)
+        0.521, 0.457
+  C6   HELD      Retuned under drift, the absolute-SNR tracker loses more than 0.20 recall versus stationary
+        0.521, 0.089
+  C7   HELD      Carried over to drift, the absolute-SNR tracker's FPR exceeds 0.25
+        0.432
+  C8   HELD      Carried over to drift, the CFAR E+P average keeps FPR at or below 0.15
+        0.105
+  C9   NOT HELD  Drifting: the adaptive-decay variant does not improve on original JOR (paired 95% CI upper bound < 0)
+        point -0.001 [-0.031, +0.028]
+  C10  HELD      Stationary F_SPARSE first-detection recall is below 0.10 for every method
+        {'JOR fusion': 0.016, 'SNR (CFAR excess)': 0.032, 'E+P average': 0.011, 'JOR + adaptive decay': 0.022, 'ref: JOR abs-SNR': 0.027, 'ref: SNR abs dB': 0.016}
+
+  8 of 10 pre-declared claims held.
+
+==============================================================================================================
+Run complete.

@@ -1,0 +1,8 @@
+Locked before the tuned-study run (TEST seeds 60000-60999).
+
+jor_tuned_study.py            sha256 9d847277ec14c06ed33d911fb251b9c8f1b79a3be69b8970c039d2c3f8ee9d14
+PREDECLARED_CLAIMS_TUNED.md   sha256 0b786a882f2e20d8929d3df7f5f527c22ed4a6ea5f3ad606974bcf76d110b921
+
+Run command: python3 -I jor_tuned_study.py --jobs 2    (--jobs only sets worker processes; results are identical)
+The script prints its own SHA-256 at the start of every run; it must match the value above.
+Development dry run used --dev --candidates 6 (TEST = 20000-20999) and is not a result.

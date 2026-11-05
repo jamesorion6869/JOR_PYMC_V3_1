@@ -1,0 +1,7 @@
+Locked before the final run (TEST seeds 50000-50999).
+
+jor_dsp_integration_demo.py  sha256 56559c5f62010d592b65df1f7888df352dee9d9c25bb5c72bdbba0e67efb0f2f
+PREDECLARED_CLAIMS.md        sha256 5463ede7261139c8f0792945c7c4e657c15219f53811cf08590d182c2b5a122b
+
+The script prints its own SHA-256 at the start of every run; it must match the value above.
+Development dry runs used --dev (TEST = 20000-20999) and are not results.

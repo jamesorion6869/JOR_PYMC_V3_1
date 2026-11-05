@@ -1,0 +1,282 @@
+==============================================================================================================
+JOR V3.1-enriched: tuned-weights study, stationary and drifting noise floor
+Weight search: 20 candidates, seed 2026; jobs 1
+QUICK MODE: short demonstration on development seeds. This is NOT the study; do not quote these numbers.
+Script SHA-256: 0d1843bb9652ae4566fccbfce7a0c4f53339c3408690ec5da3a8011027a00132
+==============================================================================================================
+Seed freeze check: QUICK MODE. TEST uses development seeds (20000-20999 range). This is a code check, not a result.
+Seed partition check: PASS (TRAIN 300, VAL 200, TEST 300, 800 unique seeds)
+
+[STATIONARY] generating scenarios and sweeping detection settings on TRAIN...
+
+  Weight search on TRAIN (STATIONARY; coarse threshold grid, FPR budget 0.12)
+    JOR         20 candidates; TRAIN recall min 0.267 median 0.497 max 0.551; chosen rand001 (W_C 0.29 W_E 0.32 W_P 0.39 K 0.11), TRAIN recall 0.551
+               first candidate (default weights): TRAIN recall 0.545
+    C/E/P avg   20 candidates; TRAIN recall min 0.182 median 0.329 max 0.412; chosen author (W_C 0.51 W_E 0.03 W_P 0.46), TRAIN recall 0.412
+               first candidate (default weights): TRAIN recall 0.278
+    E+P avg     11 candidates; TRAIN recall min 0.283 median 0.439 max 0.519; chosen w=0.2 (E weight 0.2, P weight 0.8), TRAIN recall 0.519
+  done in 120s
+
+DATASET SANITY CHECKS
+  TRAIN: 300 scenarios, 187 with a true event (62.3%), 113 without; 85 with >=2 true events; 206 with false events
+    phenotype counts: {'A_STRONG_MULTI': 63, 'C_INTERMITTENT': 55, 'E_CONFLICTING': 46, 'F_SPARSE': 55, 'G_GRADUAL_ONSET': 53}
+    false-event counts: {'CLUTTER': 88, 'MULTIPATH': 76, 'TRACK_INSTABILITY': 78, 'TRANSIENT_SPIKE': 72}
+  VAL: 200 scenarios, 136 with a true event (68.0%), 64 without; 73 with >=2 true events; 138 with false events
+    phenotype counts: {'A_STRONG_MULTI': 37, 'C_INTERMITTENT': 39, 'E_CONFLICTING': 45, 'F_SPARSE': 42, 'G_GRADUAL_ONSET': 46}
+    false-event counts: {'CLUTTER': 52, 'MULTIPATH': 52, 'TRACK_INSTABILITY': 56, 'TRANSIENT_SPIKE': 47}
+  TEST: 300 scenarios, 189 with a true event (63.0%), 111 without; 105 with >=2 true events; 184 with false events
+    phenotype counts: {'A_STRONG_MULTI': 54, 'C_INTERMITTENT': 54, 'E_CONFLICTING': 69, 'F_SPARSE': 61, 'G_GRADUAL_ONSET': 56}
+    false-event counts: {'CLUTTER': 76, 'MULTIPATH': 62, 'TRACK_INSTABILITY': 71, 'TRANSIENT_SPIKE': 71}
+
+[DRIFTING] generating scenarios and sweeping detection settings on TRAIN...
+
+  Weight search on TRAIN (DRIFTING; coarse threshold grid, FPR budget 0.12)
+    JOR         20 candidates; TRAIN recall min 0.257 median 0.377 max 0.455; chosen rand002 (W_C 0.28 W_E 0.20 W_P 0.52 K 0.37), TRAIN recall 0.455
+               first candidate (default weights): TRAIN recall 0.390
+    C/E/P avg   20 candidates; TRAIN recall min 0.118 median 0.286 max 0.401; chosen rand012 (W_C 0.16 W_E 0.54 W_P 0.30), TRAIN recall 0.401
+               first candidate (default weights): TRAIN recall 0.241
+    E+P avg     11 candidates; TRAIN recall min 0.278 median 0.358 max 0.439; chosen w=0.4 (E weight 0.4, P weight 0.6), TRAIN recall 0.439
+  done in 125s
+
+Condition isolation check: PASS (events, false events and ground truth identical across conditions)
+
+==============================================================================================================
+CONDITION: STATIONARY noise floor   (weights and thresholds chosen on TRAIN; FPR budget 0.12)  [QUICK MODE: not a result]
+==============================================================================================================
+  Selected on TRAIN: JOR W_C 0.29 W_E 0.32 W_P 0.39 K 0.11; C/E/P avg W_C 0.51 W_E 0.03 W_P 0.46; E+P avg E weight 0.2
+Method                    Setting                     TRAIN R / FPR   VAL R / FPR      TEST recall     FPR      F1  Latency
+  -- headline (tuned)
+JOR (tuned)               thr=0.546                   0.551 / 0.071   0.485 / 0.188          0.497   0.099   0.639     5.85
+SNR (CFAR excess)         thr=3.2dB rise>=1.0dB       0.332 / 0.097   0.294 / 0.219          0.312   0.135   0.449     4.64
+C/E/P avg (tuned)         thr=0.726                   0.481 / 0.106   0.449 / 0.188          0.402   0.216   0.526     2.17
+E+P avg (tuned)           thr=0.738                   0.529 / 0.115   0.493 / 0.172          0.450   0.144   0.586     2.32
+  -- untuned reference
+JOR (default wts)         thr=0.418                   0.561 / 0.115   0.485 / 0.234          0.497   0.126   0.633     5.44
+E+P avg (0.5/0.5)         thr=0.704                   0.471 / 0.115   0.456 / 0.188          0.413   0.072   0.567     2.77
+  -- variant
+JOR+adaptive (tuned)      thr=0.414                   0.497 / 0.115   0.441 / 0.141          0.381   0.117   0.526     4.61
+  -- reference (absolute SNR)
+ref: JOR abs-SNR (tuned)  thr=0.586                   0.545 / 0.115   0.500 / 0.156          0.471   0.099   0.616     5.27
+ref: SNR abs dB           thr=19.6dB rise>=1.0dB      0.599 / 0.115   0.551 / 0.172          0.492   0.090   0.637     2.63
+
+  TEST 95% Wilson intervals:
+    JOR (tuned)                Recall 0.497 [0.427, 0.568]   FPR 0.099 [0.056, 0.169]
+    SNR (CFAR excess)          Recall 0.312 [0.250, 0.381]   FPR 0.135 [0.084, 0.211]
+    C/E/P avg (tuned)          Recall 0.402 [0.335, 0.473]   FPR 0.216 [0.150, 0.302]
+    E+P avg (tuned)            Recall 0.450 [0.381, 0.521]   FPR 0.144 [0.091, 0.221]
+    JOR (default wts)          Recall 0.497 [0.427, 0.568]   FPR 0.126 [0.077, 0.201]
+    E+P avg (0.5/0.5)          Recall 0.413 [0.345, 0.484]   FPR 0.072 [0.037, 0.136]
+    JOR+adaptive (tuned)       Recall 0.381 [0.315, 0.452]   FPR 0.117 [0.070, 0.190]
+    ref: JOR abs-SNR (tuned)   Recall 0.471 [0.401, 0.542]   FPR 0.099 [0.056, 0.169]
+    ref: SNR abs dB            Recall 0.492 [0.422, 0.563]   FPR 0.090 [0.050, 0.158]
+
+  Paired bootstrap on TEST (2,000 resamples of scenarios), A minus B, 95% interval:
+    JOR (tuned) - SNR (CFAR excess):
+      Recall +0.185 [+0.106, +0.262]   FPR -0.036 [-0.125, +0.055]   F1 +0.191 [+0.111, +0.268]
+    JOR (tuned) - C/E/P avg (tuned):
+      Recall +0.095 [+0.026, +0.161]   FPR -0.117 [-0.198, -0.032]   F1 +0.114 [+0.046, +0.176]
+    JOR (tuned) - E+P avg (tuned):
+      Recall +0.048 [-0.011, +0.110]   FPR -0.045 [-0.117, +0.020]   F1 +0.053 [-0.002, +0.111]
+    JOR (tuned) - JOR (default wts):
+      Recall +0.000 [-0.044, +0.042]   FPR -0.027 [-0.060, +0.000]   F1 +0.006 [-0.033, +0.044]
+    JOR (tuned) - E+P avg (0.5/0.5):
+      Recall +0.085 [+0.021, +0.149]   FPR +0.027 [-0.040, +0.097]   F1 +0.072 [+0.012, +0.133]
+    JOR (tuned) - ref: JOR abs-SNR (tuned):
+      Recall +0.026 [-0.022, +0.076]   FPR +0.000 [-0.050, +0.051]   F1 +0.024 [-0.021, +0.070]
+    SNR (CFAR excess) - ref: SNR abs dB:
+      Recall -0.180 [-0.251, -0.102]   FPR +0.045 [-0.034, +0.128]   F1 -0.188 [-0.264, -0.108]
+    JOR (tuned) - ref: SNR abs dB:
+      Recall +0.005 [-0.061, +0.074]   FPR +0.009 [-0.073, +0.096]   F1 +0.002 [-0.061, +0.065]
+    JOR+adaptive (tuned) - JOR (tuned):
+      Recall -0.116 [-0.180, -0.057]   FPR +0.018 [-0.046, +0.090]   F1 -0.114 [-0.178, -0.054]
+
+  Sensitivity to the FPR budget (setting chosen on TRAIN under each budget; metrics on TEST):
+    Budget  Method                     TRAIN FPR   TEST R  TEST FPR  TEST F1
+    0.05    JOR (tuned)                    0.044    0.349     0.027    0.512
+    0.05    SNR (CFAR excess)              0.044    0.180     0.072    0.294
+    0.05    C/E/P avg (tuned)              0.035    0.212     0.072    0.338
+    0.05    E+P avg (tuned)                0.044    0.286     0.018    0.441
+    0.05    JOR+adaptive (tuned)           0.044    0.275     0.000    0.432
+    0.08    JOR (tuned)                    0.071    0.497     0.099    0.639
+    0.08    SNR (CFAR excess)              0.080    0.291     0.126    0.426
+    0.08    C/E/P avg (tuned)              0.071    0.328     0.153    0.463
+    0.08    E+P avg (tuned)                0.080    0.323     0.045    0.478
+    0.08    JOR+adaptive (tuned)           0.071    0.307     0.018    0.466
+    0.12    JOR (tuned)                    0.071    0.497     0.099    0.639
+    0.12    SNR (CFAR excess)              0.097    0.312     0.135    0.449
+    0.12    C/E/P avg (tuned)              0.106    0.402     0.216    0.526
+    0.12    E+P avg (tuned)                0.115    0.450     0.144    0.586
+    0.12    JOR+adaptive (tuned)           0.115    0.381     0.117    0.526
+
+--- Breakdown on VAL + TEST pooled, STATIONARY (each method at its own frozen TRAIN setting) ---
+Recall by event phenotype (scenarios with a true event):
+  Stratum               n   JOR (tuned)               SNR (CFAR excess)         C/E/P avg (tuned)         E+P avg (tuned)            JOR (tuned) latency
+  A_STRONG_MULTI       26   0.923 [0.759, 0.979]      0.654 [0.462, 0.806]      0.769 [0.579, 0.890]      0.923 [0.759, 0.979]                      4.67
+  C_INTERMITTENT       20   0.500 [0.299, 0.701]      0.150 [0.052, 0.360]      0.300 [0.145, 0.519]      0.250 [0.112, 0.469]                      5.30
+  E_CONFLICTING        37   0.135 [0.059, 0.280]      0.054 [0.015, 0.177]      0.054 [0.015, 0.177]      0.054 [0.015, 0.177]                      6.60
+  F_SPARSE             28   0.000 [0.000, 0.121]      0.036 [0.006, 0.177]      0.000 [0.000, 0.121]      0.000 [0.000, 0.121]                       n/a
+  G_GRADUAL_ONSET      36   0.611 [0.449, 0.752]      0.278 [0.158, 0.440]      0.472 [0.320, 0.630]      0.694 [0.531, 0.820]                      7.50
+  TWO_EVENTS          178   0.556 [0.483, 0.627]      0.371 [0.303, 0.444]      0.517 [0.444, 0.589]      0.539 [0.466, 0.611]                      5.96
+False-positive rate by false-event category (scenarios without a true event):
+  Stratum               n   JOR (tuned)               SNR (CFAR excess)         C/E/P avg (tuned)         E+P avg (tuned)           
+  CLUTTER              20   0.050 [0.009, 0.236]      0.350 [0.181, 0.567]      0.250 [0.112, 0.469]      0.250 [0.112, 0.469]      
+  MULTIPATH            14   0.143 [0.040, 0.399]      0.000 [0.000, 0.215]      0.071 [0.013, 0.315]      0.214 [0.076, 0.476]      
+  NO_FALSE_EVENT       54   0.056 [0.019, 0.151]      0.111 [0.052, 0.222]      0.185 [0.104, 0.308]      0.111 [0.052, 0.222]      
+  TRACK_INSTABILITY    16   0.000 [0.000, 0.194]      0.188 [0.066, 0.430]      0.125 [0.035, 0.360]      0.000 [0.000, 0.194]      
+  TRANSIENT_SPIKE      10   0.200 [0.057, 0.510]      0.200 [0.057, 0.510]      0.200 [0.057, 0.510]      0.000 [0.000, 0.278]      
+  TWO_FALSE_EVENTS     61   0.246 [0.155, 0.367]      0.180 [0.104, 0.295]      0.262 [0.168, 0.384]      0.213 [0.129, 0.331]      
+
+==============================================================================================================
+CONDITION: DRIFTING noise floor   (weights and thresholds chosen on TRAIN; FPR budget 0.12)  [QUICK MODE: not a result]
+==============================================================================================================
+  Selected on TRAIN: JOR W_C 0.28 W_E 0.20 W_P 0.52 K 0.37; C/E/P avg W_C 0.16 W_E 0.54 W_P 0.30; E+P avg E weight 0.4
+Method                    Setting                     TRAIN R / FPR   VAL R / FPR      TEST recall     FPR      F1  Latency
+  -- headline (tuned)
+JOR (tuned)               thr=0.286                   0.481 / 0.088   0.449 / 0.156          0.397   0.072   0.551     4.63
+SNR (CFAR excess)         thr=3.6dB rise>=1.0dB       0.267 / 0.106   0.257 / 0.172          0.238   0.153   0.359     4.78
+C/E/P avg (tuned)         thr=0.690                   0.401 / 0.097   0.375 / 0.125          0.365   0.072   0.519     2.68
+E+P avg (tuned)           thr=0.718                   0.460 / 0.106   0.419 / 0.078          0.381   0.063   0.537     2.64
+  -- untuned reference
+JOR (default wts)         thr=0.436                   0.417 / 0.115   0.390 / 0.109          0.365   0.081   0.517     5.84
+E+P avg (0.5/0.5)         thr=0.708                   0.417 / 0.106   0.390 / 0.094          0.370   0.036   0.532     2.80
+  -- variant
+JOR+adaptive (tuned)      thr=0.258                   0.417 / 0.097   0.390 / 0.141          0.370   0.081   0.522     3.57
+  -- reference (absolute SNR)
+ref: JOR abs-SNR (tuned)  thr=0.318                   0.390 / 0.088   0.346 / 0.062          0.333   0.063   0.486     4.70
+ref: SNR abs dB           thr=23.2dB rise>=1.0dB      0.091 / 0.115   0.096 / 0.141          0.074   0.081   0.132     4.50
+
+  TEST 95% Wilson intervals:
+    JOR (tuned)                Recall 0.397 [0.330, 0.468]   FPR 0.072 [0.037, 0.136]
+    SNR (CFAR excess)          Recall 0.238 [0.183, 0.304]   FPR 0.153 [0.098, 0.232]
+    C/E/P avg (tuned)          Recall 0.365 [0.300, 0.436]   FPR 0.072 [0.037, 0.136]
+    E+P avg (tuned)            Recall 0.381 [0.315, 0.452]   FPR 0.063 [0.031, 0.124]
+    JOR (default wts)          Recall 0.365 [0.300, 0.436]   FPR 0.081 [0.043, 0.147]
+    E+P avg (0.5/0.5)          Recall 0.370 [0.305, 0.441]   FPR 0.036 [0.014, 0.089]
+    JOR+adaptive (tuned)       Recall 0.370 [0.305, 0.441]   FPR 0.081 [0.043, 0.147]
+    ref: JOR abs-SNR (tuned)   Recall 0.333 [0.270, 0.403]   FPR 0.063 [0.031, 0.124]
+    ref: SNR abs dB            Recall 0.074 [0.045, 0.120]   FPR 0.081 [0.043, 0.147]
+
+  Paired bootstrap on TEST (2,000 resamples of scenarios), A minus B, 95% interval:
+    JOR (tuned) - SNR (CFAR excess):
+      Recall +0.159 [+0.081, +0.239]   FPR -0.081 [-0.164, +0.000]   F1 +0.193 [+0.103, +0.281]
+    JOR (tuned) - C/E/P avg (tuned):
+      Recall +0.032 [-0.031, +0.092]   FPR +0.000 [-0.057, +0.057]   F1 +0.033 [-0.031, +0.097]
+    JOR (tuned) - E+P avg (tuned):
+      Recall +0.016 [-0.041, +0.074]   FPR +0.009 [-0.049, +0.067]   F1 +0.014 [-0.044, +0.074]
+    JOR (tuned) - JOR (default wts):
+      Recall +0.032 [-0.019, +0.085]   FPR -0.009 [-0.051, +0.030]   F1 +0.035 [-0.019, +0.090]
+    JOR (tuned) - E+P avg (0.5/0.5):
+      Recall +0.026 [-0.031, +0.083]   FPR +0.036 [-0.009, +0.088]   F1 +0.019 [-0.039, +0.080]
+    JOR (tuned) - ref: JOR abs-SNR (tuned):
+      Recall +0.063 [+0.021, +0.111]   FPR +0.009 [-0.036, +0.058]   F1 +0.065 [+0.018, +0.116]
+    SNR (CFAR excess) - ref: SNR abs dB:
+      Recall +0.164 [+0.108, +0.222]   FPR +0.072 [+0.000, +0.149]   F1 +0.226 [+0.152, +0.302]
+    JOR (tuned) - ref: SNR abs dB:
+      Recall +0.323 [+0.255, +0.394]   FPR -0.009 [-0.082, +0.062]   F1 +0.419 [+0.341, +0.498]
+    JOR+adaptive (tuned) - JOR (tuned):
+      Recall -0.026 [-0.080, +0.027]   FPR +0.009 [-0.043, +0.063]   F1 -0.029 [-0.087, +0.028]
+
+  Sensitivity to the FPR budget (setting chosen on TRAIN under each budget; metrics on TEST):
+    Budget  Method                     TRAIN FPR   TEST R  TEST FPR  TEST F1
+    0.05    JOR (tuned)                    0.035    0.323     0.009    0.486
+    0.05    SNR (CFAR excess)              0.044    0.159     0.054    0.267
+    0.05    C/E/P avg (tuned)              0.035    0.296     0.027    0.452
+    0.05    E+P avg (tuned)                0.018    0.243     0.000    0.391
+    0.05    JOR+adaptive (tuned)           0.027    0.323     0.027    0.482
+    0.08    JOR (tuned)                    0.062    0.418     0.063    0.575
+    0.08    SNR (CFAR excess)              0.071    0.201     0.072    0.323
+    0.08    C/E/P avg (tuned)              0.080    0.317     0.036    0.474
+    0.08    E+P avg (tuned)                0.080    0.328     0.027    0.488
+    0.08    JOR+adaptive (tuned)           0.080    0.360     0.063    0.515
+    0.12    JOR (tuned)                    0.088    0.397     0.072    0.551
+    0.12    SNR (CFAR excess)              0.106    0.238     0.153    0.359
+    0.12    C/E/P avg (tuned)              0.097    0.365     0.072    0.519
+    0.12    E+P avg (tuned)                0.106    0.381     0.063    0.537
+    0.12    JOR+adaptive (tuned)           0.097    0.370     0.081    0.522
+
+--- Breakdown on VAL + TEST pooled, DRIFTING (each method at its own frozen TRAIN setting) ---
+Recall by event phenotype (scenarios with a true event):
+  Stratum               n   JOR (tuned)               SNR (CFAR excess)         C/E/P avg (tuned)         E+P avg (tuned)            JOR (tuned) latency
+  A_STRONG_MULTI       26   0.885 [0.710, 0.960]      0.423 [0.255, 0.611]      0.731 [0.539, 0.863]      0.846 [0.665, 0.939]                      3.09
+  C_INTERMITTENT       20   0.200 [0.081, 0.416]      0.100 [0.028, 0.301]      0.150 [0.052, 0.360]      0.150 [0.052, 0.360]                      6.50
+  E_CONFLICTING        37   0.027 [0.005, 0.138]      0.027 [0.005, 0.138]      0.081 [0.028, 0.213]      0.054 [0.015, 0.177]                      6.00
+  F_SPARSE             28   0.000 [0.000, 0.121]      0.036 [0.006, 0.177]      0.000 [0.000, 0.121]      0.000 [0.000, 0.121]                       n/a
+  G_GRADUAL_ONSET      36   0.556 [0.396, 0.705]      0.250 [0.138, 0.411]      0.417 [0.271, 0.578]      0.528 [0.370, 0.680]                      5.85
+  TWO_EVENTS          178   0.494 [0.422, 0.567]      0.315 [0.251, 0.386]      0.449 [0.378, 0.523]      0.466 [0.394, 0.540]                      4.59
+False-positive rate by false-event category (scenarios without a true event):
+  Stratum               n   JOR (tuned)               SNR (CFAR excess)         C/E/P avg (tuned)         E+P avg (tuned)           
+  CLUTTER              20   0.100 [0.028, 0.301]      0.300 [0.145, 0.519]      0.050 [0.009, 0.236]      0.100 [0.028, 0.301]      
+  MULTIPATH            14   0.071 [0.013, 0.315]      0.214 [0.076, 0.476]      0.071 [0.013, 0.315]      0.071 [0.013, 0.315]      
+  NO_FALSE_EVENT       54   0.111 [0.052, 0.222]      0.130 [0.064, 0.244]      0.074 [0.029, 0.176]      0.037 [0.010, 0.125]      
+  TRACK_INSTABILITY    16   0.125 [0.035, 0.360]      0.125 [0.035, 0.360]      0.000 [0.000, 0.194]      0.000 [0.000, 0.194]      
+  TRANSIENT_SPIKE      10   0.200 [0.057, 0.510]      0.300 [0.108, 0.603]      0.200 [0.057, 0.510]      0.100 [0.018, 0.404]      
+  TWO_FALSE_EVENTS     61   0.082 [0.036, 0.178]      0.115 [0.057, 0.218]      0.131 [0.068, 0.238]      0.098 [0.046, 0.198]      
+
+==============================================================================================================
+CARRY-OVER: settings tuned on the STATIONARY TRAIN set applied unchanged to DRIFTING TEST data  [QUICK MODE: not a result]
+==============================================================================================================
+Method                    Stationary FPR [95% CI]   Carried-over FPR [95% CI]    Carried recall     Retuned drift R / FPR
+JOR (tuned)               0.099 [0.056, 0.169]      0.207 [0.142, 0.292]                  0.450             0.397 / 0.072
+SNR (CFAR excess)         0.135 [0.084, 0.211]      0.243 [0.173, 0.331]                  0.317             0.238 / 0.153
+C/E/P avg (tuned)         0.216 [0.150, 0.302]      0.189 [0.127, 0.272]                  0.381             0.365 / 0.072
+E+P avg (tuned)           0.144 [0.091, 0.221]      0.144 [0.091, 0.221]                  0.439             0.381 / 0.063
+JOR (default wts)         0.126 [0.077, 0.201]      0.243 [0.173, 0.331]                  0.513             0.365 / 0.081
+E+P avg (0.5/0.5)         0.072 [0.037, 0.136]      0.063 [0.031, 0.124]                  0.413             0.370 / 0.036
+JOR+adaptive (tuned)      0.117 [0.070, 0.190]      0.189 [0.127, 0.272]                  0.365             0.370 / 0.081
+ref: JOR abs-SNR (tuned)  0.099 [0.056, 0.169]      0.432 [0.344, 0.525]                  0.466             0.333 / 0.063
+ref: SNR abs dB           0.090 [0.050, 0.158]      0.505 [0.413, 0.596]                  0.550             0.074 / 0.081
+
+----------------------------------------------------------------------------------------------------
+TABLE F1: F_SPARSE PHENOTYPE RECALL (first detection; TRAIN-selected settings; TEST seeds)
+----------------------------------------------------------------------------------------------------
+Method                   | Stationary     | Drifting       | TEST scenarios with F_SPARSE
+JOR (tuned)              | 0.018          | 0.000          | 55                          
+SNR (CFAR excess)        | 0.073          | 0.091          | 55                          
+C/E/P avg (tuned)        | 0.036          | 0.018          | 55                          
+E+P avg (tuned)          | 0.018          | 0.000          | 55                          
+JOR (default wts)        | 0.000          | 0.000          | 55                          
+E+P avg (0.5/0.5)        | 0.000          | 0.018          | 55                          
+JOR+adaptive (tuned)     | 0.018          | 0.036          | 55                          
+ref: JOR abs-SNR (tuned) | 0.000          | 0.018          | 55                          
+ref: SNR abs dB          | 0.109          | 0.000          | 55                          
+Denominator: TEST scenarios containing at least one F_SPARSE event; the first detection must match an F_SPARSE event within the lag allowance.
+
+------------------------------------------------------------------------------------------------------------------------
+TABLE F2: F_SPARSE LATER-DETECTION / EVENT-LEVEL DIAGNOSTICS (same settings; one-to-one matching)
+------------------------------------------------------------------------------------------------------------------------
+Method                   | Stat any-scn | Drift any-scn | Stat event rec | Drift event rec | Stat matched/total | Drift matched/total
+JOR (tuned)              | 0.018        | 0.000         | 0.016          | 0.000           | 1/61               | 0/61               
+SNR (CFAR excess)        | 0.073        | 0.091         | 0.066          | 0.082           | 4/61               | 5/61               
+C/E/P avg (tuned)        | 0.036        | 0.018         | 0.033          | 0.016           | 2/61               | 1/61               
+E+P avg (tuned)          | 0.018        | 0.000         | 0.016          | 0.000           | 1/61               | 0/61               
+JOR (default wts)        | 0.000        | 0.036         | 0.000          | 0.033           | 0/61               | 2/61               
+E+P avg (0.5/0.5)        | 0.000        | 0.018         | 0.000          | 0.016           | 0/61               | 1/61               
+JOR+adaptive (tuned)     | 0.036        | 0.036         | 0.033          | 0.033           | 2/61               | 2/61               
+ref: JOR abs-SNR (tuned) | 0.000        | 0.018         | 0.000          | 0.016           | 0/61               | 1/61               
+ref: SNR abs dB          | 0.109        | 0.000         | 0.098          | 0.000           | 6/61               | 0/61               
+First-detection audit (stationary / drifting): F_SPARSE, other phenotype, unmatched, none.
+  JOR (tuned): F_SPARSE 1/0; other 10/9; unmatched 6/4; none 38/42
+  SNR (CFAR excess): F_SPARSE 4/5; other 6/5; unmatched 2/3; none 43/42
+  C/E/P avg (tuned): F_SPARSE 2/1; other 10/5; unmatched 4/5; none 39/44
+  E+P avg (tuned): F_SPARSE 1/0; other 8/7; unmatched 4/2; none 42/46
+  JOR (default wts): F_SPARSE 0/0; other 9/4; unmatched 7/4; none 39/47
+  E+P avg (0.5/0.5): F_SPARSE 0/1; other 9/5; unmatched 6/4; none 40/45
+  JOR+adaptive (tuned): F_SPARSE 1/2; other 7/7; unmatched 7/5; none 40/41
+  ref: JOR abs-SNR (tuned): F_SPARSE 0/1; other 12/3; unmatched 3/4; none 40/47
+  ref: SNR abs dB: F_SPARSE 6/0; other 9/1; unmatched 5/7; none 35/47
+
+----------------------------------------------------------------------------------------------------------------
+TABLE F3: F_SPARSE RAW SENSOR OBSERVABILITY (TEST seeds; independent of any detection method)
+----------------------------------------------------------------------------------------------------------------
+Condition    | Events |  Steps |   SNR % |   RCS % |  Power % | Doppler % |  Range % |  DetP % |   Any % |    3+ % | Mean max run
+Stationary   |     61 |    505 |   46.1% |   41.6% |    40.6% |     38.8% |    45.7% |   43.2% |   96.6% |   48.3% |         2.34
+Drifting     |     61 |    505 |   46.1% |   41.6% |    40.6% |     38.8% |    45.7% |   43.2% |   96.6% |   48.3% |         2.34
+3+ % = steps with at least three of six channels available; max run = longest run of such steps per event.
+
+==============================================================================================================
+PRE-DECLARED CLAIM CHECKS: not evaluated in quick mode.  [QUICK MODE: not a result]
+  The claims apply to the full protocol on the held-out block only.
+==============================================================================================================
+
+==============================================================================================================
+Run complete.  [QUICK MODE: not a result]
