@@ -7,9 +7,15 @@ Files are frozen unless noted. Filenames inside frozen files may use older names
 LICENSE.txt
     sha256 518576bcbc6cb5cb1058d8042b724349a2ce2a9fe53041c5469f93a64fd87e54
     MIT licence.
+LOCK_CUSUM_v2.0.txt
+    sha256 8c418fe3ebb4a4ff27b0a7d3b01f35b8d74595221fe00f74a06fb45ef2156d7d
+    Hash record and pre-registration note for the CUSUM study v2.0 (emailed 13:13 EST, run 13:18:57 EST, 2026-11-06).
 LOCK_TUNED_v1.1.txt
     sha256 39e5319d197e60f76763d0c65938a7282b1794d1548837ca4987701d42ed0cef
     Hash record for v1.1 and the v1.0 run.
+PREDECLARED_CLAIMS_CUSUM_v2.md
+    sha256 fa03128fa153439e90ac339636e8d00aa36e182ec8dd255a378f4b2258bd2f12
+    The 7 claims (V1-V7) fixed before the CUSUM study run (frozen).
 PREDECLARED_CLAIMS_TUNED.md
     sha256 0b786a882f2e20d8929d3df7f5f527c22ed4a6ea5f3ad606974bcf76d110b921
     The 15 claims fixed before the run (frozen; refers to the script by its v1.0 name).
@@ -31,12 +37,18 @@ archive/earlier_study_default_weights/results_seeds50000-50999.txt
 archive/jor_tuned_study_v1.0.py
     sha256 9d847277ec14c06ed33d911fb251b9c8f1b79a3be69b8970c039d2c3f8ee9d14
     The tuned study exactly as run (frozen).
+jor_cusum_study_v2.0.py
+    sha256 7b802476e3e9b5fdfe5d20511f9219c5792927c782104761a7475ba13f3ecf39
+    CUSUM study v2.0: JOR vs CUSUM baselines, TEST seeds 70000-70999 (frozen). Imports jor_tuned_study_v1.1.py from this folder.
 jor_tuned_study_v1.1.py
     sha256 0d1843bb9652ae4566fccbfce7a0c4f53339c3408690ec5da3a8011027a00132
-    MAIN SCRIPT. Full tuned study, plus --quick demo mode.
+    MAIN SCRIPT. Full tuned study, plus --quick demo mode. Also the library imported by jor_cusum_study_v2.0.py (unchanged).
 requirements.txt
     sha256 d148dc97158d31ff8b82e85753bfb4d0e86002c9271d08263cae6a139a536627
     numpy>=1.22.
+results/jor_cusum_v2_results_TEST70000-70999_20261106-131857.txt
+    sha256 f359b816e33ed8dc1729fd070da8c83c9622af3474a0ff59f62ac0515c3a9928
+    Output of the CUSUM study v2.0, single full run. 5 of 7 claims held.
 results/quick_mode_example_not_a_result.txt
     sha256 72386436696e6b9360a207d62a8602bc100241fc9585a932806a751c7684f3ca
     Example output of --quick (development seeds). Not a result.
