@@ -2,7 +2,7 @@
 
 A concept demonstration extending the **JOR (James Orion Report) framework** — a Bayesian evidence-fusion architecture originally built for scoring UAP sighting reports — into a maritime active-sonar contact-detection setting.
 
-**What this is:** a synthetic-data proof of concept showing that JOR's fusion/scoring architecture behaves sensibly on maritime-shaped inputs, with a properly held-out TRAIN/VAL/TEST evaluation.
+**What this is:** a synthetic-data proof of concept showing that JOR's fusion/scoring architecture behaves sensibly on maritime-shaped inputs, evaluated on disjoint TRAIN/VAL/TEST seed blocks (see the note on TEST reuse in [Methodology](#methodology)).
 
 **What this is not:** a validated maritime sensor model, and not a claim about real-world sonar detection performance. Every number in this README comes from synthetic scenarios with illustrative sensor constants. See [Limitations](#limitations) before drawing any conclusion beyond "the architecture works as intended on this synthetic data."
 
@@ -39,23 +39,23 @@ Two scripts are kept in this repo on purpose:
 The path from one to the other went through an intermediate iteration that isn't preserved as its own file, but is worth documenting because it's the most instructive part of the story:
 
 1. **Original** (archived here): recall 0.466, FPR 0.081 — comfortably under the 0.12 FPR budget, but recall was the real limitation, concentrated in weak/sparse and internally-conflicting contact types.
-2. **Intermediate iteration** (not separately preserved): strengthened the independent `kin_consistency` channel and added a `persist_score` feature aimed at the weak-signal failure modes. Recall jumped to 0.783 — a large, genuine improvement — but TEST FPR rose to 0.180, **exceeding** the 0.12 budget it had passed on VAL (0.114). Diagnosis: the 150-scenario VAL set wasn't large enough to reliably certify the selected threshold; a follow-up 5-partition repeat experiment confirmed the VAL→TEST FPR gap varied from −0.015 to +0.067 across reshuffled partitions of the same size, consistent with sampling noise rather than a structural flaw in the tuning logic.
-3. **Current** (`jor_dsp_maritime_sonar_streaming.py`): same fusion architecture, VAL widened from 150 → 400 scenarios. This closed the FPR gap (TEST FPR 0.180 → 0.027) and, in the process, revealed that the 0.783 recall figure from step 2 had itself been inflated by VAL sampling luck — the true, validated recall at this operating point is 0.704. Confirmed stable: re-running with VAL widened further to 600 scenarios produced bit-for-bit identical results, indicating 400 is past the point of diminishing returns for this dataset.
+2. **Intermediate iteration** (not separately preserved): strengthened the independent `kin_consistency` channel and added a `persist_score` feature aimed at the weak-signal failure modes. Recall jumped to 0.783 — a large, genuine improvement — but TEST FPR rose to 0.180, **exceeding** the 0.12 budget it had passed on VAL (0.114). Diagnosis: the 150-scenario VAL set wasn't large enough to reliably certify the selected threshold; a follow-up 5-partition repeat experiment confirmed the VAL→TEST FPR gap varied from −0.015 to +0.067 across reshuffled partitions of the same size, consistent with sampling noise rather than a structural flaw in the tuning logic. Note that this was an observation of TEST that preceded the change in step 3 — see the note on TEST reuse in [Methodology](#methodology).
+3. **Current** (`jor_dsp_maritime_sonar_streaming.py`): same fusion architecture, VAL widened from 150 → 400 scenarios. This closed the FPR gap (TEST FPR 0.180 → 0.027). The 0.783 recall from step 2 was reached at an out-of-budget operating point (FPR 0.180), because the 150-scenario VAL set had certified a threshold that was too lenient; at the budget-compliant threshold selected on the larger VAL set, TEST recall is 0.704 (VAL recall 0.681). Confirmed stable: re-running with VAL widened further to 600 scenarios produced bit-for-bit identical results, indicating 400 is past the point of diminishing returns for this dataset.
 
-Both the low-recall original and the correction of an inflated recall are kept visible here rather than only showing the final number, because a repo that only ever shows a clean success story is less credible than one that shows the mistake, the fix, and the discipline that caught it.
+Both the low-recall original and the correction of an out-of-budget operating point are kept visible here rather than only showing the final number, because a repo that only ever shows a clean success story is less credible than one that shows the mistake, the fix, and the discipline that caught it.
 
 ## Results (current version)
 
-All headline numbers below are from a single **frozen, held-out TEST evaluation** on `jor_dsp_maritime_sonar_streaming.py` — every parameter (fusion weights, detection-logic settings, operating thresholds) was selected on TRAIN, confirmed on VAL, and frozen before TEST was touched. See [Methodology](#methodology) for why that distinction matters and how it was enforced.
+All headline numbers below are from a **frozen TEST evaluation** on `jor_dsp_maritime_sonar_streaming.py` — every parameter (fusion weights, detection-logic settings, operating thresholds) was selected on TRAIN, confirmed on VAL, and frozen before the reported TEST run. TEST was also scored on an earlier iteration of the script, so these figures are indicative rather than strictly held-out. See [Methodology](#methodology) for how the split was enforced and for the note on TEST reuse.
 
-| | TRAIN (300) | VAL (400) | TEST (300, held-out) |
+| | TRAIN (300) | VAL (400) | TEST (300) |
 |---|---|---|---|
 | Recall (CONFIRM tier) | 0.754 | 0.681 | **0.704** |
 | False Positive Rate | 0.062 | 0.095 | **0.027** |
 | F1 | — | 0.787 | 0.818 |
 | Mean detection latency | 3.99 steps | 3.77 steps | 3.74 steps |
 
-**JOR fusion vs. a naive single-channel SNR threshold**, both selected the same way (TRAIN → VAL → frozen → TEST once):
+**JOR fusion vs. a naive single-channel SNR threshold**, both selected the same way (TRAIN → VAL → frozen → reported on TEST):
 
 | | Threshold | Recall | FPR |
 |---|---|---|---|
@@ -92,9 +92,9 @@ Every phenotype improved over the original version, and the two hardest categori
 
 ## Methodology
 
-This demo enforces a disjoint **TRAIN (seeds 0–299) → VAL (10,000–10,399) → TEST (20,000–20,299)** split, with independent random streams per scenario component (events, false alarms, environmental conditions, sensor noise, dropout, the independent evidence channel) so the partitions are genuinely separated, not just differently-seeded copies of the same process.
+This demo uses disjoint **TRAIN (seeds 0–299) → VAL (10,000–10,399) → TEST (20,000–20,299)** seed blocks, with independent random streams per scenario component (events, false alarms, environmental conditions, sensor noise, dropout, the independent evidence channel) so the partitions are genuinely separated, not just differently-seeded copies of the same process.
 
-Every tuned component — fusion weights, detection-logic parameters, the CONFIRM threshold, the REVIEW threshold, and the naive baseline's own threshold — follows the same discipline: **search on TRAIN → confirm on VAL → freeze → evaluate once on TEST.** A tuned configuration is only adopted over its default if it both meets the FPR budget and beats the default's VAL performance; otherwise the default is kept.
+Every tuned component — fusion weights, detection-logic parameters, the CONFIRM threshold, the REVIEW threshold, and the naive baseline's own threshold — follows the same discipline: **search on TRAIN → confirm on VAL → freeze → evaluate on TEST.** A tuned configuration is only adopted over its default if it both meets the FPR budget and beats the default's VAL performance; otherwise the default is kept.
 
 The original script went through **three rounds of external methodology review**, each of which surfaced a real, verified issue that was fixed and re-validated:
 1. The naive-baseline comparison was initially selecting operating thresholds directly from TEST (leakage) — fixed to use the same TRAIN→VAL→freeze discipline as JOR.
@@ -103,13 +103,16 @@ The original script went through **three rounds of external methodology review**
 
 A **fourth issue was found later**, in the successor version, and is the reason two versions exist: the VAL set (150 scenarios) was too small to reliably certify the FPR of a tuned configuration, letting a threshold pass VAL's budget check while exceeding that same budget on TEST. This was confirmed with a 5-partition repeat experiment (reshuffling which scenarios landed in TRAIN/VAL/TEST) before being fixed by widening VAL to 400 scenarios, and confirmed stable by further widening to 600 with no change in outcome.
 
-In every case, fixing the leak or gap did not change the fundamental architecture — which is a meaningfully different thing than "the issues didn't matter." Each one needed fixing regardless of whether it moved the headline numbers, and the methodology has now been checked from outside its own blind spots multiple times over, not just self-certified once.
+**Note on TEST reuse (a fifth issue, identified afterward).** The TEST block (seeds 20000–20299, 300 scenarios) is not fully untouched. The intermediate version was scored on the same seeds and exceeded the 0.12 FPR budget (TEST FPR 0.180), which led to widening VAL from 150 to 400 scenarios before the current result. No fusion weights or thresholds were tuned on TEST, but because TEST informed that design change, the reported TEST figures should be read as indicative rather than as a strictly held-out estimate. This is the same category as issue 3 above (TEST influencing experimental design). A rerun on a fresh, untouched seed block would be needed for a strictly held-out estimate.
+
+In every case, fixing the leak or gap did not change the fundamental architecture — which is a meaningfully different thing than "the issues didn't matter." Each one needed fixing regardless of whether it moved the headline numbers, and the methodology has now been checked from outside its own blind spots multiple times over, including the TEST-reuse issue above, not just self-certified once.
 
 ## Limitations
 
 Read this section before citing any number above out of context.
 
 - **Synthetic data throughout.** No real acoustic returns, no real platform, no real target signatures. Every SNR value, target-strength baseline, dropout rate, and sea-state transition probability is either an illustrative placeholder or, at best, grounded in a general acoustics formula rather than measured data.
+- **TEST was not fully untouched.** The same TEST seeds were scored on an intermediate iteration before VAL was widened (see [Methodology](#methodology)). The reported TEST figures are indicative, not a strictly held-out estimate.
 - **The independent evidence channel (`kin_consistency`) is a deliberate modeling choice, not a measured property.** It's built so genuine contacts get a positive reading and false alarms get a negative one — useful for testing *whether JOR can exploit* an orthogonal evidence stream, not evidence that a real kinematic-consistency signal would behave this way on an actual platform.
 - **C, E, and P are not three equally informative channels.** C is a confidence/context signal centered on a fixed baseline with noise — it is not independently discriminative between real and false contacts in this simulator. That's realistic (sensor/operator confidence often isn't decisive on its own) but shouldn't be read as "three equal votes."
 - **The synthetic test set's difficulty mix is arbitrary**, not representative of any real contact-rate distribution. The phenotype split was chosen for evaluation coverage, not to model how often real contacts occur or how hard they typically are. The phenotype-level breakdown is more informative than the aggregate recall number for exactly this reason.
@@ -117,7 +120,7 @@ Read this section before citing any number above out of context.
 - **The "combined" tiered recall is an explicit upper bound**, not an observed figure — it assumes perfect human review-queue triage.
 - **A validated VAL size is not the same as a validated model.** Widening VAL from 150 to 400 fixed a real generalization-certification problem, but every other limitation on this list still applies untouched — a larger validation sample makes the synthetic-data numbers more *trustworthy as synthetic-data numbers*, not more representative of real sonar performance.
 
-This demo shows that the JOR fusion architecture does something real when given independent evidence to work with, that a disciplined TRAIN/VAL/TEST methodology holds up under repeated external and self-review, and that the review process itself is capable of catching its own mistakes, including ones several layers deep. It does not show, and does not claim to show, real-world maritime sonar detection performance.
+This demo shows that the JOR fusion architecture does something real when given independent evidence to work with, and that the review process is capable of catching its own mistakes, including ones several layers deep, with one acknowledged exception in the TRAIN/VAL/TEST discipline (TEST reuse, above). It does not show, and does not claim to show, real-world maritime sonar detection performance.
 
 ## Files
 
