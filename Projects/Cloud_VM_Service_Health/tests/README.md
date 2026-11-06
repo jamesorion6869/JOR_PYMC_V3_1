@@ -25,12 +25,21 @@ Simulation test harnesses run against `ServiceHealthAdapter` (and, for some, `JO
 
 ## Running
 
-Each file is a standalone script:
+The tests import `engine.py` and `service_adapter.py` from the parent folder, so run them from the `Cloud_VM_Service_Health` folder with that folder on the Python path:
+
+macOS / Linux:
 
 ```
-python <test_name>.py
+PYTHONPATH=. python tests/<test_name>.py
 ```
 
-Requirements: Python 3 and NumPy. Download both `service_adapter.py` and `engine.py` and keep them in the same folder as the tests. Some tests only use the adapter, but having both avoids import errors.
+Windows (PowerShell):
+
+```
+$env:PYTHONPATH = "."
+python tests\<test_name>.py
+```
+
+Requirements: Python 3 and NumPy.
 
 Most tests print metrics (`fleet_median`, `outlier_fraction`, `persistent_outliers`, `worst_instance_ema`, `severity_boost`, `theta_o`) for review rather than asserting a result. Only the long-duration and high-load tests report an explicit PASS/FAIL.
