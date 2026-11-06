@@ -1,0 +1,29 @@
+LOCK: JOR vs CUSUM study v2.0 (new pre-registered study)
+
+Pre-registration
+  The four files below were emailed by the author to himself on
+  2026-11-06 at 13:13 EST, before the full run started at 13:18:57 EST.
+  None were edited afterwards. Attachments re-downloaded from the sent
+  email on 2026-11-06 hash to the values below.
+
+SHA-256 (as emailed; LF line endings)
+  7b802476e3e9b5fdfe5d20511f9219c5792927c782104761a7475ba13f3ecf39  jor_cusum_study_v2.0.py
+  fa03128fa153439e90ac339636e8d00aa36e182ec8dd255a378f4b2258bd2f12  PREDECLARED_CLAIMS_CUSUM_v2.md
+  0d1843bb9652ae4566fccbfce7a0c4f53339c3408690ec5da3a8011027a00132  jor_tuned_study_v1.1.py (library, unchanged; same as LOCK_TUNED_v1.1.txt)
+  5a9a19fe3510d5d3110f88311c5ad9d4fb23f86b208d6b0f6df3a300e820f33a  SHA256SUMS.txt
+
+Seeds
+  TRAIN 0-999, VAL 10000-10499 (as in the locked tuned study)
+  TEST 70000-70999 (new; used once, by this run only)
+
+Run
+  One full run, 2026-11-06, Windows, Python serial (jobs 1), about 2.3 hours.
+  No development (--dev) run was made with the final grids; one --quick run
+  (development seeds only) was made before the grids were widened.
+  Output: results/jor_cusum_v2_results_TEST70000-70999_20261106-131857.txt
+  SHA-256 of output as produced: f359b816e33ed8dc1729fd070da8c83c9622af3474a0ff59f62ac0515c3a9928
+
+Outcome
+  5 of 7 pre-declared claims held (V1 and V7 not held). See README.
+  Known limitation: in the drifting condition, plain CUSUM's barrier h chose the
+  grid floor (0.01); reported as-is, not re-run.
