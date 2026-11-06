@@ -105,7 +105,7 @@ TS_BASELINE_DB = 3.0
 # SEED COUNTS reduced from the original 1000/500/1000 for demo runtime.
 # Structure: disjoint TRAIN/VAL/TEST partitions. Operating thresholds
 # (and, per the fix below, fusion hyperparameters too) are selected on
-# TRAIN, validated on VAL, and frozen before the one final TEST
+# TRAIN, validated on VAL, and frozen before the reported TEST run
 # evaluation -- this partition structure itself is unchanged from the
 # original design; restore the larger seed ranges below for a full run.
 TRAIN_SEEDS = list(range(0, 300))
@@ -1231,7 +1231,7 @@ if __name__ == "__main__":
     print(f"    - Scenario-level F1 Score:     {val_res['f1']:.3f}")
     print(f"    - Mean Latency:                {val_res['mean_latency']:.2f} steps" if val_res['mean_latency'] is not None else "    - Mean Latency: N/A")
 
-    print("\n--- [TEST] Final Held-out Evaluation ---")
+    print("\n--- Final TEST Evaluation (see README: test reuse) ---")
     test_res = evaluate(TUNED_PARAMS, train_res["threshold"], TEST_SEEDS, SCENARIO_CACHE, detect_params=TUNED_DETECT)
     print(f"  TEST Results (Final):")
     print(f"    - Scenario-level Recall (TPR): {test_res['recall']:.3f}")
@@ -1264,7 +1264,7 @@ if __name__ == "__main__":
     if review_train_res.get("val_checked"):
         print(f"  REVIEW VAL check: recall={review_train_res['val_recall']:.3f}  fpr={review_train_res['val_fpr']:.3f}  (must be <= {REVIEW_FPR_BUDGET:.2f})")
 
-    print("\n--- [TEST] Tiered alerting results (final, held-out) ---")
+    print("\n--- [TEST] Tiered alerting results (final, frozen) ---")
     tiered_test = evaluate_tiered(TUNED_PARAMS, train_res["threshold"], REVIEW_THRESHOLD,
                                    TEST_SEEDS, SCENARIO_CACHE, detect_params=TUNED_DETECT, by_phenotype=True)
     print(f"  CONFIRM-only recall (auto-flag):        {tiered_test['confirm_recall']:.3f}  (FPR {tiered_test['confirm_fpr']:.3f})")
@@ -1291,7 +1291,7 @@ if __name__ == "__main__":
     # CONFIRM/REVIEW thresholds elsewhere in this script already went
     # through proper TRAIN->VAL selection before freezing. The headline
     # comparison below now gives the naive baseline that same discipline:
-    # select on TRAIN, confirm on VAL, freeze, evaluate ONCE on TEST.
+    # select on TRAIN, confirm on VAL, freeze, evaluate on TEST.
     # The TEST-swept curves are kept for visualization only and are
     # explicitly labeled exploratory, not used for the headline number.
     print("\n--- JOR fusion vs. naive SNR-threshold baseline ---")
@@ -1303,7 +1303,7 @@ if __name__ == "__main__":
     print(f"    Baseline threshold: {baseline_train_res['threshold']:.1f} dB"
           + (f"  (VAL check: recall={baseline_train_res['val_recall']:.3f} fpr={baseline_train_res['val_fpr']:.3f})" if baseline_train_res.get("val_checked") else ""))
 
-    print(f"\n  FINAL (frozen, TEST, held-out) -- FPR budget <= {FPR_BUDGET:.2f}:")
+    print(f"\n  FINAL (frozen, TEST) -- FPR budget <= {FPR_BUDGET:.2f}:")
     print(f"    JOR fusion       -> threshold={train_res['threshold']:.2f}  recall={test_res['recall']:.3f}  FPR={test_res['fpr']:.3f}  F1={test_res['f1']:.3f}")
     print(f"    Naive SNR-thresh -> threshold={baseline_train_res['threshold']:.1f} dB  recall={baseline_test_res['recall']:.3f}  FPR={baseline_test_res['fpr']:.3f}  F1={baseline_test_res['f1']:.3f}")
     frozen_delta = test_res["recall"] - baseline_test_res["recall"]
@@ -1350,15 +1350,15 @@ if __name__ == "__main__":
     ax_cmp.plot([p[0] for p in base_pts], [p[1] for p in base_pts],
                 color="#7f7f7f", lw=2.0, ls="--", marker="s", ms=3, alpha=0.55,
                 label="Naive SNR-thresh -- exploratory TEST sweep")
-    # The diamonds are the FROZEN, TRAIN->VAL-selected, TEST-evaluated-once
+    # The diamonds are the FROZEN, TRAIN->VAL-selected, TEST-evaluated
     # points -- these are the actual headline comparison. The faint curves
     # above are shown only to illustrate the shape of the tradeoff; picking
     # an "optimal" point off them would reintroduce the TEST-selection
     # leakage this figure was changed to avoid.
     ax_cmp.scatter([test_res["fpr"]], [test_res["recall"]], color="#d62728", s=160,
-                    marker="D", zorder=5, edgecolor="black", label="JOR -- FROZEN (final, held-out)")
+                    marker="D", zorder=5, edgecolor="black", label="JOR -- FROZEN (final)")
     ax_cmp.scatter([baseline_test_res["fpr"]], [baseline_test_res["recall"]], color="#7f7f7f", s=160,
-                    marker="D", zorder=5, edgecolor="black", label="Naive -- FROZEN (final, held-out)")
+                    marker="D", zorder=5, edgecolor="black", label="Naive -- FROZEN (final)")
     ax_cmp.axvline(FPR_BUDGET, color="black", ls=":", lw=1.0, alpha=0.5)
     ax_cmp.set_xlabel("False Positive Rate (scenario-level)")
     ax_cmp.set_ylabel("Recall / TPR (scenario-level)")
@@ -1367,7 +1367,7 @@ if __name__ == "__main__":
     ax_cmp.grid(True, alpha=0.3)
     ax_cmp.legend(loc="lower right", fontsize=8)
     ax_cmp.set_title("JOR Fusion vs. Single-Channel SNR Thresholding\n"
-                      "at a Frozen, FPR-Constrained Operating Point (TEST, held-out)",
+                      "at a Frozen, FPR-Constrained Operating Point (TEST)",
                       fontsize=11, fontweight="bold")
     fig_cmp.tight_layout()
     cmp_path = os.path.join(OUT_DIR, "jor_vs_naive_baseline_recall_fpr.png")
