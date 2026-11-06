@@ -14,7 +14,7 @@ This repo intentionally keeps **both** the original demo and its corrected succe
 
 JOR fuses three evidence dimensions — **C** (witness/operator confidence), **E** (environmental/signal evidence), **P** (physical/track evidence) — into a weighted score, then runs that through a Bayesian posterior update to produce a confidence-over-time track for a candidate contact. The original framework scores UAP sighting reports from human witness testimony; this demo retargets the same fusion math to an active-sonar setting, where C becomes a sensor/operator-confidence signal (no human eyewitness involved) and E/P are built from simulated acoustic returns instead of testimony.
 
-The core Bayesian fusion math is **unchanged** from the validated JOR architecture, including the P(E|NH) = NHP and P(E|H) = min(1, 1 − NHP + K·SOP) likelihood formulation from JOR V3.1. What's new here is the sensor-simulation layer feeding it, and — in the current version — a recursive prior-retention mechanism that extends the paper's single-shot Bayesian update into a streaming, multi-step filter suited to a time-series detection problem.
+The core Bayesian fusion math is **unchanged** from the published JOR V3.1 architecture, including the P(E|NH) = NHP and P(E|H) = min(1, 1 − NHP + K·SOP) likelihood formulation from JOR V3.1. What's new here is the sensor-simulation layer feeding it, and — in the current version — a recursive prior-retention mechanism that extends the paper's single-shot Bayesian update into a streaming, multi-step filter suited to a time-series detection problem.
 
 ## What's in the maritime adaptation
 
