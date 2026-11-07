@@ -160,6 +160,24 @@ python test_suite.py
 python test_regression.py
 ```
 
+## What this is, and isn't
+
+This is a working demonstration of Bayesian sequential fusion applied to a
+multi-signal health-monitoring problem — calibration, posterior updating,
+retention-based smoothing, override behavior for genuine catastrophic
+deviations, and hysteresis alerting are all real, functioning components, not
+a simplified stand-in for them.
+
+What it is *not* is a calibrated or validated model: the fusion weights
+(0.40/0.30/0.30), thresholds (0.50/0.40), and scenario parameters are
+illustrative rather than derived from historical data or domain expertise. A
+production version of this pattern would calibrate those weights against real
+outcome data — the way, for example, defense readiness reporting systems tie
+resource and mission-capability ratings back to actual historical performance
+rather than hand-set constants. The fusion *architecture* here is the real
+contribution; the specific numbers plugged into it are a starting point for
+tuning, not a finished result.
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
