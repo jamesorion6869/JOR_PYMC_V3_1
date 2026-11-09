@@ -34,7 +34,7 @@ All methods see the same synthetic scenarios and the same enriched DSP features.
 | ref: JOR abs-SNR (tuned) | JOR fed absolute-SNR evidence instead of CFAR-relative (reference) |
 | ref: SNR abs dB | Single-channel absolute-SNR tracker (reference) |
 
-**Only these comparisons were run** in the tuned study. A later, separately pre-registered study adds CUSUM baselines on fresh seeds (see [CUSUM comparison](#cusum-comparison-study-v20-test-seeds-7000070999)). Neither shows that JOR beats other combiners in general, on real data, or with other generators.
+**Only these comparisons were run** in the tuned study. Two later, separately pre-registered studies add CUSUM baselines on fresh seeds (see [CUSUM study v2.1](#cusum-comparison-study-v21-test-seeds-8000080999), the current one, and [v2.0](#cusum-comparison-study-v20-test-seeds-7000070999)). None of them shows that JOR beats other combiners in general, on real data, or with other generators.
 
 ## Why tuned weights are the headline
 
@@ -100,7 +100,57 @@ How to read this honestly:
 
 The earlier default-weight study is kept in `archive/earlier_study_default_weights/` with its own pre-declared claims and results; it is superseded by this tuned study.
 
+## CUSUM comparison (study v2.1, TEST seeds 80000–80999)
+
+This is the current CUSUM comparison. It repeats v2.0 (below) on a fresh TEST block, with one change in method: a stricter threshold rule, adopted because JOR's FPR overshot its budget in v2.0. v2.0 is kept as-is for the record.
+
+- **Script:** `jor_cusum_study_v2.1.py`. It imports `jor_tuned_study_v1.1.py` unchanged as a library, as v2.0 did.
+- **Seeds:** TRAIN 0–999 and VAL 10000–10499 as above; TEST 80000–80999 (new; the script refuses overlap with development seeds and with the spent blocks 60000–60999 and 70000–70999).
+- **Selection rule (the change from v2.0):** a setting is eligible only if the upper 95% Wilson bound of its TRAIN FPR is at or below 0.12. It is applied identically to every method, during selection only. Reported FPRs are point estimates. In practice, chosen settings sit at a TRAIN FPR of about 0.074–0.085, not 0.12, and every method is compared at that operating point.
+- **Detector form:** all three CUSUMs may fire on level, or on a rise over 4 steps, which is the detector form JOR uses.
+- **Two descriptive rows (reported, not claims):** *CUSUM on JOR weights*, to check whether CUSUM was understated by running on averaging weights; and *C/E/P + memory*, the C/E/P average with JOR's posterior smoothing (EMA, alpha 0.30) and its own weight search, to check how much of JOR's lead is just memory.
+- **Pre-registration:** claims V1–V7 (`PREDECLARED_CLAIMS_CUSUM_v2.1.md`), the same structure as v2.0. The script, claims and library were emailed by the author to himself at 07:49 EST on 2026-11-09, before the single full run began at 07:52:31 EST. Hashes and details are in `LOCK_CUSUM_v2.1.txt`.
+
+Event recall / FPR on TEST:
+
+| Method | Stationary recall / FPR | Drifting recall / FPR |
+|---|---|---|
+| **JOR (tuned)** | **0.475 / 0.125** | **0.422 / 0.118** |
+| CUSUM on C/E/P | 0.454 / 0.102 | 0.342 / 0.083 |
+| CUSUM-detrended | 0.288 / 0.109 | 0.281 / 0.131 |
+| C/E/P avg (tuned) | 0.424 / 0.118 | 0.355 / 0.102 |
+| SNR (CFAR excess) | 0.195 / 0.112 | 0.167 / 0.086 |
+| CUSUM on JOR weights* | 0.456 / 0.096 | 0.255 / 0.013 |
+| C/E/P + memory* | 0.301 / 0.105 | 0.243 / 0.089 |
+
+\* descriptive row, not part of any claim.
+
+Paired differences, tuned JOR minus method (95% bootstrap interval, 2000 resamples):
+
+| vs | Stationary recall | Stationary FPR | Drifting recall | Drifting FPR |
+|---|---|---|---|---|
+| CUSUM on C/E/P | +0.020 [−0.006, +0.046] | +0.022 [−0.015, +0.060] | +0.080 [+0.054, +0.107] | +0.035 [+0.000, +0.073] |
+| CUSUM-detrended | +0.186 [+0.145, +0.229] | +0.016 [−0.031, +0.063] | +0.141 [+0.101, +0.182] | −0.013 [−0.068, +0.037] |
+| C/E/P avg (tuned) | +0.051 [+0.017, +0.086] | +0.006 [−0.039, +0.049] | +0.067 [+0.037, +0.100] | +0.016 [−0.026, +0.059] |
+| C/E/P + memory* | +0.173 [+0.141, +0.207] | +0.019 [−0.024, +0.060] | +0.179 [+0.147, +0.212] | +0.029 [−0.013, +0.068] |
+
+**Claim check: 6 of 7 held.** V2–V7 held. V1 did not hold: on the stationary floor JOR and plain CUSUM are statistically tied again. V7 held: JOR's TEST FPR was 0.125 (stationary) and 0.118 (drifting), under the pre-declared 0.15 ceiling. No selection fallbacks.
+
+How to read this honestly:
+
+- **The stricter rule brought JOR's FPR back near budget** (v2.0: 0.179 / 0.197; v2.1: 0.125 / 0.118), at a cost of about 0.02–0.05 in recall. This is one TEST block. The same JOR configuration earlier gave TEST FPR 0.119 on one block and 0.179 on another, so the rule held FPR in budget here; it does not guarantee it.
+- **Stationary: still a tie with plain CUSUM** (recall +0.020, interval includes zero; F1 +0.015 [−0.011, +0.039]). Plain CUSUM again beat the C/E/P average on recall (+0.031 [+0.003, +0.061]). On this floor, much of JOR's edge over the averages can be matched by simple accumulation.
+- **Drifting: JOR beat plain CUSUM by +0.080 recall, replicating v2.0's direction on fresh seeds.** JOR's FPR was also higher (+0.035; the interval's lower bound is at zero), so part of that lead comes with more false alarms. On F1 JOR still leads (+0.076 [+0.048, +0.105]). Unlike v2.0, plain CUSUM's barrier did not sit on its grid edge (h = 0.20).
+- **Memory alone does not explain JOR's lead.** C/E/P + memory came in well below JOR (about −0.17 to −0.18 recall) and below the plain C/E/P average. As declared before the run, this does not separate the Bayes step, K and prior retention (0.70) from each other, because this row has none of them.
+- **CUSUM on JOR weights** came close to plain CUSUM on the stationary floor (0.456 vs 0.454). On the drifting floor its chosen setting ran at a TEST FPR of 0.013, far below budget, so its drifting recall is not a like-for-like comparison.
+- **Latency is mixed.** Mean latency on TEST: JOR 5.04 vs plain CUSUM 3.16 steps on the stationary floor (JOR later), 4.32 vs 5.16 on the drifting floor (JOR earlier). Detection counts a hit within ±3 steps of onset for every method.
+- **Locking deviations (disclosed in `LOCK_CUSUM_v2.1.txt`):** the full `--dev` run on the laptop was skipped (only the header hashes and first JOR line were checked); the claims file was emailed without a line-by-line review by the author; and the last script change (error-path logging only) was checked in a separate sandbox, not in a laptop dev run.
+- The claims file lists 13 disclosures, including forking paths (the Wilson rule, the CUSUM rise path and both descriptive rows were added after v2.0 and after development-seed checks), a track-consistency offset in the generator, and unequal search sizes between methods. Read them with the results.
+- Same generator and same limits as the tuned study: synthetic, generator-coupled, not evidence about real radar.
+
 ## CUSUM comparison (study v2.0, TEST seeds 70000–70999)
+
+Superseded by v2.1 above; kept as run.
 
 CUSUM is the standard sequential change detector and the first baseline a reviewer would ask for. It also accumulates evidence over time, so it tests whether JOR's edge over the averages is more than plain accumulation. It was not part of the tuned study above, and it was designed after that study's TEST block had been seen. So it was run as a **new study on a fresh TEST block**, with its own pre-declared claims.
 
@@ -146,7 +196,7 @@ How to read this honestly:
 - **Weights are tuned on TRAIN, not cross-validated across generators.** A different generator could rank methods differently.
 - **Not detect-and-track.** No Kalman/IMM/TBD comparison is made or implied, and this benchmark says nothing about JOR versus those.
 - Development seeds were examined while building the study; the TEST block (60000–60999) was not used for any design decision.
-- **CUSUM study:** JOR's FPR ran above budget on the fresh TEST block (V7 not held), and the drifting plain-CUSUM baseline sat on its grid edge. See the CUSUM section.
+- **CUSUM studies:** JOR ties plain CUSUM on the stationary floor in both v2.0 and v2.1. In v2.0 JOR's FPR ran above budget (V7 not held); in v2.1 the stricter selection rule held it under 0.15 on one fresh block. JOR's drifting lead over CUSUM comes with a somewhat higher FPR. See the CUSUM sections.
 
 ## Reproducing
 
@@ -182,6 +232,16 @@ python jor_cusum_study_v2.0.py
 - About 69 minutes per condition (about 2.3 hours total) serial on a Windows laptop.
 - `--quick` and `--dev` work as above and are not results. `--jobs N` as above.
 
+CUSUM study v2.1 (keep `jor_tuned_study_v1.1.py` in the same folder):
+
+```
+python jor_cusum_study_v2.1.py
+```
+
+- Saves its own output next to the script as `jor_cusum_v2.1_results_<mode>_<date-time>.txt`. Compare against `results/jor_cusum_v2.1_results_TEST80000-80999_20261109-075231.txt`.
+- About 64 minutes per condition (under 2.5 hours total) serial on a Windows laptop.
+- `--quick` and `--dev` work as above and are not results. `--jobs N` as above.
+
 Reproduction check: the full run on seeds 60000–60999 was repeated on a separate Windows laptop (serial); both outputs are in `results/`. Compare your output against `results/tuned_study_seeds60000-60999.txt`.
 
 ## Files
@@ -198,9 +258,13 @@ Reproduction check: the full run on seeds 60000–60999 was repeated on a separa
 | `results/tuned_study_reproduction_windows_serial.txt` | Independent reproduction on a Windows laptop |
 | `results/quick_mode_example_not_a_result.txt` | Example quick-mode output |
 | `jor_cusum_study_v2.0.py` | CUSUM comparison study (imports `jor_tuned_study_v1.1.py` unchanged) |
-| `PREDECLARED_CLAIMS_CUSUM_v2.md` | Claims V1–V7, fixed before the CUSUM TEST run |
-| `LOCK_CUSUM_v2.0.txt` | Pre-registration record and SHA-256 hashes for the CUSUM study |
-| `results/jor_cusum_v2_results_TEST70000-70999_20261106-131857.txt` | CUSUM study output, single full run |
+| `PREDECLARED_CLAIMS_CUSUM_v2.md` | Claims V1–V7, fixed before the v2.0 TEST run |
+| `LOCK_CUSUM_v2.0.txt` | Pre-registration record and SHA-256 hashes for the v2.0 study |
+| `results/jor_cusum_v2_results_TEST70000-70999_20261106-131857.txt` | CUSUM study v2.0 output, single full run |
+| `jor_cusum_study_v2.1.py` | CUSUM comparison study v2.1, current (imports `jor_tuned_study_v1.1.py` unchanged) |
+| `PREDECLARED_CLAIMS_CUSUM_v2.1.md` | Claims V1–V7 and disclosures, fixed before the v2.1 TEST run |
+| `LOCK_CUSUM_v2.1.txt` | Pre-registration record and SHA-256 hashes for the v2.1 study |
+| `results/jor_cusum_v2.1_results_TEST80000-80999_20261109-075231.txt` | CUSUM study v2.1 output, single full run |
 | `archive/jor_tuned_study_v1.0.py`, `archive/LOCK_TUNED_v1.0.txt` | Previous script version (same numbers; v1.1 only added `--quick` and flag handling) |
 | `archive/earlier_study_default_weights/` | The first study, run with default/author weights, kept as ablation |
 | `archive/original_demo_2026-09/` | The original demo, `README_original.md` and requirements, kept for history |
