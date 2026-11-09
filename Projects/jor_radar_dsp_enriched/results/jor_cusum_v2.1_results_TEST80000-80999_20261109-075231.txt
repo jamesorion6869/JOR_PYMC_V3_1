@@ -1,0 +1,139 @@
+========================================================================================================
+JOR vs CUSUM study v2.1 (pre-registered; Wilson-bound threshold rule; fresh TEST block)
+Selection rule: upper 95% Wilson bound of TRAIN FPR <= 0.12 (all methods)
+Weight search: 150 candidates, seed 2026; jobs 1
+Script SHA-256 (LF line endings): 76703383d415e8ef1b4149932fc001268958bdac8c00c165c317645a375e3b93
+Library jor_tuned_study_v1.1.py SHA-256 (LF line endings): 0d1843bb9652ae4566fccbfce7a0c4f53339c3408690ec5da3a8011027a00132
+========================================================================================================
+Seed partition check: PASS (TRAIN 1000, VAL 500, TEST 1000)
+Seed freeze check: PASS (TEST block 80000-80999 is new; it overlaps no development seeds and not the spent TEST blocks 60000-60999 (locked study) or 70000-70999 (v2.0))
+
+[STATIONARY] generating scenarios ...
+
+  Weight search on TRAIN (STATIONARY; coarse threshold grid, FPR budget 0.12)
+    JOR        150 candidates; TRAIN recall min 0.017 median 0.390 max 0.495; chosen rand024 (W_C 0.09 W_E 0.15 W_P 0.76 K 0.10), TRAIN recall 0.495
+               first candidate (default weights): TRAIN recall 0.382
+    C/E/P avg  150 candidates; TRAIN recall min 0.013 median 0.261 max 0.428; chosen rand113 (W_C 0.06 W_E 0.14 W_P 0.80), TRAIN recall 0.428
+               first candidate (default weights): TRAIN recall 0.248
+    E+P avg     11 candidates; TRAIN recall min 0.275 median 0.336 max 0.410; chosen w=0.0 (E weight 0.0, P weight 1.0), TRAIN recall 0.410
+  C/E/P + memory weight search on TRAIN ...
+  CUSUM search on TRAIN ...
+    CUSUM on C/E/P: nu=0.650 h=0.40 sustain=3 rise>=0.20 margin 1.0h
+    CUSUM-detrended: rate=0.02 nu=0.025 h=0.60 sustain=1 rise>=0.20 margin 0.5h
+    CUSUM on JOR weights: nu=0.650 h=0.60 sustain=4 rise>=0.05 margin 0.5h
+  condition done in 3845s
+
+[DRIFTING] generating scenarios ...
+
+  Weight search on TRAIN (DRIFTING; coarse threshold grid, FPR budget 0.12)
+    JOR        150 candidates; TRAIN recall min 0.019 median 0.327 max 0.447; chosen rand115 (W_C 0.30 W_E 0.05 W_P 0.66 K 0.34), TRAIN recall 0.447
+               first candidate (default weights): TRAIN recall 0.374
+    C/E/P avg  150 candidates; TRAIN recall min 0.013 median 0.258 max 0.379; chosen rand145 (W_C 0.12 W_E 0.41 W_P 0.47), TRAIN recall 0.379
+               first candidate (default weights): TRAIN recall 0.237
+    E+P avg     11 candidates; TRAIN recall min 0.233 median 0.316 max 0.401; chosen w=0.2 (E weight 0.2, P weight 0.8), TRAIN recall 0.401
+  C/E/P + memory weight search on TRAIN ...
+  CUSUM search on TRAIN ...
+    CUSUM on C/E/P: nu=0.650 h=0.20 sustain=1 rise>=0.05 margin 0.5h
+    CUSUM-detrended: rate=0.05 nu=0.075 h=0.30 sustain=2 rise>=0.10 margin 0.5h
+    CUSUM on JOR weights: nu=0.700 h=0.20 sustain=1 rise>=0.05 margin 1.0h
+  condition done in 3796s
+
+========================================================================================================
+CONDITION: STATIONARY   (all settings chosen on TRAIN; FPR budget 0.12)
+========================================================================================================
+  JOR   W_C 0.09 W_E 0.15 W_P 0.76 K 0.10   C/E/P W_C 0.06 W_E 0.14 W_P 0.80
+  CUSUM nu 0.650 h 0.40 sustain 3 rise>=0.20 margin 1.0h
+  CUSUM-detrended rate 0.02 nu 0.025 h 0.60 sustain 1 rise>=0.20 margin 0.5h
+  C/E/P + memory (descriptive) W_C 0.01 W_E 0.74 W_P 0.25 EMA alpha 0.30
+  CUSUM on JOR weights (descriptive) nu 0.650 h 0.60 sustain 4 rise>=0.05 margin 0.5h
+
+Method                TRAIN R / FPR   VAL R / FPR      TEST recall     FPR      F1  Latency
+JOR (tuned)           0.503 / 0.082   0.477 / 0.137          0.475   0.125   0.620     5.04
+C/E/P avg (tuned)     0.428 / 0.085   0.415 / 0.131          0.424   0.118   0.573     2.26
+SNR (CFAR excess)     0.233 / 0.082   0.222 / 0.131          0.195   0.112   0.313     4.58
+CUSUM on C/E/P        0.486 / 0.085   0.471 / 0.131          0.454   0.102   0.605     3.16
+CUSUM-detrended       0.255 / 0.085   0.249 / 0.177          0.288   0.109   0.431     4.71
+CUSUM on JOR weights* 0.484 / 0.085   0.462 / 0.131          0.456   0.096   0.608     5.20
+C/E/P + memory*       0.316 / 0.085   0.317 / 0.137          0.301   0.105   0.447     4.15
+  * descriptive row: reported, not part of any pre-declared claim
+
+  Paired bootstrap on TEST (2,000 resamples of scenarios), A minus B, 95% interval:
+    JOR (tuned) - CUSUM on C/E/P:
+      Recall +0.020 [-0.006, +0.046]   FPR +0.022 [-0.015, +0.060]   F1 +0.015 [-0.011, +0.039]
+    JOR (tuned) - CUSUM-detrended:
+      Recall +0.186 [+0.145, +0.229]   FPR +0.016 [-0.031, +0.063]   F1 +0.189 [+0.146, +0.234]
+    JOR (tuned) - C/E/P avg (tuned):
+      Recall +0.051 [+0.017, +0.086]   FPR +0.006 [-0.039, +0.049]   F1 +0.046 [+0.015, +0.079]
+    JOR (tuned) - SNR (CFAR excess):
+      Recall +0.279 [+0.239, +0.321]   FPR +0.013 [-0.039, +0.063]   F1 +0.307 [+0.262, +0.354]
+    CUSUM on C/E/P - C/E/P avg (tuned):
+      Recall +0.031 [+0.003, +0.061]   FPR -0.016 [-0.054, +0.022]   F1 +0.032 [+0.005, +0.062]
+    CUSUM-detrended - C/E/P avg (tuned):
+      Recall -0.135 [-0.173, -0.097]   FPR -0.010 [-0.054, +0.034]   F1 -0.142 [-0.184, -0.102]
+    JOR (tuned) - CUSUM on JOR weights:
+      Recall +0.019 [-0.003, +0.041]   FPR +0.029 [-0.004, +0.064]   F1 +0.012 [-0.009, +0.033]
+    JOR (tuned) - C/E/P + memory:
+      Recall +0.173 [+0.141, +0.207]   FPR +0.019 [-0.024, +0.060]   F1 +0.173 [+0.140, +0.209]
+
+========================================================================================================
+CONDITION: DRIFTING   (all settings chosen on TRAIN; FPR budget 0.12)
+========================================================================================================
+  JOR   W_C 0.30 W_E 0.05 W_P 0.66 K 0.34   C/E/P W_C 0.12 W_E 0.41 W_P 0.47
+  CUSUM nu 0.650 h 0.20 sustain 1 rise>=0.05 margin 0.5h
+  CUSUM-detrended rate 0.05 nu 0.075 h 0.30 sustain 2 rise>=0.10 margin 0.5h
+  C/E/P + memory (descriptive) W_C 0.01 W_E 0.60 W_P 0.39 EMA alpha 0.30
+  CUSUM on JOR weights (descriptive) nu 0.700 h 0.20 sustain 1 rise>=0.05 margin 1.0h
+
+Method                TRAIN R / FPR   VAL R / FPR      TEST recall     FPR      F1  Latency
+JOR (tuned)           0.447 / 0.077   0.437 / 0.103          0.422   0.118   0.572     4.32
+C/E/P avg (tuned)     0.379 / 0.080   0.397 / 0.086          0.355   0.102   0.507     2.55
+SNR (CFAR excess)     0.190 / 0.082   0.197 / 0.091          0.167   0.086   0.277     4.13
+CUSUM on C/E/P        0.355 / 0.080   0.363 / 0.074          0.342   0.083   0.496     5.16
+CUSUM-detrended       0.255 / 0.074   0.252 / 0.137          0.281   0.131   0.419     4.03
+CUSUM on JOR weights* 0.280 / 0.014   0.252 / 0.006          0.255   0.013   0.404     4.55
+C/E/P + memory*       0.269 / 0.085   0.246 / 0.109          0.243   0.089   0.379     4.19
+  * descriptive row: reported, not part of any pre-declared claim
+
+  Paired bootstrap on TEST (2,000 resamples of scenarios), A minus B, 95% interval:
+    JOR (tuned) - CUSUM on C/E/P:
+      Recall +0.080 [+0.054, +0.107]   FPR +0.035 [+0.000, +0.073]   F1 +0.076 [+0.048, +0.105]
+    JOR (tuned) - CUSUM-detrended:
+      Recall +0.141 [+0.101, +0.182]   FPR -0.013 [-0.068, +0.037]   F1 +0.153 [+0.108, +0.197]
+    JOR (tuned) - C/E/P avg (tuned):
+      Recall +0.067 [+0.037, +0.100]   FPR +0.016 [-0.026, +0.059]   F1 +0.065 [+0.033, +0.101]
+    JOR (tuned) - SNR (CFAR excess):
+      Recall +0.255 [+0.215, +0.294]   FPR +0.032 [-0.015, +0.078]   F1 +0.295 [+0.249, +0.340]
+    CUSUM on C/E/P - C/E/P avg (tuned):
+      Recall -0.013 [-0.039, +0.015]   FPR -0.019 [-0.056, +0.017]   F1 -0.011 [-0.039, +0.019]
+    CUSUM-detrended - C/E/P avg (tuned):
+      Recall -0.074 [-0.112, -0.034]   FPR +0.029 [-0.016, +0.077]   F1 -0.088 [-0.131, -0.042]
+    JOR (tuned) - CUSUM on JOR weights:
+      Recall +0.167 [+0.138, +0.196]   FPR +0.105 [+0.070, +0.142]   F1 +0.168 [+0.135, +0.201]
+    JOR (tuned) - C/E/P + memory:
+      Recall +0.179 [+0.147, +0.212]   FPR +0.029 [-0.013, +0.068]   F1 +0.193 [+0.158, +0.228]
+
+========================================================================================================
+PRE-DECLARED CLAIM CHECKS
+========================================================================================================
+  V1  NOT HELD  Stationary: JOR recall exceeds CUSUM on C/E/P (CI lower bound > 0)
+        point +0.020 [-0.006, +0.046]
+  V2  HELD      Stationary: JOR recall exceeds CUSUM-detrended (CI lower bound > 0)
+        point +0.186 [+0.145, +0.229]
+  V3  HELD      Stationary: JOR recall exceeds C/E/P avg (CI lower bound > 0; replication on fresh seeds)
+        point +0.051 [+0.017, +0.086]
+  V4  HELD      Drifting: JOR recall exceeds CUSUM on C/E/P (CI lower bound > 0)
+        point +0.080 [+0.054, +0.107]
+  V5  HELD      Drifting: JOR recall exceeds CUSUM-detrended (CI lower bound > 0)
+        point +0.141 [+0.101, +0.182]
+  V6  HELD      Drifting: JOR recall exceeds C/E/P avg (CI lower bound > 0; replication on fresh seeds)
+        point +0.067 [+0.037, +0.100]
+  V7  HELD      JOR TEST FPR at or below 0.15 in both conditions
+        0.125, 0.118
+
+  6 of 7 pre-declared claims held.
+  Selection fallbacks: none
+
+========================================================================================================
+Run complete.
+
+Results saved to jor_cusum_v2.1_results_TEST80000-80999_20261109-075231.txt
