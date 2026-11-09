@@ -1,0 +1,71 @@
+LOCK: JOR vs CUSUM study v2.1 (pre-registered; Wilson-bound threshold rule)
+
+Pre-registration
+  The four files below were zipped and emailed by the author to himself on
+  2026-11-09 at 07:49 EST, before the TEST run started at 07:52:31 EST.
+  None were edited afterwards. The unzipped attachments match the built
+  files byte for byte.
+  Zip: jor_cusum_study_v2.1_preregistration.zip, 32,079 bytes,
+  SHA-256 12ba1ed4... (as built)
+
+SHA-256 (as emailed; LF line endings)
+  76703383d415e8ef1b4149932fc001268958bdac8c00c165c317645a375e3b93  jor_cusum_study_v2.1.py
+  8513d72e2769de26ccf07ccac4bb1f55dadf59e1bad7bd16f5d5751cde9543db  PREDECLARED_CLAIMS_CUSUM_v2.1.md
+  0d1843bb9652ae4566fccbfce7a0c4f53339c3408690ec5da3a8011027a00132  jor_tuned_study_v1.1.py (library, unchanged; same as LOCK_TUNED_v1.1.txt and v2.0)
+  624bd8b9ec513aac3be680d42acca1f451244434c572e5da4029ad60b03b8de2  SHA256SUMS.txt
+
+Seeds
+  TRAIN 0-999, VAL 10000-10499 (as in the locked tuned study and v2.0)
+  TEST 80000-80999 (new; used once, by this run only)
+  Spent TEST blocks not reused: 60000-60999 (v1.1), 70000-70999 (v2.0)
+
+Run
+  One full run, 2026-11-09, Windows, Python serial (jobs 1), 150 weight
+  candidates, seed 2026. Started 07:52:31 EST; the two conditions took
+  3845 s and 3796 s (about 2.1 hours of search plus scenario generation).
+  Header printed the script and library hashes above; seed partition and
+  seed freeze checks PASS; no selection fallbacks.
+  Output: jor_cusum_v2.1_results_TEST80000-80999_20261109-075231.txt (9,590 bytes)
+  SHA-256 of output as uploaded (CRLF): 3482c25d65e0a66edf579298c99113cf7591bf6d7f744b7e86aac61145ccf316
+  SHA-256 of output, LF-normalized:     8fae66e880a6e002015c2a0c4a9da1304dcad137da6d4c48c64894f627ad0a08
+
+Did the run match the claims file?
+  Yes. Script and library hashes in the output header match the emailed
+  files. The seven claims V1-V7 checked by the script are the seven in
+  PREDECLARED_CLAIMS_CUSUM_v2.1.md. Both descriptive rows (CUSUM on JOR
+  weights; C/E/P + memory) were reported and are not claims.
+
+Outcome
+  6 of 7 pre-declared claims held (V1 not held).
+  V1 stationary JOR - CUSUM on C/E/P recall +0.020 [-0.006, +0.046]  NOT HELD
+  V2 stationary JOR - CUSUM-detrended  +0.186 [+0.145, +0.229]       HELD
+  V3 stationary JOR - C/E/P avg        +0.051 [+0.017, +0.086]       HELD
+  V4 drifting JOR - CUSUM on C/E/P     +0.080 [+0.054, +0.107]       HELD
+  V5 drifting JOR - CUSUM-detrended    +0.141 [+0.101, +0.182]       HELD
+  V6 drifting JOR - C/E/P avg          +0.067 [+0.037, +0.100]       HELD
+  V7 JOR TEST FPR <= 0.15: 0.125 stationary, 0.118 drifting           HELD
+  Reported as-is; not re-run.
+
+Pre-declared reading of the memory row (applied as written)
+  C/E/P + memory recall 0.301 stationary, 0.243 drifting: well below JOR
+  (gaps +0.173, +0.179) and below C/E/P avg. Memory/smoothing alone does not
+  explain JOR's lead. The Bayes step, K, and prior retention (0.70) still
+  cannot be separated, because this row has none of them.
+
+Points to state with the results
+  - Drifting JOR - CUSUM FPR +0.035 [+0.000, +0.073]: the lower bound sits at
+    zero, so part of JOR's drifting recall lead over CUSUM comes with a
+    higher false-positive rate. Point FPRs: JOR 0.118, CUSUM 0.083.
+  - CUSUM on JOR weights (descriptive), drifting: FPR 0.013 on TEST, so it sat
+    far below the budget; its recall gap is not a like-for-like comparison.
+
+Deviations from the planned locking procedure (disclosed)
+  1. The full laptop --dev run, and comparison of its numbers to the sandbox
+     dev table, was skipped. Only the header hashes and the first JOR line
+     were checked on the laptop (2026-11-09 07:46 EST).
+  2. The claims file was built and emailed without a line-by-line review by
+     the author. It is treated as unreviewed; the TEST run stands on the
+     emailed version.
+  3. The final script change (76703383, SystemExit logging) is error-path
+     only. It was verified in the sandbox, not in a laptop dev run. The
+     sandbox dev runs were on the prior hash e595f54c.
