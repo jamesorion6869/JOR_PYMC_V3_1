@@ -1,0 +1,8 @@
+LSS-HSR-L run v2 "weak front end" (exploratory). Declared 2026-11-11 11:47 UTC BEFORE any v2 results.
+Authorised by Jake 2026-11-11 06:46 ET ("Sure. Why not").
+Why: v1 (Doppler-shape P, 24 features) hit a ceiling (frame AUC ~0.97; all methods 0.95-0.99 recall), so it could not separate methods.
+Change vs v1 (ONLY this): the P model sees 4 of the 24 features: bandwidth, entropy, peak/median (log), bins>0.5. Same HistGB settings, same OOF scheme.
+Everything else identical to PROTOCOL_hsr_v1.txt: segments, route-grouped 5-fold, seed 7 first, E from SNR, C=0.65, JOR jor0/1/2, tuned CUSUM, front-end-alone arm, Wilson selection at 0.12/0.08/0.05, paired route-grouped bootstrap.
+Feature subset fixed now; no swapping after results. Report whatever comes out, including if frame AUC is still near ceiling (>0.93), in which case v2 also counts as uninformative and is reported so.
+Seeds 11 and 23 only if Jake asks.
+Outputs: hsr_v2_s{seed}_f{fold}.pkl, logv2_s{seed}_f{fold}.txt.
