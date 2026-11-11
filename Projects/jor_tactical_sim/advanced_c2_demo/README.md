@@ -4,7 +4,7 @@
 
 ## Overview
 
-The **James Orion Report (JOR 4.0)** is an advanced Command and Control (C2) tactical maneuver simulation and decision support platform. It integrates dynamic Bayesian network state estimation, Non-Healthy Posterior (NHP) process failure modeling, Signal Object Processing (SOP) metric updates, multi-component force readiness tracking, and geospatial MIL-STD-2525 unit mapping.
+The **James Orion Report (JOR 4.0)** is an advanced Command and Control (C2) tactical maneuver simulation and decision support platform. It integrates dynamic Bayesian network state estimation, Non-Healthy Posterior (NHP) process failure modeling, Signal Object Processing (SOP) metric updates, multi-component force readiness tracking, and geospatial MIL-STD-2525 / APP-6 inspired (simplified) unit mapping.
 
 ### Core Abbreviations & Terminology
 
