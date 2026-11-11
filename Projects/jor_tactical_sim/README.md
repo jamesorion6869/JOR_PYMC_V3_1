@@ -4,7 +4,7 @@
 > 
 > This repository hosts the JOR tactical decision-support framework across two tiers:
 > * **[`advanced_c2_demo/`](./advanced_c2_demo/) — Interactive C2 Decision Support Platform (Latest)**  
->   Features a real-time web dashboard (Leaflet spatial heatmaps, MIL-STD-2525 symbols), Server-Sent Events (SSE) telemetry streaming, decision timers, a graded severity gauge, and an automated cause-and-effect post-mission debrief engine.
+>   Features a real-time web dashboard (Leaflet spatial heatmaps, MIL-STD-2525 / APP-6 inspired (simplified) symbols), Server-Sent Events (SSE) telemetry streaming, decision timers, a graded severity gauge, and an automated cause-and-effect post-mission debrief engine.
 > * **Root-Level Files — Baseline Sequential Fusion Engine (Original)**  
 >   The initial command-line testbed and Matplotlib time-series log analyzer detailed below.
 
