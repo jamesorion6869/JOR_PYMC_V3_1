@@ -6,7 +6,7 @@ A synthetic, reproducible benchmark that asks one narrow question: **when JOR (J
 - Background: JOR is described in the original paper, James Orion Report (JOR) V3.1, https://doi.org/10.5281/zenodo.18088931. This repository is a synthetic radar/DSP benchmark built on that framework; it does not repeat the framework's derivation.
 - Licence: MIT, Copyright (c) 2026 Jake James (see `LICENSE.txt`)
 - DOI: https://doi.org/10.5281/zenodo.23980949
-- Status: synthetic benchmark only. Nothing here has been tested on real radar data.
+- Status: synthetic benchmark. One later exploratory run on real radar data (LSS-HSR-L) is in `real_radar_lss_hsr_l/`; see [Real radar data](#real-radar-data-exploratory).
 
 ---
 
@@ -268,6 +268,30 @@ Reproduction check: the full run on seeds 60000–60999 was repeated on a separa
 | `archive/jor_tuned_study_v1.0.py`, `archive/LOCK_TUNED_v1.0.txt` | Previous script version (same numbers; v1.1 only added `--quick` and flag handling) |
 | `archive/earlier_study_default_weights/` | The first study, run with default/author weights, kept as ablation |
 | `archive/original_demo_2026-09/` | The original demo, `README_original.md` and requirements, kept for history |
+| `real_radar_lss_hsr_l/` | Exploratory real-radar run on LSS-HSR-L: scripts, protocols and laptop results (dataset not included; see its README) |
+
+## Real radar data (exploratory)
+
+Everything above is synthetic. One later run tested JOR on real radar recordings. It is in [`real_radar_lss_hsr_l/`](real_radar_lss_hsr_l/), with its own README, scripts, protocols and results.
+
+- **Dataset:** LSS-HSR-L, L-band holographic staring radar (Science Data Bank, https://doi.org/10.57760/sciencedb.radars.00063, CC BY-NC 4.0). Not included; see the subfolder README for the citation.
+- **Task:** flag UAV segments among birds, rotating ground objects and cars, using Doppler shape and SNR only. Route-grouped 5-fold cross-validation, seeds 7, 11 and 23.
+- **Selection rule:** the same as this benchmark. Every method is tuned on training folds only, and a setting is eligible only if the Wilson 95% upper bound of its training FPR is within budget.
+
+Mean test recall / FPR (v2 weak front end, Windows laptop run):
+
+| Method | FPR budget 0.12 | 0.08 | 0.05 |
+|---|---:|---:|---:|
+| JOR (jor2) | 0.810 / 0.106 | 0.717 / 0.073 | 0.615 / 0.044 |
+| Tuned CUSUM | 0.802 / 0.109 | 0.719 / 0.068 | 0.605 / 0.042 |
+| Raw classifier | 0.749 / 0.102 | 0.656 / 0.063 | 0.564 / 0.038 |
+
+- At 0.12, JOR matched tuned CUSUM and was slightly ahead (about +0.8 points; one of three seed CIs excludes zero). At 0.08 and 0.05 they tied.
+- Both added 5 to 7 points of recall over the raw classifier.
+- The 4-feature front end was chosen after a 24-feature run hit a ceiling. That choice is disclosed, and the v1 run is reported alongside.
+- **Limits:** one radar type; no site or time labels, so a site or session confound between classes cannot be ruled out; seeds share routes; exploratory, not confirmatory, and not a deployment UAV detector.
+
+An earlier exploratory run on the Open Radar moving-target dataset (code not published) found JOR tied tuned CUSUM at moderate false-alarm budgets, with CUSUM ahead at the tightest. That run carries a recording-session confound; see the subfolder README.
 
 ## Citation
 
