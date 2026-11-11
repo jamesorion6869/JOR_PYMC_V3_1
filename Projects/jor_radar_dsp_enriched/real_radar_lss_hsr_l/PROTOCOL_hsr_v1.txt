@@ -1,0 +1,11 @@
+LSS-HSR-L JOR vs CUSUM, exploratory. Declared 2026-11-10 23:05 EST before any modelling result.
+Task: flag UAV (UAV1-4) segments among Bird, Birds, Wing Bird, Rotate, Car. All folders pooled; 5-fold CV grouped by air route (no route in two folds). Seeds 7 first (11, 23 later if asked).
+Segments: 20 consecutive frames, non-overlapping, max 10 per route; routes shorter than 20 frames dropped.
+Inputs (identical for all methods):
+ P = 0.30 + 0.65*prob from a gradient-boosting classifier on per-frame Doppler-SHAPE features only (bandwidth, entropy, peak/median, bins>0.5, bins>0.1, kurtosis, second-peak ratio, asymmetry, 16-bin log spectrum centred on the peak). No absolute Doppler bin (radial velocity), no range, altitude or azimuth. Fit on training folds only; training-fold P is out-of-fold (inner 5-fold grouped by route) to avoid in-sample optimism.
+ E = 0.30 + 0.55*clip((SNR - q05)/(q95 - q05)), q from training frames. SNR is range-normalised per the manual; alone it gives frame AUC 0.569 (corr with log range 0.27). Disclosed.
+ C = 0.65 constant.
+Methods: JOR jor0/jor1/jor2 and tuned CUSUM exactly as parity_fold.py (Open Radar); front end alone (raw P, sustain 3).
+Selection: training folds only, Wilson 95% upper bound of train FPR <= budget (0.12, 0.08, 0.05); most TP then fewest FP.
+Report: test recall/FPR per method, paired track(route)-grouped bootstrap JOR - CUSUM.
+Caveats declared: single sensor; no session/site labels; geometry confound handled by excluding geometry inputs, but Doppler shape may still carry some range/SNR effect.
