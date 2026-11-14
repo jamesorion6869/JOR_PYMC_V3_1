@@ -1,0 +1,8 @@
+# Core: engine, adapter, logger, evaluation (open_radar_eval_v2.py)
+numpy>=1.24
+
+# Optional: timeline PNG and replay video (viz.py, open_radar_demo.py)
+matplotlib>=3.7
+
+# Optional: MP4 output. Without ffmpeg on PATH or this package, viz.py writes a GIF instead.
+imageio-ffmpeg>=0.4
