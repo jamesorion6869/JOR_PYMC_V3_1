@@ -102,7 +102,7 @@ def make_engine_adapter():
     adapter = CUASHealthAdapter(
         ema_alpha=0.30, persistence_steps=4, min_iqr=0.05,
         outlier_iqr_threshold=1.5, self_baseline_alpha=0.04,
-        self_deviation_threshold=0.10, self_score_weight=0.55,
+        self_deviation_threshold=0.07, self_score_weight=0.60,
     )
     return engine, adapter
 

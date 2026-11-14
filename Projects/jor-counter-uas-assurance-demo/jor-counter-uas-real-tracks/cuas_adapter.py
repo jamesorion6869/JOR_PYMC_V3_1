@@ -48,8 +48,8 @@ class CUASHealthAdapter:
                  persistence_steps=4,        # consecutive steps above threshold to count as persistent
                  # Self-history baseline (hybrid scoring vs pure fleet median)
                  self_baseline_alpha=0.04,   # slow adaptation of per-source healthy baseline
-                 self_deviation_threshold=0.10,  # absolute continuity drop from own baseline that is anomalous
-                 self_score_weight=0.55,     # blend weight for self-deviation vs fleet IQR
+                 self_deviation_threshold=0.07,  # absolute continuity drop from own baseline (was 0.10; lowered for mild 30% drops)
+                 self_score_weight=0.60,     # blend weight for self-deviation vs fleet IQR (was 0.55)
                  # Liveness / missing-data handling
                  heartbeat_timeout=2.0,      # seconds without a heartbeat -> stale feed
                  missing_data_theta_o=0.60,  # no usable data != healthy
@@ -82,6 +82,7 @@ class CUASHealthAdapter:
         self.source_streak = defaultdict(int)           # consecutive anomalous steps
         self.source_baseline = defaultdict(float)       # slow healthy-continuity baseline
         self.source_baseline_ready = defaultdict(bool)  # True once baseline has seen healthy samples
+        self.source_count_baseline = defaultdict(float) # slow baseline of sample count (update density)
 
     # ------------------------------------------------------------------
     # helpers
@@ -136,6 +137,7 @@ class CUASHealthAdapter:
         self.source_streak = defaultdict(int)
         self.source_baseline = defaultdict(float)
         self.source_baseline_ready = defaultdict(bool)
+        self.source_count_baseline = defaultdict(float)
 
     def _prune(self, current_ids):
         current_ids = set(current_ids)
@@ -147,6 +149,8 @@ class CUASHealthAdapter:
             float, {sid: self.source_baseline[sid] for sid in current_ids if sid in self.source_baseline})
         self.source_baseline_ready = defaultdict(
             bool, {sid: self.source_baseline_ready[sid] for sid in current_ids if sid in self.source_baseline_ready})
+        self.source_count_baseline = defaultdict(
+            float, {sid: self.source_count_baseline[sid] for sid in current_ids if sid in self.source_count_baseline})
 
     # ------------------------------------------------------------------
     # theta_o - Observed detection / track quality + anomalies
@@ -282,8 +286,9 @@ class CUASHealthAdapter:
                 or aggregate.get('no_targets')):
             return aggregate
 
-        # Per-source median continuity (primary anomaly signal)
+        # Per-source median continuity (primary anomaly signal) and sample count
         source_medians = {sid: float(np.median(v['continuities'])) for sid, v in active.items()}
+        source_counts = {sid: float(len(v['continuities'])) for sid, v in active.items()}
 
         fleet = np.array(list(source_medians.values()))
         fleet_median = float(np.median(fleet))
@@ -293,6 +298,8 @@ class CUASHealthAdapter:
         persistent_ids = []
         pending = 0
         for sid, med in source_medians.items():
+            n_samples = source_counts[sid]
+
             # --- Fleet-relative IQR score (cross-sectional) ---
             # Higher continuity is better -> invert so positive = degradation.
             # Capped so a single catastrophic sample cannot saturate the EMA.
@@ -306,18 +313,26 @@ class CUASHealthAdapter:
             if not self.source_baseline_ready[sid]:
                 # Bootstrap: first few samples become the baseline
                 self.source_baseline[sid] = med
+                self.source_count_baseline[sid] = n_samples
                 self.source_baseline_ready[sid] = True
                 self_score = 0.0
+                density_score = 0.0
             else:
                 baseline = self.source_baseline[sid]
                 drop = baseline - med
                 # Normalise by a scale that is meaningful relative to the baseline
-                scale = max(baseline * 0.25, self.self_deviation_threshold, 1e-3)
+                scale = max(baseline * 0.20, self.self_deviation_threshold, 1e-3)
                 self_score = min(max(drop, 0.0) / scale, self.max_iqr_score)
 
-            # Hybrid anomaly score: self-history is given majority weight because
-            # real radar gaps make pure fleet comparison too noisy.
-            anomaly = (self.self_score_weight * self_score +
+                # Update-density residual: mild deletion thins the window even
+                # when median gap-based continuity still looks acceptable.
+                count_base = max(self.source_count_baseline[sid], 1.0)
+                density_drop = max(0.0, (count_base - n_samples) / count_base)
+                density_score = min(density_drop / 0.30, self.max_iqr_score)  # 30% thin -> 1.0
+
+            # Hybrid anomaly: self-history + density + fleet IQR
+            # Density helps mild real-update-removal cases that barely move the median.
+            anomaly = (self.self_score_weight * max(self_score, 0.6 * density_score) +
                        (1.0 - self.self_score_weight) * iqr_score)
 
             self.source_ema[sid] = (self.ema_alpha * anomaly +
@@ -332,8 +347,16 @@ class CUASHealthAdapter:
                 # dragging its own baseline down and hiding the fault.
                 a = self.self_baseline_alpha
                 self.source_baseline[sid] = (a * med + (1.0 - a) * self.source_baseline[sid])
+                self.source_count_baseline[sid] = (a * n_samples +
+                                                   (1.0 - a) * self.source_count_baseline[sid])
 
-            if self.source_streak[sid] >= self.persistence_steps:
+            # Dual persistence: full persistence_steps for ordinary outliers;
+            # one step earlier when self-history is already strong (helps mild drops).
+            need = self.persistence_steps
+            if self_score >= 1.0 or density_score >= 1.0:
+                need = max(2, self.persistence_steps - 1)
+
+            if self.source_streak[sid] >= need:
                 persistent_ids.append(sid)
             elif self.source_streak[sid] > 0:
                 pending += 1
