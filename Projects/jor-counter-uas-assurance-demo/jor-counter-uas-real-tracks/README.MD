@@ -33,11 +33,11 @@ The synthetic demo lives in the sibling folder `jor-counter-uas-assurance-demo`.
 | File | Purpose |
 |---|---|
 | `engine.py` | JOR fusion engine: calibration, recursive Bayesian update, state bands, status report |
-| `cuas_adapter.py` | C-UAS adapter. This version adds a per-source self-baseline (alpha 0.04, deviation threshold 0.10, blend weight 0.55) to the fleet comparison, so it differs from the demo folder's adapter |
+| `cuas_adapter.py` | C-UAS adapter. This version adds a per-source self-baseline (alpha 0.04, deviation threshold 0.07, blend weight 0.60) and an update-density check (fewer samples than usual in the window) to the fleet comparison, so it differs from the demo folder's adapter |
 | `logger.py` | Append-only JSONL logger with a `run_id` per run |
 | `open_radar_eval_v2.py` | The scored evaluation: 50 paired trials per condition, Wilson 95% intervals. Saves a timestamped text report and CSV on every run |
 | `open_radar_demo.py` | One narrated timeline on real tracks, logged and rendered as a PNG and MP4 |
-| `cuas_demo.py` | Needed by `open_radar_demo.py` (clock and detail helpers) |
+| `cuas_demo.py` | Needed by `open_radar_demo.py` (clock and detail helpers). Run on its own, it is the synthetic demo and passes its own adapter settings (0.10 / 0.55), so it does not reproduce the Open Radar numbers here |
 | `viz.py` | Timeline PNG and replay video from the log |
 | `moving_target_dataset.npy` | 350 Open Radar tracks trimmed to timestamps and SNR. **CC BY-NC 4.0, not MIT** (see [Data and citation](#data-and-citation)) |
 | `open_radar_timeline.png`, `open_radar_replay.mp4` | Example demo outputs (seed 42) |
@@ -69,11 +69,11 @@ All faults injected. 50 trials per condition, seed 42.
 
 | Condition | Faulty source named | `UNRELIABLE` | Median latency |
 |---|---|---|---|
-| Clean, 40 steps | healthy source flagged 0/50 | 0/50 | — |
+| Clean, 40 steps | healthy source flagged 1/50 | 0/50 | — |
 | Frozen feed (`src_2`) | 50/50 | 0/50 (reaches `DEGRADED`) | 1 step |
-| Sector jamming (`src_1`) | 50/50 | 5/50 | 5 steps |
+| Sector jamming (`src_1`) | 50/50 | 50/50 | 4 steps |
 | Wide-area jamming (context only) | state left `NOMINAL` 50/50 | 0/50 | — |
-| Sector + wide jamming | 50/50 | 50/50 | 5 steps |
+| Sector + wide jamming | 50/50 | 50/50 | 4 steps |
 
 The `drop30` and `drop60` conditions in this script **scale** continuity and confidence. They do not remove real updates. A scaled drop is easier to detect (50/50 even at 30%), so those two rows overstate real performance.
 
@@ -81,29 +81,31 @@ The `drop30` and `drop60` conditions in this script **scale** continuity and con
 
 | Updates removed | Faulty source named | `UNRELIABLE` | Median latency |
 |---|---|---|---|
-| 30% | 2/50 | 0/50 | 8.5 steps |
-| 60% | 49/50 | 5/50 | 6 steps |
-| 80% | 50/50 | 50/50 | 5 steps |
+| 30% | 3/50 | 0/50 | 7 steps |
+| 60% | 50/50 | 13/50 | 5 steps |
+| 80% | 50/50 | 50/50 | 4 steps |
 
 No healthy source was named in any removal condition.
 
-**Long clean run** (50 trials × 400 steps = 20,000 steps): `UNRELIABLE` in 0 steps. `DEGRADED` in 23 steps (2 trials). A healthy source was named in 47 steps (4 trials). Steps are random window draws, not time, so no per-hour false-alarm rate can be stated.
+**Long clean run** (50 trials × 400 steps = 20,000 steps): `UNRELIABLE` in 0 steps. `DEGRADED` in 24 steps (2 trials). A healthy source was named in 71 steps (4 trials). Steps are random window draws, not time, so no per-hour false-alarm rate can be stated.
 
 The real-removal, long-clean and comparison results come from companion scripts that are not in this folder.
 
+**Adapter change (Nov 2026).** Lower self-deviation threshold (0.10 to 0.07), higher self weight (0.55 to 0.60), an update-density check, and one step less persistence when a source's own evidence is strong. Effect: sector jamming reached `UNRELIABLE` in 50/50 trials (was 5/50), 60% removal in 13/50 (was 5/50), detection about a step faster, and 30% removal caught in 3/50 (was 2/50). Cost: healthy-source flag steps in the long clean run rose from 47 to 71, and one 40-step clean trial flagged a healthy source (was 0). The new settings were chosen on this same dataset.
+
 ## Compared with a simple per-sensor health check
 
-The baseline checks each sensor's median continuity against its own history, with the same smoothing and persistence. It has no fleet comparison and no fusion. It was tuned label-free to the same clean false-flag budget as JOR.
+The baseline checks each sensor's median continuity against its own history, with the same smoothing and persistence. It has no fleet comparison and no fusion. It was tuned label-free to the same clean false-flag budget as the earlier JOR adapter (before the update-density change).
 
 | | JOR | Simple check |
 |---|---|---|
 | Clean: trials with a healthy sensor named | 4/50 | 5/50 |
-| 30% removed: named | 2/50 (8.5 steps) | 8/50 (5.5 steps) |
-| 60% removed: named | 49/50 (6 steps) | 49/50 (4 steps) |
-| 80% removed: named | 50/50 (5 steps) | 50/50 (4 steps) |
+| 30% removed: named | 3/50 (7 steps) | 8/50 (5.5 steps) |
+| 60% removed: named | 50/50 (5 steps) | 49/50 (4 steps) |
+| 80% removed: named | 50/50 (4 steps) | 50/50 (4 steps) |
 | Wrong sensor named during faults | 0/150 | 3/150 |
 
-On single-sensor dropouts the two are roughly tied. The simple check is 1–2 steps faster and caught more 30% dropouts. That is expected, because each of these faults shows up in a sensor's own update stream, which is exactly what a per-sensor check watches.
+On single-sensor dropouts the two are roughly tied. The simple check is up to 1.5 steps faster and caught more 30% dropouts. That is expected, because each of these faults shows up in a sensor's own update stream, which is exactly what a per-sensor check watches.
 
 **What JOR adds**
 
@@ -113,7 +115,7 @@ On single-sensor dropouts the two are roughly tied. The simple check is 1–2 st
 4. **Fewer wrong sensors blamed** during faults (0/150 vs 3/150). *Small sample, so treat this as a hint.*
 5. **Explainable log.** Every state change is recorded with its inputs. *Design.*
 
-**What it costs:** 1–2 steps slower to flag, fewer 30% dropouts caught, and more settings to tune.
+**What it costs:** up to 1.5 steps slower to flag, fewer 30% dropouts caught, and more settings to tune.
 
 **Not tested:** deceptive jamming or spoofing (false tracks, range or velocity gate pull-off), where a sensor's own stream looks healthy and only cross-sensor comparison could catch it. That is where JOR's design should matter most.
 
@@ -122,9 +124,10 @@ On single-sensor dropouts the two are roughly tied. The simple check is 1–2 st
 - **Injected faults only.** The dataset contains no real sensor failures.
 - **One radar, 2021 recordings, 8 pseudo-sources.** The sources are unrelated tracks, not parallel sensors watching the same scene.
 - **Thresholds tuned on the same dataset** (label-free, on a separate half), so the results are not fully independent.
-- **Partial dropouts are weak.** Only 2/50 trials caught at 30% real update loss.
+- **Partial dropouts are weak.** Only 3/50 trials caught at 30% real update loss.
 - **A frozen feed reaches `DEGRADED`, not `UNRELIABLE`**, by design of the current engine. Whether stale feeds should force the band is a doctrine decision.
 - **Wide-area jamming and load are synthetic** settings, not measured.
+- **Sector jamming is a scaled single-source drop.** It cuts one source's confidence to 0.45 and freshness to 0.50, close to the scaled 60% drop. It is not an RF-level jam model. The simple per-sensor check was not run on it, but it would most likely catch it about as well as 60% removal.
 - **NHP is an uncalibrated index**, not a probability.
 - **Cause cannot be identified.** Low continuity can come from the sensor, the target, or an adversary. The monitor flags unreliable tracking, not why.
 - **Lag in both directions.** Detection takes a few steps from onset, and states linger for a few steps after recovery.
